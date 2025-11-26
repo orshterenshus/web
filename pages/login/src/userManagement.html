@@ -6,11 +6,17 @@
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <!-- <link href="/tirgul1/style.css" rel="stylesheet"> -->
     <title>User Management</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body class="bg-gray-100 flex p-10 justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow-md">
-      <h1 id="userName" class="text-xl font-bold mb-4"></h1>
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-4xl">
+      <div class="flex justify-between items-center mb-6">
+        <h1 id="userName" class="text-xl font-bold"></h1>
+        <div>
+            <button id="projectsBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Go to Projects</button>
+            <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+        </div>
+      </div>
       <table id="usersData" class="min-w-full bg-white shadow-md rounded-lg">
       <thead class="bg-gray-200">
       <tr></tr>
@@ -24,6 +30,6 @@
         <div class="text-center text-2xl" id="info" ></div>
     </div> -->
     <!-- <script type="module" src="/src/main.js"></script> -->
-    <script src="/src/UserMg.js"></script>
+    <script src="UserMg.js"></script>
   </body>
 </html>
