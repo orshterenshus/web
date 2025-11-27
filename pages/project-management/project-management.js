@@ -8,19 +8,20 @@ const manageUsersBtn = document.getElementById('manageUsersBtn');
 function renderProjects() {
     projectsListContainer.innerHTML = ''; // Clear existing list
 
-    // TODO: In the future, fetch projects from the database here
-    // const projects = await fetch('/api/projects').then(res => res.json());
-
     window.projects.forEach(project => {
         const projectCard = document.createElement('div');
         projectCard.className = 'bg-gray-50 border border-gray-200 p-4 rounded hover:shadow-md transition cursor-pointer flex justify-between items-center';
         
-        // TODO: Change this link to point to the actual project screen
-        // Example: window.location.href = `/pages/project/index.html?id=${project.id}`;
+        // --- CHANGE HERE: Redirect to workspace with URL parameters ---
         projectCard.onclick = () => {
-            console.log(`Clicked project: ${project.name}`);
-            alert(`Navigating to project: ${project.name} (Feature coming soon)`);
+            // Encode URI components to handle spaces and special characters safely
+            const nameParam = encodeURIComponent(project.name);
+            const phaseParam = encodeURIComponent(project.phase);
+            
+            // NOTE: Change 'index.html' to the actual filename of your workspace page
+            window.location.href = `../project/src/index.html?name=${nameParam}&phase=${phaseParam}`;;
         };
+        // -------------------------------------------------------------
 
         projectCard.innerHTML = `
             <div>
@@ -41,41 +42,27 @@ function renderProjects() {
 // Handle Create Project Form Submit
 createProjectForm.addEventListener('submit', (e) => {
     e.preventDefault();
-
     const nameInput = document.getElementById('projectName');
     const phaseInput = document.getElementById('projectPhase');
-
+    
     const newProject = {
-        id: window.projects.length + 1, // Simple ID generation
+        id: window.projects.length + 1,
         name: nameInput.value,
         phase: phaseInput.value
     };
-
-    // TODO: In the future, send this data to the database
-    // await fetch('/api/projects', { method: 'POST', body: JSON.stringify(newProject) ... });
-
-    // Add to local array (Fake DB update)
-    window.projects.push(newProject);
-
-    // Re-render the list
-    renderProjects();
-
-    // Reset form
-    createProjectForm.reset();
     
-    alert('Project created successfully! (Added to local session data)');
+    window.projects.push(newProject);
+    renderProjects();
+    createProjectForm.reset();
+    alert('Project created successfully!');
 });
 
 // Handle Logout
 logoutBtn.addEventListener('click', () => {
-    // Clear any session data if needed
-    // localStorage.removeItem('currentUser'); // Example from login logic
-    
-    // Redirect to login screen
     window.location.href = '../login/src/login.html';
 });
 
-// Check for admin status and show Manage Users button
+// Admin check logic
 try {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     if (user && user.isAdmin) {
@@ -89,12 +76,12 @@ try {
     console.error('Error checking admin status:', e);
 }
 
-// Initial render
+// Initial render logic
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.projects !== 'undefined') {
         renderProjects();
     } else {
-        console.error('Projects data not loaded. Check projects.js path.');
-        projectsListContainer.innerHTML = '<p class="text-red-500">Error loading projects data. Please check console.</p>';
+        console.error('Projects data not loaded.');
+        projectsListContainer.innerHTML = '<p class="text-red-500">Error loading projects data.</p>';
     }
 });
