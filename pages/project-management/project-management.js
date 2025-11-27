@@ -94,14 +94,30 @@ try {
 
 // Initial render logic
 document.addEventListener('DOMContentLoaded', () => {
-    // Try to load from LocalStorage first
-    const storedProjects = localStorage.getItem('projects');
+    // Path to the JSON file (Relative to this HTML file)
+    // Going up one level (..) then into data/projects.json
+    const jsonPath = '/data/projects.json';
 
-    if (storedProjects) {
-        projects = JSON.parse(storedProjects);
-        renderProjects();
-    } else {
-        console.error('Projects data not loaded. Check projects.js path.');
-        projectsListContainer.innerHTML = '<p class="text-red-500">Error loading projects data. Please check console.</p>';
-    }
+    fetch(jsonPath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Success: Update state and render
+            projects = data;
+            renderProjects();
+        })
+        .catch(error => {
+            console.error('Error loading projects.json:', error);
+            projectsListContainer.innerHTML = `
+                <div class="col-span-2 text-red-500 bg-red-50 p-4 rounded border border-red-200">
+                    <p class="font-bold">Error loading data</p>
+                    <p class="text-sm">Make sure you are running this on a local server (Live Server).</p>
+                    <p class="text-xs mt-2 text-gray-600">Details: ${error.message}</p>
+                </div>
+            `;
+        });
 });
