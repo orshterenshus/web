@@ -4,11 +4,14 @@ const createProjectForm = document.getElementById('createProjectForm');
 const logoutBtn = document.getElementById('logoutBtn');
 const manageUsersBtn = document.getElementById('manageUsersBtn');
 
+let projects = {};
+
 // Function to render projects
 function renderProjects() {
     projectsListContainer.innerHTML = ''; // Clear existing list
 
-    window.projects.forEach(project => {
+    Object.keys(projects).forEach(id => {
+        const project = projects[id];
         const projectCard = document.createElement('div');
         projectCard.className = 'bg-gray-50 border border-gray-200 p-4 rounded hover:shadow-md transition cursor-pointer flex justify-between items-center';
         
@@ -45,6 +48,8 @@ createProjectForm.addEventListener('submit', (e) => {
     const nameInput = document.getElementById('projectName');
     const phaseInput = document.getElementById('projectPhase');
     
+
+    const newId = Object.keys(projects).length + 1; // Simple ID generation
     const newProject = {
         id: window.projects.length + 1,
         name: nameInput.value,
@@ -52,6 +57,17 @@ createProjectForm.addEventListener('submit', (e) => {
     };
     
     window.projects.push(newProject);
+
+    // TODO: In the future, send this data to the database
+    // await fetch('/api/projects', { method: 'POST', body: JSON.stringify(newProject) ... });
+
+    // Add to local object (Fake DB update)
+    projects[newId] = newProject;
+
+    // Save to LocalStorage so it persists on refresh
+    localStorage.setItem('projects', JSON.stringify(projects));
+
+    // Re-render the list
     renderProjects();
     createProjectForm.reset();
     alert('Project created successfully!');
@@ -78,10 +94,14 @@ try {
 
 // Initial render logic
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof window.projects !== 'undefined') {
+    // Try to load from LocalStorage first
+    const storedProjects = localStorage.getItem('projects');
+
+    if (storedProjects) {
+        projects = JSON.parse(storedProjects);
         renderProjects();
     } else {
-        console.error('Projects data not loaded.');
-        projectsListContainer.innerHTML = '<p class="text-red-500">Error loading projects data.</p>';
+        console.error('Projects data not loaded. Check projects.js path.');
+        projectsListContainer.innerHTML = '<p class="text-red-500">Error loading projects data. Please check console.</p>';
     }
 });

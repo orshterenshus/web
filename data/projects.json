@@ -1,0 +1,22 @@
+{
+  "1": {
+    "name": "AI-Powered Personal Assistant",
+    "phase": "Empathize"
+  },
+  "2": {
+    "name": "Decentralized Voting Platform",
+    "phase": "Define"
+  },
+  "3": {
+    "name": "Smart Home Energy Monitor",
+    "phase": "Ideate"
+  },
+  "4": {
+    "name": "Cross-Platform E-commerce App",
+    "phase": "Prototype"
+  },
+  "5": {
+    "name": "Automated Cybersecurity Shield",
+    "phase": "Test"
+  }
+}
