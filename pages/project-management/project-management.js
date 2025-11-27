@@ -4,7 +4,7 @@ const createProjectForm = document.getElementById('createProjectForm');
 const logoutBtn = document.getElementById('logoutBtn');
 const manageUsersBtn = document.getElementById('manageUsersBtn');
 
-let projects = [];
+let projects = {};
 
 // Function to render projects
 function renderProjects() {
@@ -13,7 +13,8 @@ function renderProjects() {
     // TODO: In the future, fetch projects from the database here
     // const projects = await fetch('/api/projects').then(res => res.json());
 
-    projects.forEach(project => {
+    Object.keys(projects).forEach(id => {
+        const project = projects[id];
         const projectCard = document.createElement('div');
         projectCard.className = 'bg-gray-50 border border-gray-200 p-4 rounded hover:shadow-md transition cursor-pointer flex justify-between items-center';
         
@@ -47,8 +48,8 @@ createProjectForm.addEventListener('submit', (e) => {
     const nameInput = document.getElementById('projectName');
     const phaseInput = document.getElementById('projectPhase');
 
+    const newId = Object.keys(projects).length + 1; // Simple ID generation
     const newProject = {
-        id: projects.length + 1, // Simple ID generation
         name: nameInput.value,
         phase: phaseInput.value
     };
@@ -56,8 +57,8 @@ createProjectForm.addEventListener('submit', (e) => {
     // TODO: In the future, send this data to the database
     // await fetch('/api/projects', { method: 'POST', body: JSON.stringify(newProject) ... });
 
-    // Add to local array (Fake DB update)
-    projects.push(newProject);
+    // Add to local object (Fake DB update)
+    projects[newId] = newProject;
 
     // Save to LocalStorage so it persists on refresh
     localStorage.setItem('projects', JSON.stringify(projects));
