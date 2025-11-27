@@ -2,14 +2,40 @@ const html = document.documentElement;
 const userName = document.getElementById('userName');
 
 window.onload = function() {
-	//משתנה לטעינת פרטי המשתמש שהתחבר
-let user = JSON.parse(localStorage.getItem('currentUser'))
-//עדכון כותרת להצגת שם המשתמש שהתחבר
-userName.innerHTML = "Welcome " + user.username
+    //משתנה לטעינת פרטי המשתמש שהתחבר
+    let user;
+    try {
+        const storedUser = localStorage.getItem('currentUser');
+        if (!storedUser) {
+            throw new Error('No user logged in');
+        }
+        user = JSON.parse(storedUser);
+    } catch (e) {
+        console.error("Error parsing user data:", e);
+        alert("Session invalid. Please log in again.");
+        window.location.href = 'login.html';
+        return;
+    }
 
+    //עדכון כותרת להצגת שם המשתמש שהתחבר
+    if (user && user.username) {
+        userName.innerHTML = "Welcome " + user.username;
+    } else {
+        userName.innerHTML = "Welcome User";
+    }
 
-//שליחת בקשה לשליפת נתונים מהקובץ
-fetch('db.json')
+    // Add navigation handlers
+    document.getElementById('projectsBtn').onclick = function() {
+        window.location.href = '../../project-management/index.html';
+    };
+    
+    document.getElementById('logoutBtn').onclick = function() {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    };
+
+    //שליחת בקשה לשליפת נתונים מהקובץ
+    fetch('db.json')
      .then(response =>  response.json()) //שמירת אובייקט התשובה
      .then(jsonData => { //שמירת נתוני הקובץ
 //שליחה לפונקציה לטעינה לטבלה

@@ -16,12 +16,15 @@ loginForm.addEventListener('submit', function(event) {
         loginMessage.textContent = 'Login successful!';
         loginMessage.classList.remove('text-red-500');
         loginMessage.classList.add('text-green-500');
-        if(user.isAdmin==true){
-            localStorage.setItem('currentUser', user.username);
-            setTimeout(() => {
-                window.location.href = '/src/userManagement.html'; 
-            }, 800);
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        } else {
+            localStorage.setItem('currentUser', JSON.stringify({ username: nameOrEmail, isAdmin: false }));
         }
+        setTimeout(() => {
+            // Redirect everyone to the projects management screen
+            window.location.href = '../../project-management/index.html';
+        }, 800);
 
     } else {
         loginMessage.textContent = 'Invalid username/email or password.';
