@@ -1,20 +1,19 @@
 
-import { promises as fs } from 'fs';
-import path from 'path';
+import dbConnect from '@/lib/db';
+import User from '@/models/User';
 import { NextResponse } from 'next/server';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'db.json');
 
 export async function POST(request) {
     try {
+        await dbConnect();
         const { username, password } = await request.json();
 
-        const fileContents = await fs.readFile(dataFilePath, 'utf8');
-        const data = JSON.parse(fileContents);
-
-        const user = data.users.find((u) =>
-            (u.username === username || u.email === username) && u.password === password
-        );
+        // In a real app, you should hash passwords!
+        // For now, we compare plain text as per migration request
+        const user = await User.findOne({
+            $or: [{ username: username }, { email: username }],
+            password: password
+        });
 
         if (user) {
             return NextResponse.json({ message: 'Login successful', user });

@@ -1,42 +1,27 @@
 
-import { promises as fs } from 'fs';
-import path from 'path';
+import dbConnect from '@/lib/db';
+import Project from '@/models/Project';
 import { NextResponse } from 'next/server';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'projects.json');
 
 export async function GET() {
     try {
-        const fileContents = await fs.readFile(dataFilePath, 'utf8');
-        const data = JSON.parse(fileContents);
-        return NextResponse.json(data.projects);
+        await dbConnect();
+        const projects = await Project.find({}).sort({ createdAt: -1 });
+        return NextResponse.json(projects);
     } catch (error) {
-        return NextResponse.json([]);
+        return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
     }
 }
 
 export async function POST(request) {
     try {
-        const newProject = await request.json();
+        await dbConnect();
+        const body = await request.json();
 
-        let data = { projects: [] };
-        try {
-            const fileContents = await fs.readFile(dataFilePath, 'utf8');
-            data = JSON.parse(fileContents);
-        } catch (e) {
-            // File might not exist yet
-        }
+        const project = await Project.create(body);
 
-        if (!newProject.id) {
-            newProject.id = Date.now().toString();
-        }
-
-        data.projects.push(newProject);
-
-        await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2));
-
-        return NextResponse.json({ message: 'Project created', project: newProject }, { status: 201 });
+        return NextResponse.json({ message: 'Project created', project }, { status: 201 });
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to save project' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
     }
 }
