@@ -90,7 +90,7 @@ async function dbConnect() {
 }
 const __TURBOPACK__default__export__ = dbConnect;
 }),
-"[project]/src/models/User.js [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/src/models/Project.js [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 __turbopack_context__.s([
@@ -99,43 +99,35 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/mongoose [external] (mongoose, cjs)");
 ;
-const UserSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].Schema({
-    username: {
+const ProjectSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].Schema({
+    name: {
         type: String,
         required: [
             true,
-            'Please provide a username'
-        ],
-        unique: true
-    },
-    email: {
-        type: String,
-        required: [
-            true,
-            'Please provide an email'
-        ],
-        unique: true
-    },
-    password: {
-        type: String,
-        required: [
-            true,
-            'Please provide a password'
+            'Please provide a project name'
         ]
     },
-    dob: {
-        type: String
+    phase: {
+        type: String,
+        enum: [
+            'Empathize',
+            'Define',
+            'Ideate',
+            'Prototype',
+            'Test'
+        ],
+        default: 'Empathize'
     },
-    isAdmin: {
-        type: Boolean,
-        default: false
+    createdBy: {
+        type: String,
+        required: true
     },
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
-const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.User || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('User', UserSchema);
+const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Project || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Project', ProjectSchema);
 }),
 "[externals]/next/dist/server/app-render/after-task-async-storage.external.js [external] (next/dist/server/app-render/after-task-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
 
@@ -143,77 +135,50 @@ const mod = __turbopack_context__.x("next/dist/server/app-render/after-task-asyn
 
 module.exports = mod;
 }),
-"[project]/src/app/api/login/route.js [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/src/app/api/projects/route.js [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 __turbopack_context__.s([
+    "GET",
+    ()=>GET,
     "POST",
     ()=>POST
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/db.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$User$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/models/User.js [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$Project$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/models/Project.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 ;
 ;
 ;
+async function GET() {
+    try {
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
+        const projects = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$Project$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+            createdAt: -1
+        });
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(projects);
+    } catch (error) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: 'Failed to fetch projects'
+        }, {
+            status: 500
+        });
+    }
+}
 async function POST(request) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
-        const { username, password } = await request.json();
-        // In a real app, you should hash passwords!
-        // For now, we compare plain text as per migration request
-        console.log('------------------------------------------------');
-        console.log('🔍 Login Attempt:');
-        console.log(`   Username/Email: "${username}"`);
-        console.log(`   Password Input: "${password}"`);
-        // Debug: Check if user exists ignoring password
-        const debugUser = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$User$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
-            $or: [
-                {
-                    username: username
-                },
-                {
-                    email: username
-                }
-            ]
+        const body = await request.json();
+        const project = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$Project$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].create(body);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            message: 'Project created',
+            project
+        }, {
+            status: 201
         });
-        if (debugUser) {
-            console.log(`   ✅ User found in DB: ${debugUser.username}`);
-            console.log(`   🔑 DB Password: "${debugUser.password}"`);
-            console.log(`   ❓ Match? ${debugUser.password === password}`);
-        } else {
-            console.log('   ❌ User NOT found in DB by username/email');
-            const allUsers = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$User$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({});
-            console.log(`   ℹ️ Total users in DB: ${allUsers.length}`);
-            if (allUsers.length > 0) console.log('   Sample user:', allUsers[0].username);
-        }
-        console.log('------------------------------------------------');
-        const user = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$models$2f$User$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
-            $or: [
-                {
-                    username: username
-                },
-                {
-                    email: username
-                }
-            ],
-            password: password
-        });
-        if (user) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                message: 'Login successful',
-                user
-            });
-        } else {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Invalid credentials'
-            }, {
-                status: 401
-            });
-        }
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: 'Server error'
+            error: 'Failed to create project'
         }, {
             status: 500
         });
@@ -222,4 +187,4 @@ async function POST(request) {
 }),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__cf030be7._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__3fd9935b._.js.map

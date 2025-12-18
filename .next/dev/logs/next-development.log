@@ -1,269 +1,183 @@
-[00:00:02.127] Server  LOG      ✓ Ready in 1418ms
-[00:01:32.785] Server  LOG      ○ Compiling / ...
-[00:01:34.388] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:34.388] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:01:34.516] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:34.516] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:01:57.983] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:57.983] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:01:58.175] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:58.175] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:02:23.197] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:23.314] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:02:39.421] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:39.421] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:02:39.498] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:39.955] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         data-darkreader-mode="dynamic"
--                         data-darkreader-scheme="dark"
-                        >
-                  ...
-
-[00:03:23.378] Server  LOG      ✓ Compiled in 81ms
-[00:04:58.944] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:05:48.496] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:20:24.801] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:20:34.951] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:22:34.223] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:25:47.863] Server  LOG        Reload env: .env.local
-[00:26:08.485] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:08.654] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:22.638] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:22.857] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:31:04.450] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:31:13.414] Server  LOG     ----------------------------------------
-[00:31:13.415] Server  LOG     ✅ MongoDB Connected Successfully to: Design-Thinking-DB
-[00:31:13.415] Server  LOG     ----------------------------------------
+[00:00:01.957] Server  LOG      ✓ Ready in 1271ms
+[00:00:20.235] Server  LOG      ○ Compiling /login ...
+[00:00:22.629] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:18.802] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:25.300] Server  LOG     ----------------------------------------
+[00:01:25.301] Server  LOG     ✅ MongoDB Connected Successfully to: design-thinking-bot
+[00:01:25.302] Server  LOG     ----------------------------------------
+[00:01:25.315] Server  LOG     ------------------------------------------------
+[00:01:25.319] Server  LOG     🔍 Login Attempt:
+[00:01:25.321] Server  LOG        Username/Email: "rafi"
+[00:01:25.324] Server  LOG        Password Input: "123456"
+[00:01:25.328] Server  LOG     ------------------------------------------------
+[00:01:25.329] Server  LOG     🔍 Login Attempt:
+[00:01:25.330] Server  LOG        Username/Email: "rafi"
+[00:01:25.331] Server  LOG        Password Input: "123456"
+[00:01:25.332] Server  LOG     ------------------------------------------------
+[00:01:25.332] Server  LOG     🔍 Login Attempt:
+[00:01:25.333] Server  LOG        Username/Email: "rafi"
+[00:01:25.334] Server  LOG        Password Input: "123456"
+[00:01:25.334] Server  LOG     ------------------------------------------------
+[00:01:25.335] Server  LOG     🔍 Login Attempt:
+[00:01:25.335] Server  LOG        Username/Email: "rafi"
+[00:01:25.336] Server  LOG        Password Input: "123456"
+[00:01:25.336] Server  LOG     ------------------------------------------------
+[00:01:25.337] Server  LOG     🔍 Login Attempt:
+[00:01:25.337] Server  LOG        Username/Email: "rafi"
+[00:01:25.338] Server  LOG        Password Input: "123456"
+[00:01:25.338] Server  LOG     ------------------------------------------------
+[00:01:25.339] Server  LOG     🔍 Login Attempt:
+[00:01:25.340] Server  LOG        Username/Email: "rafi"
+[00:01:25.341] Server  LOG        Password Input: "123456"
+[00:01:25.342] Server  LOG     ------------------------------------------------
+[00:01:25.342] Server  LOG     🔍 Login Attempt:
+[00:01:25.343] Server  LOG        Username/Email: "rafi"
+[00:01:25.343] Server  LOG        Password Input: "123456"
+[00:01:25.344] Server  LOG     ------------------------------------------------
+[00:01:25.344] Server  LOG     🔍 Login Attempt:
+[00:01:25.345] Server  LOG        Username/Email: "rafi"
+[00:01:25.345] Server  LOG        Password Input: "123456"
+[00:01:25.346] Server  LOG     ------------------------------------------------
+[00:01:25.347] Server  LOG     🔍 Login Attempt:
+[00:01:25.347] Server  LOG        Username/Email: "rafi"
+[00:01:25.348] Server  LOG        Password Input: "123456"
+[00:01:25.852] Server  LOG        ✅ User found in DB: rafi
+[00:01:25.853] Server  LOG        🔑 DB Password: "123456"
+[00:01:25.854] Server  LOG        ❓ Match? true
+[00:01:25.854] Server  LOG     ------------------------------------------------
+[00:01:26.140] Server  LOG        ✅ User found in DB: rafi
+[00:01:26.140] Server  LOG        🔑 DB Password: "123456"
+[00:01:26.141] Server  LOG        ❓ Match? true
+[00:01:26.141] Server  LOG     ------------------------------------------------
+[00:01:26.388] Server  LOG        ✅ User found in DB: rafi
+[00:01:26.388] Server  LOG        🔑 DB Password: "123456"
+[00:01:26.389] Server  LOG        ❓ Match? true
+[00:01:26.389] Server  LOG     ------------------------------------------------
+[00:01:26.657] Server  LOG        ✅ User found in DB: rafi
+[00:01:26.664] Server  LOG        🔑 DB Password: "123456"
+[00:01:26.674] Server  LOG        ❓ Match? true
+[00:01:26.687] Server  LOG     ------------------------------------------------
+[00:01:26.979] Server  LOG        ✅ User found in DB: rafi
+[00:01:26.979] Server  LOG        🔑 DB Password: "123456"
+[00:01:26.980] Server  LOG        ❓ Match? true
+[00:01:26.980] Server  LOG     ------------------------------------------------
+[00:01:27.042] Server  LOG        ✅ User found in DB: rafi
+[00:01:27.042] Server  LOG        🔑 DB Password: "123456"
+[00:01:27.043] Server  LOG        ❓ Match? true
+[00:01:27.043] Server  LOG     ------------------------------------------------
+[00:01:27.135] Server  LOG        ✅ User found in DB: rafi
+[00:01:27.136] Server  LOG        🔑 DB Password: "123456"
+[00:01:27.136] Server  LOG        ❓ Match? true
+[00:01:27.137] Server  LOG     ------------------------------------------------
+[00:01:27.326] Server  LOG     ------------------------------------------------
+[00:01:27.326] Server  LOG     🔍 Login Attempt:
+[00:01:27.327] Server  LOG        Username/Email: "rafi"
+[00:01:27.327] Server  LOG        Password Input: "123456"
+[00:01:27.465] Server  LOG     ------------------------------------------------
+[00:01:27.465] Server  LOG     🔍 Login Attempt:
+[00:01:27.465] Server  LOG        Username/Email: "rafi"
+[00:01:27.466] Server  LOG        Password Input: "123456"
+[00:01:27.571] Server  LOG     ------------------------------------------------
+[00:01:27.572] Server  LOG     🔍 Login Attempt:
+[00:01:27.572] Server  LOG        Username/Email: "rafi"
+[00:01:27.573] Server  LOG        Password Input: "123456"
+[00:01:27.584] Server  LOG     ------------------------------------------------
+[00:01:27.585] Server  LOG     🔍 Login Attempt:
+[00:01:27.585] Server  LOG        Username/Email: "rafi"
+[00:01:27.586] Server  LOG        Password Input: "123456"
+[00:01:27.763] Server  LOG     ------------------------------------------------
+[00:01:27.764] Server  LOG     🔍 Login Attempt:
+[00:01:27.764] Server  LOG        Username/Email: "rafi"
+[00:01:27.764] Server  LOG        Password Input: "123456"
+[00:01:27.796] Server  LOG     ------------------------------------------------
+[00:01:27.797] Server  LOG     🔍 Login Attempt:
+[00:01:27.797] Server  LOG        Username/Email: "rafi"
+[00:01:27.798] Server  LOG        Password Input: "123456"
+[00:01:27.817] Server  LOG     ------------------------------------------------
+[00:01:27.817] Server  LOG     🔍 Login Attempt:
+[00:01:27.818] Server  LOG        Username/Email: "rafi"
+[00:01:27.818] Server  LOG        Password Input: "123456"
+[00:01:28.030] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.031] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.032] Server  LOG        ❓ Match? true
+[00:01:28.032] Server  LOG     ------------------------------------------------
+[00:01:28.057] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.058] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.058] Server  LOG        ❓ Match? true
+[00:01:28.059] Server  LOG     ------------------------------------------------
+[00:01:28.287] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.288] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.288] Server  LOG        ❓ Match? true
+[00:01:28.289] Server  LOG     ------------------------------------------------
+[00:01:28.345] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.346] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.346] Server  LOG        ❓ Match? true
+[00:01:28.347] Server  LOG     ------------------------------------------------
+[00:01:28.379] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.380] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.381] Server  LOG        ❓ Match? true
+[00:01:28.381] Server  LOG     ------------------------------------------------
+[00:01:28.467] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.467] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.468] Server  LOG        ❓ Match? true
+[00:01:28.468] Server  LOG     ------------------------------------------------
+[00:01:28.556] Server  LOG     ------------------------------------------------
+[00:01:28.558] Server  LOG     🔍 Login Attempt:
+[00:01:28.559] Server  LOG        Username/Email: "rafi"
+[00:01:28.560] Server  LOG        Password Input: "123456"
+[00:01:28.562] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.563] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.564] Server  LOG        ❓ Match? true
+[00:01:28.564] Server  LOG     ------------------------------------------------
+[00:01:28.620] Server  LOG     ------------------------------------------------
+[00:01:28.621] Server  LOG     🔍 Login Attempt:
+[00:01:28.622] Server  LOG        Username/Email: "rafi"
+[00:01:28.622] Server  LOG        Password Input: "123456"
+[00:01:28.684] Server  LOG     ------------------------------------------------
+[00:01:28.685] Server  LOG     🔍 Login Attempt:
+[00:01:28.685] Server  LOG        Username/Email: "rafi"
+[00:01:28.686] Server  LOG        Password Input: "123456"
+[00:01:28.726] Server  LOG     ------------------------------------------------
+[00:01:28.727] Server  LOG     🔍 Login Attempt:
+[00:01:28.727] Server  LOG        Username/Email: "rafi"
+[00:01:28.728] Server  LOG        Password Input: "123456"
+[00:01:28.805] Server  LOG     ------------------------------------------------
+[00:01:28.806] Server  LOG     🔍 Login Attempt:
+[00:01:28.807] Server  LOG        Username/Email: "rafi"
+[00:01:28.807] Server  LOG        Password Input: "123456"
+[00:01:28.846] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.850] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.851] Server  LOG        ❓ Match? true
+[00:01:28.851] Server  LOG     ------------------------------------------------
+[00:01:28.865] Server  LOG     ------------------------------------------------
+[00:01:28.866] Server  LOG     🔍 Login Attempt:
+[00:01:28.866] Server  LOG        Username/Email: "rafi"
+[00:01:28.867] Server  LOG        Password Input: "123456"
+[00:01:28.987] Server  LOG        ✅ User found in DB: rafi
+[00:01:28.987] Server  LOG        🔑 DB Password: "123456"
+[00:01:28.988] Server  LOG        ❓ Match? true
+[00:01:28.988] Server  LOG     ------------------------------------------------
+[00:01:29.032] Server  LOG        ✅ User found in DB: rafi
+[00:01:29.033] Server  LOG        🔑 DB Password: "123456"
+[00:01:29.033] Server  LOG        ❓ Match? true
+[00:01:29.034] Server  LOG     ------------------------------------------------
+[00:01:29.135] Server  LOG        ✅ User found in DB: rafi
+[00:01:29.136] Server  LOG        🔑 DB Password: "123456"
+[00:01:29.136] Server  LOG        ❓ Match? true
+[00:01:29.137] Server  LOG     ------------------------------------------------
+[00:01:29.162] Server  LOG        ✅ User found in DB: rafi
+[00:01:29.162] Server  LOG        🔑 DB Password: "123456"
+[00:01:29.163] Server  LOG        ❓ Match? true
+[00:01:29.163] Server  LOG     ------------------------------------------------
+[00:01:29.320] Server  LOG        ✅ User found in DB: rafi
+[00:01:29.320] Server  LOG        🔑 DB Password: "123456"
+[00:01:29.321] Server  LOG        ❓ Match? true
+[00:01:29.321] Server  LOG     ------------------------------------------------
+[00:01:30.296] Server  LOG        ✅ User found in DB: rafi
+[00:01:30.297] Server  LOG        🔑 DB Password: "123456"
+[00:01:30.299] Server  LOG        ❓ Match? true
+[00:01:30.300] Server  LOG     ------------------------------------------------
+[00:01:30.304] Server  LOG        ✅ User found in DB: rafi
+[00:01:30.304] Server  LOG        🔑 DB Password: "123456"
+[00:01:30.311] Server  LOG        ❓ Match? true
+[00:01:30.312] Server  LOG     ------------------------------------------------
