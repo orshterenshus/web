@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     try {
+        console.log('Env Check:', process.env.MONGODB_URI ? 'Defined' : 'Undefined');
         await dbConnect();
         const { username, password } = await request.json();
 
@@ -41,6 +42,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
     } catch (error) {
+        console.error('Login API Error:', error);
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }

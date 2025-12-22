@@ -158,6 +158,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$serv
 ;
 async function POST(request) {
     try {
+        console.log('Env Check:', process.env.MONGODB_URI ? 'Defined' : 'Undefined');
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
         const { username, password } = await request.json();
         // In a real app, you should hash passwords!
@@ -212,6 +213,7 @@ async function POST(request) {
             });
         }
     } catch (error) {
+        console.error('Login API Error:', error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: 'Server error'
         }, {
