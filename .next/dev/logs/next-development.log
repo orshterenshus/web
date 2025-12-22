@@ -1,5 +1,2 @@
-[00:00:01.489] Server  LOG      ✓ Ready in 967ms
-[00:02:22.901] Server  LOG     Login attempt for user: "rafi"
-[00:04:51.438] Server  LOG     Login attempt for user: null
-[00:05:47.503] Server  LOG      ✓ Compiled in 190ms
-[00:06:07.395] Server  LOG      ✓ Compiled in 133ms
+[00:00:00.898] Server  LOG      ✓ Ready in 594ms
+[00:00:08.770] Browser ERROR   uncaughtError: Error: An unexpected Turbopack error occurred. Please see the output of `next dev` for more details.

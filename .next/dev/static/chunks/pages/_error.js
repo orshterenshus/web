@@ -1,13 +1,13 @@
 __turbopack_load_page_chunks__("/_error", [
-  "static/chunks/36dd8_next_dist_compiled_6efb44c3._.js",
-  "static/chunks/36dd8_next_dist_shared_lib_e1a98ee3._.js",
-  "static/chunks/36dd8_next_dist_client_a1165937._.js",
-  "static/chunks/36dd8_next_dist_1f62e8dc._.js",
-  "static/chunks/36dd8_next_error_fadfbb4b.js",
-  "static/chunks/[next]_entry_page-loader_ts_fbec2c07._.js",
-  "static/chunks/36dd8_react-dom_d6a2d245._.js",
-  "static/chunks/36dd8_3cda0bad._.js",
-  "static/chunks/[root-of-the-server]__d43e2b68._.js",
-  "static/chunks/Desktop_Rafi_Web Project_design-thinking-bot_pages__error_2da965e7._.js",
-  "static/chunks/turbopack-Desktop_Rafi_Web Project_design-thinking-bot_pages__error_d89b1979._.js"
+  "static/chunks/80627_next_dist_compiled_0885cd61._.js",
+  "static/chunks/80627_next_dist_shared_lib_38a9f155._.js",
+  "static/chunks/80627_next_dist_client_b9421d65._.js",
+  "static/chunks/80627_next_dist_eb8faed6._.js",
+  "static/chunks/80627_next_error_ad220390.js",
+  "static/chunks/[next]_entry_page-loader_ts_d9c80a36._.js",
+  "static/chunks/80627_react-dom_edc48a2e._.js",
+  "static/chunks/80627_9ffd7ef6._.js",
+  "static/chunks/[root-of-the-server]__b0affd91._.js",
+  "static/chunks/Desktop_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__error_2da965e7._.js",
+  "static/chunks/88e7d_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__error_5da2070c._.js"
 ])

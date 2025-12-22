@@ -1,23 +1,48 @@
 globalThis.__BUILD_MANIFEST = {
   "pages": {
-    "/_app": []
+    "/_app": [
+      "static/chunks/80627_next_dist_compiled_0885cd61._.js",
+      "static/chunks/80627_next_dist_shared_lib_d65ed339._.js",
+      "static/chunks/80627_next_dist_client_b9421d65._.js",
+      "static/chunks/80627_next_dist_f07c87a7._.js",
+      "static/chunks/80627_next_app_91109ad8.js",
+      "static/chunks/[next]_entry_page-loader_ts_85781059._.js",
+      "static/chunks/80627_react-dom_edc48a2e._.js",
+      "static/chunks/80627_9ffd7ef6._.js",
+      "static/chunks/[root-of-the-server]__4046c458._.js",
+      "static/chunks/Desktop_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__app_2da965e7._.js",
+      "static/chunks/88e7d_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__app_a875bd43._.js"
+    ],
+    "/_error": [
+      "static/chunks/80627_next_dist_compiled_0885cd61._.js",
+      "static/chunks/80627_next_dist_shared_lib_38a9f155._.js",
+      "static/chunks/80627_next_dist_client_b9421d65._.js",
+      "static/chunks/80627_next_dist_eb8faed6._.js",
+      "static/chunks/80627_next_error_ad220390.js",
+      "static/chunks/[next]_entry_page-loader_ts_d9c80a36._.js",
+      "static/chunks/80627_react-dom_edc48a2e._.js",
+      "static/chunks/80627_9ffd7ef6._.js",
+      "static/chunks/[root-of-the-server]__b0affd91._.js",
+      "static/chunks/Desktop_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__error_2da965e7._.js",
+      "static/chunks/88e7d_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_pages__error_5da2070c._.js"
+    ]
   },
   "devFiles": [],
   "polyfillFiles": [
-    "static/chunks/36dd8_next_dist_build_polyfills_polyfill-nomodule.js"
+    "static/chunks/80627_next_dist_build_polyfills_polyfill-nomodule.js"
   ],
   "lowPriorityFiles": [],
   "rootMainFiles": [
-    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_1877ed48._.js",
-    "static/chunks/36dd8_next_dist_compiled_react-dom_ebe90d2c._.js",
-    "static/chunks/36dd8_next_dist_compiled_react-server-dom-turbopack_48177951._.js",
-    "static/chunks/36dd8_next_dist_compiled_next-devtools_index_55f857d6.js",
-    "static/chunks/36dd8_next_dist_compiled_6403a6a4._.js",
-    "static/chunks/36dd8_next_dist_client_0e4d2426._.js",
-    "static/chunks/36dd8_next_dist_172b684a._.js",
-    "static/chunks/36dd8_@swc_helpers_cjs_e46c433d._.js",
-    "static/chunks/Desktop_Rafi_Web Project_design-thinking-bot_a0ff3932._.js",
-    "static/chunks/turbopack-Desktop_Rafi_Web Project_design-thinking-bot_3be1d9a0._.js"
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_d6564df4._.js",
+    "static/chunks/80627_next_dist_compiled_react-dom_a2e45c5f._.js",
+    "static/chunks/80627_next_dist_compiled_react-server-dom-turbopack_dede1e87._.js",
+    "static/chunks/80627_next_dist_compiled_next-devtools_index_8f021ab1.js",
+    "static/chunks/80627_next_dist_compiled_79782a45._.js",
+    "static/chunks/80627_next_dist_client_2693f8f5._.js",
+    "static/chunks/80627_next_dist_cfbb3761._.js",
+    "static/chunks/80627_@swc_helpers_cjs_0b584d83._.js",
+    "static/chunks/Desktop_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_a0ff3932._.js",
+    "static/chunks/turbopack-Desktop_Rafi_בראודה_שנה ג סמסטר ב_WEB_web_96e8c47c._.js"
   ]
 };
 globalThis.__BUILD_MANIFEST.lowPriorityFiles = [
