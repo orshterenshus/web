@@ -6,20 +6,9 @@ import { NextResponse } from 'next/server';
 export async function GET(request) {
     try {
         await dbConnect();
-<<<<<<< HEAD
-        const { searchParams } = new URL(request.url);
-        const user = searchParams.get('user');
-
-        const query = user ? {
-            $or: [
-                { createdBy: user },
-                { 'sharedWith.user': user }
-            ]
-        } : {};
-=======
 
         // Get current user from header (set by frontend)
-        const currentUser = request.headers.get('X-Current-User');
+        const currentUser = request.headers.get('user');
 
         let query = {};
         if (currentUser) {
@@ -31,7 +20,6 @@ export async function GET(request) {
             };
         }
 
->>>>>>> gil
         const projects = await Project.find(query).sort({ createdAt: -1 });
         return NextResponse.json(projects);
     } catch (error) {
