@@ -5,6 +5,55 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SharePopover from '@/components/SharePopover';
 
+// Phase-specific information for the chatbot
+const PHASE_INFO = {
+    'Empathize': {
+        tools: ['Empathy Maps', 'User Interviews', 'Observation Notes'],
+        capabilities: 'building Empathy Maps, conducting user interviews, and understanding what your users See, Think, Do, and Feel',
+        firstQuestion: 'How can you enter your user\'s inner circle?'
+    },
+    'Define': {
+        tools: ['User Personas', 'How Might We (HMW) statements', 'Problem Statements'],
+        capabilities: 'creating User Personas, crafting HMW statements, and defining the core problem',
+        firstQuestion: 'How can you phrase the problem to focus on needs rather than solutions?'
+    },
+    'Ideate': {
+        tools: ['Brainstorming Board', 'Idea Prioritization Matrix', 'SCAMPER technique'],
+        capabilities: 'brainstorming ideas, evaluating feasibility vs. innovation, and combining concepts',
+        firstQuestion: 'What happens if you flip the problem on its head?'
+    },
+    'Prototype': {
+        tools: ['Storyboards', 'Paper Sketches', 'Wireframes', 'Low-Fi Prototypes'],
+        capabilities: 'building quick prototypes, testing core functions, and simulating user experiences',
+        firstQuestion: 'How can you build the simplest version that still communicates the core idea?'
+    },
+    'Test': {
+        tools: ['Testing Checklists', 'Feedback Forms', 'User Testing Scripts'],
+        capabilities: 'planning user tests, gathering feedback, and deciding whether to iterate or proceed',
+        firstQuestion: 'What assumptions are you testing with your prototype?'
+    }
+};
+
+function getWelcomeMessage(phase) {
+    const info = PHASE_INFO[phase] || PHASE_INFO['Empathize'];
+    return `Hello! 👋 I'm your Socratic Design Thinking Coach, here to guide you through your project.<br><br>` +
+        `You're currently in the <strong>${phase}</strong> phase.<br><br>` +
+        `<strong>In this phase, I can help you with:</strong><br>` +
+        `• ${info.tools.join('<br>• ')}<br><br>` +
+        `I'll be asking thought-provoking questions to help you ${info.capabilities}.<br><br>` +
+        `Ready to dive in? Here's a guiding question to get us started:<br>` +
+        `<em>"${info.firstQuestion}"</em>`;
+}
+
+function getPhaseChangeMessage(phase) {
+    const info = PHASE_INFO[phase] || PHASE_INFO['Empathize'];
+    return `Great! You've moved to the <strong>${phase}</strong> phase. 🎯<br><br>` +
+        `<strong>In this phase, I can help you with:</strong><br>` +
+        `• ${info.tools.join('<br>• ')}<br><br>` +
+        `Let's get started! Here's a guiding question:<br>` +
+        `<em>"${info.firstQuestion}"</em>`;
+}
+
 function ProjectContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -18,6 +67,14 @@ function ProjectContent() {
     const [chatInput, setChatInput] = useState('');
     const [files, setFiles] = useState([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
+    // Confirmation modal state
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [pendingPhase, setPendingPhase] = useState(null);
+
+    // Error/Info modal state
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Helper function to save a message to the database
     const saveMessageToDb = async (message) => {
@@ -41,7 +98,7 @@ function ProjectContent() {
                 // Show welcome message if no project ID
                 setMessages([{
                     sender: 'Bot',
-                    text: `Hello! I am the Socratic Bot accompanying the project. Currently, we are in the <strong>${initialPhase}</strong> phase. <br><br>How can you enter your user's inner circle?`
+                    text: getWelcomeMessage(initialPhase)
                 }]);
                 return;
             }
@@ -56,7 +113,7 @@ function ProjectContent() {
                     // No history — send and save welcome message
                     const welcomeMessage = {
                         sender: 'Bot',
-                        text: `Hello! I am the Socratic Bot accompanying the project. Currently, we are in the <strong>${initialPhase}</strong> phase. <br><br>How can you enter your user's inner circle?`,
+                        text: getWelcomeMessage(initialPhase),
                         phase: initialPhase,
                         timestamp: new Date(),
                     };
@@ -68,7 +125,7 @@ function ProjectContent() {
                 // Fallback to welcome message on error
                 setMessages([{
                     sender: 'Bot',
-                    text: `Hello! I am the Socratic Bot accompanying the project. Currently, we are in the <strong>${initialPhase}</strong> phase. <br><br>How can you enter your user's inner circle?`
+                    text: getWelcomeMessage(initialPhase)
                 }]);
             } finally {
                 setIsLoadingHistory(false);
@@ -78,18 +135,52 @@ function ProjectContent() {
         fetchChatHistory();
     }, [projectId, initialPhase]);
 
-    const changePhase = async (phase) => {
+    const changePhase = (phase) => {
         const formattedPhase = phase.charAt(0).toUpperCase() + phase.slice(1);
-        setCurrentPhase(formattedPhase);
+        const phases = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
+        const currentIndex = phases.indexOf(currentPhase);
+        const targetIndex = phases.indexOf(formattedPhase);
+
+        // Don't do anything if staying on the same phase
+        if (formattedPhase === currentPhase) return;
+
+        // Only allow moving to the NEXT phase (not previous, not skipping ahead)
+        if (targetIndex !== currentIndex + 1) {
+            // Show styled error modal instead of browser alert
+            if (targetIndex < currentIndex) {
+                setErrorMessage("You cannot go back to previous phases. Keep moving forward! 🚀");
+            } else if (targetIndex > currentIndex + 1) {
+                setErrorMessage(`Please complete the ${phases[currentIndex + 1]} phase first before moving to ${formattedPhase}.`);
+            }
+            setShowErrorModal(true);
+            return;
+        }
+
+        // Show confirmation modal for the next phase
+        setPendingPhase(formattedPhase);
+        setShowConfirmModal(true);
+    };
+
+    const confirmPhaseChange = async () => {
+        if (!pendingPhase) return;
+
+        setCurrentPhase(pendingPhase);
+        setShowConfirmModal(false);
 
         const phaseMessage = {
             sender: 'Bot',
-            text: `Switched to <strong>${formattedPhase}</strong> phase. What are your goals for this step?`,
-            phase: formattedPhase,
+            text: getPhaseChangeMessage(pendingPhase),
+            phase: pendingPhase,
             timestamp: new Date(),
         };
         setMessages(prev => [...prev, phaseMessage]);
         await saveMessageToDb(phaseMessage);
+        setPendingPhase(null);
+    };
+
+    const cancelPhaseChange = () => {
+        setShowConfirmModal(false);
+        setPendingPhase(null);
     };
 
     const [isTyping, setIsTyping] = useState(false);
@@ -187,6 +278,97 @@ function ProjectContent() {
 
     return (
         <div className="bg-gray-50 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
+            {/* Phase Change Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={cancelPhaseChange}
+                    ></div>
+
+                    {/* Modal */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
+                        {/* Icon */}
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                            Move to {pendingPhase}?
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-gray-600 text-center mb-6">
+                            Make sure you've completed the key tasks in the <strong>{currentPhase}</strong> phase before moving on.
+                            You can always come back to previous phases if needed.
+                        </p>
+
+                        {/* Buttons */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={cancelPhaseChange}
+                                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                            >
+                                Stay Here
+                            </button>
+                            <button
+                                onClick={confirmPhaseChange}
+                                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
+                            >
+                                Yes, Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error/Info Modal */}
+            {showErrorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setShowErrorModal(false)}
+                    ></div>
+
+                    {/* Modal */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all">
+                        {/* Icon */}
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+                                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                            Hold On! ✋
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-gray-600 text-center mb-6">
+                            {errorMessage}
+                        </p>
+
+                        {/* Button */}
+                        <button
+                            onClick={() => setShowErrorModal(false)}
+                            className="w-full px-4 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30"
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Nav */}
             <nav className="bg-white shadow-sm border-b border-gray-200 z-10 shrink-0">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
