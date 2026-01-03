@@ -11,7 +11,7 @@ export default function RegisterPage() {
         email: '',
         password: '',
         dob: '',
-        isAdmin: false
+        role: 'student'
     });
     const [message, setMessage] = useState({ text: '', type: '' });
     const router = useRouter();
@@ -73,8 +73,13 @@ export default function RegisterPage() {
                         type="date" name="dob" required value={formData.dob} onChange={handleChange} />
 
                     <div className="flex items-center my-2.5">
-                        <label htmlFor="isAdmin" className="mr-2">Admin?</label>
-                        <input type="checkbox" name="isAdmin" checked={formData.isAdmin} onChange={handleChange} />
+                        <label htmlFor="isTeacher" className="mr-2">Sign up as Teacher?</label>
+                        <input
+                            type="checkbox"
+                            name="isTeacher"
+                            checked={formData.role === 'teacher'}
+                            onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.checked ? 'teacher' : 'student' }))}
+                        />
                     </div>
 
                     <button type="submit" className="w-full p-3 bg-green-500 text-white rounded hover:bg-green-600 mt-2">

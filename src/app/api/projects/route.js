@@ -8,17 +8,19 @@ export async function GET(request) {
         await dbConnect();
 
         // Get current user from header (set by frontend)
-        const currentUser = request.headers.get('user');
+        // Get current user from header (set by frontend)
+        const currentUser = request.headers.get('x-current-user');
 
-        let query = {};
-        if (currentUser) {
-            query = {
-                $or: [
-                    { createdBy: currentUser },
-                    { sharedWith: currentUser }
-                ]
-            };
+        if (!currentUser) {
+            return NextResponse.json({ error: 'User identification required' }, { status: 400 });
         }
+
+        const query = {
+            $or: [
+                { createdBy: currentUser },
+                { 'sharedWith.user': currentUser }
+            ]
+        };
 
         const projects = await Project.find(query).sort({ createdAt: -1 });
         return NextResponse.json(projects);

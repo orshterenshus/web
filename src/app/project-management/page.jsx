@@ -110,6 +110,14 @@ export default function ProjectManagementPage() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="font-bold text-3xl text-gray-800">Projects Management</h1>
                     <div>
+                        {currentUser?.role === 'teacher' && (
+                            <button
+                                onClick={() => router.push('/teacher-dashboard')}
+                                className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition mr-2"
+                            >
+                                Teacher Dashboard 🍎
+                            </button>
+                        )}
                         {currentUser?.isAdmin && (
                             <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition mr-2">
                                 Manage Users

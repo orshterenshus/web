@@ -3,10 +3,15 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request) {
     try {
         await dbConnect();
-        const users = await User.find({});
+        const { searchParams } = new URL(request.url);
+        const role = searchParams.get('role');
+
+        const query = role ? { role } : {};
+        const users = await User.find(query).select('-password'); // Exclude passwords
+
         return NextResponse.json(users);
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
