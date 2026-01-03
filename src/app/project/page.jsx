@@ -4,6 +4,8 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SharePopover from '@/components/SharePopover';
+import EmpathyMap from '@/components/EmpathyMap';
+import StageChecklist from '@/components/StageChecklist';
 
 // Phase-specific information for the chatbot
 const PHASE_INFO = {
@@ -76,6 +78,9 @@ function ProjectContent() {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    // Stage-specific data (empathy map, checklists, etc.)
+    const [stageData, setStageData] = useState({});
+
     // Helper function to save a message to the database
     const saveMessageToDb = async (message) => {
         if (!projectId) return;
@@ -134,6 +139,23 @@ function ProjectContent() {
 
         fetchChatHistory();
     }, [projectId, initialPhase]);
+
+    // Fetch stage data on mount
+    useEffect(() => {
+        const fetchStageData = async () => {
+            if (!projectId) return;
+            try {
+                const response = await fetch(`/api/projects/${projectId}/stageData`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setStageData(data.stageData || {});
+                }
+            } catch (error) {
+                console.error('Failed to fetch stage data:', error);
+            }
+        };
+        fetchStageData();
+    }, [projectId]);
 
     const changePhase = (phase) => {
         const formattedPhase = phase.charAt(0).toUpperCase() + phase.slice(1);
@@ -405,14 +427,48 @@ function ProjectContent() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow p-6 mb-6">
+                    {/* Phase-specific content area with dynamic colors */}
+                    <div className={`rounded-xl shadow-lg p-6 mb-6 transition-colors duration-300 ${currentPhase === 'Empathize' ? 'bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200' :
+                            currentPhase === 'Define' ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200' :
+                                currentPhase === 'Ideate' ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200' :
+                                    currentPhase === 'Prototype' ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200' :
+                                        'bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200'
+                        }`}>
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-gray-800">Phase: {currentPhase}</h3>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${currentPhase === 'Empathize' ? 'bg-purple-200' :
+                                        currentPhase === 'Define' ? 'bg-blue-200' :
+                                            currentPhase === 'Ideate' ? 'bg-yellow-200' :
+                                                currentPhase === 'Prototype' ? 'bg-green-200' :
+                                                    'bg-indigo-200'
+                                    }`}>
+                                    {currentPhase === 'Empathize' && '💜'}
+                                    {currentPhase === 'Define' && '🎯'}
+                                    {currentPhase === 'Ideate' && '💡'}
+                                    {currentPhase === 'Prototype' && '🛠️'}
+                                    {currentPhase === 'Test' && '🧪'}
+                                </div>
+                                <div>
+                                    <h3 className={`text-xl font-bold ${currentPhase === 'Empathize' ? 'text-purple-800' :
+                                            currentPhase === 'Define' ? 'text-blue-800' :
+                                                currentPhase === 'Ideate' ? 'text-yellow-800' :
+                                                    currentPhase === 'Prototype' ? 'text-green-800' :
+                                                        'text-indigo-800'
+                                        }`}>Phase: {currentPhase}</h3>
+                                    <p className="text-sm text-gray-600">
+                                        {currentPhase === 'Empathize' && 'Understand your users deeply'}
+                                        {currentPhase === 'Define' && 'Define the core problem'}
+                                        {currentPhase === 'Ideate' && 'Generate creative solutions'}
+                                        {currentPhase === 'Prototype' && 'Build quick prototypes'}
+                                        {currentPhase === 'Test' && 'Test and iterate'}
+                                    </p>
+                                </div>
+                            </div>
                             <SharePopover
                                 projectId={projectId}
                                 triggerButton={
                                     <button
-                                        className="flex items-center gap-2 text-sm bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md hover:bg-indigo-100 transition-colors"
+                                        className="flex items-center gap-2 text-sm bg-white/80 text-gray-700 px-3 py-2 rounded-md hover:bg-white transition-colors shadow"
                                     >
                                         Share Project
                                     </button>
@@ -420,32 +476,54 @@ function ProjectContent() {
                             />
                         </div>
 
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors"
-                            onClick={() => document.getElementById('file-upload')?.click()}
-                        >
-                            <p className="mt-1 text-sm text-gray-600">
-                                <span className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none cursor-pointer">Upload a file</span>
-                                or drag and drop
-                            </p>
-                            <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} />
-                        </div>
-
-                        {files.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="text-sm font-medium text-gray-700 mb-3">Uploaded Files:</h4>
-                                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {files.map((f, i) => (
-                                        <li key={i} className="col-span-1 bg-white border rounded-lg shadow-sm p-4 flex items-center">
-                                            <div className="bg-blue-100 p-2 rounded text-blue-600 font-bold text-xs">FILE</div>
-                                            <div className="ml-3">
-                                                <p className="text-sm font-medium text-gray-900">{f.name}</p>
-                                                <p className="text-xs text-gray-500">{f.size}</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                        {/* Empathize Stage - Show Empathy Map */}
+                        {currentPhase === 'Empathize' && projectId && (
+                            <EmpathyMap
+                                projectId={projectId}
+                                data={stageData}
+                                onUpdate={setStageData}
+                            />
                         )}
+
+                        {/* Checklist for current stage */}
+                        {projectId && (
+                            <StageChecklist
+                                projectId={projectId}
+                                stage={currentPhase}
+                                data={stageData}
+                                onUpdate={setStageData}
+                            />
+                        )}
+
+                        {/* File upload area */}
+                        <div className="bg-white rounded-xl shadow p-6">
+                            <h4 className="text-sm font-medium text-gray-700 mb-3">Upload Research Files</h4>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors"
+                                onClick={() => document.getElementById('file-upload')?.click()}
+                            >
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-medium text-blue-600 hover:text-blue-500 cursor-pointer">Upload a file</span>
+                                    {' '}or drag and drop
+                                </p>
+                                <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} />
+                            </div>
+
+                            {files.length > 0 && (
+                                <div className="mt-4">
+                                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        {files.map((f, i) => (
+                                            <li key={i} className="bg-gray-50 border rounded-lg p-3 flex items-center">
+                                                <div className="bg-blue-100 p-2 rounded text-blue-600 font-bold text-xs">FILE</div>
+                                                <div className="ml-3">
+                                                    <p className="text-sm font-medium text-gray-900">{f.name}</p>
+                                                    <p className="text-xs text-gray-500">{f.size}</p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </main>
 
