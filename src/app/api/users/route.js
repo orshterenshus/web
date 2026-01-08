@@ -12,7 +12,13 @@ export async function GET(request) {
         console.log('----------------------------------------');
         console.log('🔍 Fetching users with role filter:', role || 'none');
 
-        const query = role ? { role } : {};
+        let query = {};
+        if (role === 'student') {
+            // Include users with role='student' OR users with no role set (legacy users)
+            query = { $or: [{ role: 'student' }, { role: { $exists: false } }, { role: null }] };
+        } else if (role) {
+            query = { role };
+        }
         console.log('   Query:', JSON.stringify(query));
 
         const users = await User.find(query).select('-password'); // Exclude passwords

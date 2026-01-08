@@ -59,19 +59,49 @@ const ProjectSchema = new mongoose.Schema({
         default: {
             empathize: {
                 empathyMap: { says: [], thinks: [], does: [], feels: [] },
-                checklist: { conductedInterviews: false, documentedObservations: false, completedEmpathyMap: false }
+                checklist: {
+                    conductedInterviews: false,
+                    documentedObservations: false,
+                    completedEmpathyMap: false,
+                    identifiedPainPoints: false,
+                    researchedContext: false
+                }
             },
             define: {
-                checklist: { createdPersona: false, definedProblem: false, createdHMW: false }
+                checklist: {
+                    createdPersona: false,
+                    definedProblem: false,
+                    createdHMW: false,
+                    identifiedNeeds: false,
+                    synthesizedInsights: false
+                }
             },
             ideate: {
-                checklist: { brainstormed: false, prioritizedIdeas: false, selectedTopIdea: false }
+                checklist: {
+                    brainstormed: false,
+                    prioritizedIdeas: false,
+                    selectedTopIdea: false,
+                    sketchedConcepts: false,
+                    exploredAlternatives: false
+                }
             },
             prototype: {
-                checklist: { builtPrototype: false, definedTestGoals: false }
+                checklist: {
+                    builtPrototype: false,
+                    definedTestGoals: false,
+                    createdUserFlow: false,
+                    preparedMaterials: false,
+                    identifiedAssumptions: false
+                }
             },
             test: {
-                checklist: { conductedTests: false, gatheredFeedback: false, documentedLearnings: false }
+                checklist: {
+                    conductedTests: false,
+                    gatheredFeedback: false,
+                    documentedLearnings: false,
+                    iteratedPrototype: false,
+                    validatedSolution: false
+                }
             }
         }
     }

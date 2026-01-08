@@ -10,7 +10,9 @@ const STAGE_CHECKLISTS = {
         items: [
             { key: 'conductedInterviews', label: 'Conducted at least 3 user interviews' },
             { key: 'documentedObservations', label: 'Documented observations and insights' },
-            { key: 'completedEmpathyMap', label: 'Completed the Empathy Map' }
+            { key: 'completedEmpathyMap', label: 'Completed the Empathy Map' },
+            { key: 'identifiedPainPoints', label: 'Identified key user pain points' },
+            { key: 'researchedContext', label: 'Researched the problem context' }
         ]
     },
     define: {
@@ -19,7 +21,9 @@ const STAGE_CHECKLISTS = {
         items: [
             { key: 'createdPersona', label: 'Created a User Persona' },
             { key: 'definedProblem', label: 'Defined the core problem statement' },
-            { key: 'createdHMW', label: 'Created "How Might We" questions' }
+            { key: 'createdHMW', label: 'Created "How Might We" questions' },
+            { key: 'identifiedNeeds', label: 'Identified user needs and goals' },
+            { key: 'synthesizedInsights', label: 'Synthesized research into insights' }
         ]
     },
     ideate: {
@@ -28,7 +32,9 @@ const STAGE_CHECKLISTS = {
         items: [
             { key: 'brainstormed', label: 'Brainstormed multiple ideas' },
             { key: 'prioritizedIdeas', label: 'Prioritized ideas (feasibility vs impact)' },
-            { key: 'selectedTopIdea', label: 'Selected top idea(s) to prototype' }
+            { key: 'selectedTopIdea', label: 'Selected top idea(s) to prototype' },
+            { key: 'sketchedConcepts', label: 'Sketched initial concepts' },
+            { key: 'exploredAlternatives', label: 'Explored alternative solutions' }
         ]
     },
     prototype: {
@@ -36,7 +42,10 @@ const STAGE_CHECKLISTS = {
         icon: '🛠️',
         items: [
             { key: 'builtPrototype', label: 'Built a low-fidelity prototype' },
-            { key: 'definedTestGoals', label: 'Defined testing goals and questions' }
+            { key: 'definedTestGoals', label: 'Defined testing goals and questions' },
+            { key: 'createdUserFlow', label: 'Created user flow diagram' },
+            { key: 'preparedMaterials', label: 'Prepared prototype materials' },
+            { key: 'identifiedAssumptions', label: 'Identified key assumptions to test' }
         ]
     },
     test: {
@@ -45,7 +54,9 @@ const STAGE_CHECKLISTS = {
         items: [
             { key: 'conductedTests', label: 'Conducted user tests' },
             { key: 'gatheredFeedback', label: 'Gathered and analyzed feedback' },
-            { key: 'documentedLearnings', label: 'Documented learnings and next steps' }
+            { key: 'documentedLearnings', label: 'Documented learnings and next steps' },
+            { key: 'iteratedPrototype', label: 'Iterated on prototype based on feedback' },
+            { key: 'validatedSolution', label: 'Validated solution with users' }
         ]
     }
 };

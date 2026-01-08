@@ -8,18 +8,28 @@ export async function GET(request, { params }) {
         await dbConnect();
         const { id } = await params;
 
+        console.log('========================================');
+        console.log('📥 GET /api/projects/[id]/stageData');
+        console.log('   Project ID:', id);
+
         const project = await Project.findById(id).lean();
 
         if (!project) {
+            console.log('   ❌ Project not found');
+            console.log('========================================');
             return NextResponse.json({ error: 'Project not found' }, { status: 404 });
         }
+
+        console.log('   ✅ Project found:', project.name);
+        console.log('   📍 Phase in DB:', project.phase);
+        console.log('========================================');
 
         return NextResponse.json({
             stageData: project.stageData || {},
             phase: project.phase || 'Empathize'
         });
     } catch (error) {
-        console.error('Error fetching stage data:', error);
+        console.error('❌ Error fetching stage data:', error);
         return NextResponse.json({ error: 'Failed to fetch stage data' }, { status: 500 });
     }
 }

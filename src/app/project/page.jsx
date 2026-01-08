@@ -56,6 +56,56 @@ function getPhaseChangeMessage(phase) {
         `<em>"${info.firstQuestion}"</em>`;
 }
 
+// Checklist items configuration for calculating unchecked items
+const CHECKLIST_CONFIG = {
+    empathize: [
+        { key: 'conductedInterviews', label: 'Conduct user interviews' },
+        { key: 'documentedObservations', label: 'Document observations' },
+        { key: 'completedEmpathyMap', label: 'Complete Empathy Map' },
+        { key: 'identifiedPainPoints', label: 'Identify pain points' },
+        { key: 'researchedContext', label: 'Research problem context' }
+    ],
+    define: [
+        { key: 'createdPersona', label: 'Create User Persona' },
+        { key: 'definedProblem', label: 'Define problem statement' },
+        { key: 'createdHMW', label: 'Create HMW questions' },
+        { key: 'identifiedNeeds', label: 'Identify user needs' },
+        { key: 'synthesizedInsights', label: 'Synthesize insights' }
+    ],
+    ideate: [
+        { key: 'brainstormed', label: 'Brainstorm ideas' },
+        { key: 'prioritizedIdeas', label: 'Prioritize ideas' },
+        { key: 'selectedTopIdea', label: 'Select top idea' },
+        { key: 'sketchedConcepts', label: 'Sketch concepts' },
+        { key: 'exploredAlternatives', label: 'Explore alternatives' }
+    ],
+    prototype: [
+        { key: 'builtPrototype', label: 'Build prototype' },
+        { key: 'definedTestGoals', label: 'Define test goals' },
+        { key: 'createdUserFlow', label: 'Create user flow' },
+        { key: 'preparedMaterials', label: 'Prepare materials' },
+        { key: 'identifiedAssumptions', label: 'Identify assumptions' }
+    ],
+    test: [
+        { key: 'conductedTests', label: 'Conduct user tests' },
+        { key: 'gatheredFeedback', label: 'Gather feedback' },
+        { key: 'documentedLearnings', label: 'Document learnings' },
+        { key: 'iteratedPrototype', label: 'Iterate on prototype' },
+        { key: 'validatedSolution', label: 'Validate solution' }
+    ]
+};
+
+// Helper to get unchecked items for a phase
+function getUncheckedItems(phase, stageData) {
+    const phaseKey = phase.toLowerCase();
+    const config = CHECKLIST_CONFIG[phaseKey];
+    if (!config) return [];
+
+    const checklist = stageData?.[phaseKey]?.checklist || {};
+    return config.filter(item => !checklist[item.key]);
+}
+
+
 function ProjectContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -83,6 +133,12 @@ function ProjectContent() {
 
     // Stage-specific data (empathy map, checklists, etc.)
     const [stageData, setStageData] = useState({});
+
+    // Mobile chat panel toggle
+    const [showMobileChat, setShowMobileChat] = useState(false);
+
+    // Desktop chat minimized state
+    const [isChatMinimized, setIsChatMinimized] = useState(false);
 
     // Helper function to save a message to the database
     const saveMessageToDb = async (message) => {
@@ -146,27 +202,40 @@ function ProjectContent() {
     // Fetch stage data AND saved phase on mount
     useEffect(() => {
         const fetchStageData = async () => {
-            if (!projectId) return;
+            console.log('========================================');
+            console.log('📦 fetchStageData called');
+            console.log('   projectId:', projectId);
+            console.log('   initialPhase from URL:', initialPhase);
+
+            if (!projectId) {
+                console.log('   ⚠️ No projectId, skipping fetch');
+                return;
+            }
             try {
+                console.log('   Fetching from:', `/api/projects/${projectId}/stageData`);
                 const response = await fetch(`/api/projects/${projectId}/stageData`);
+                console.log('   Response status:', response.status);
+
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Loaded stageData from DB:', data);
+                    console.log('   ✅ Loaded stageData from DB:', JSON.stringify(data, null, 2));
                     setStageData(data.stageData || {});
                     // Load saved phase from database - this is the source of truth
                     const savedPhase = data.phase || 'Empathize';
-                    console.log('Setting phase from DB:', savedPhase);
+                    console.log('   🎯 Setting currentPhase from DB:', savedPhase);
                     setCurrentPhase(savedPhase);
                 } else {
+                    console.log('   ❌ Response not OK, defaulting to Empathize');
                     // If fetch fails, default to Empathize
                     setCurrentPhase('Empathize');
                 }
             } catch (error) {
-                console.error('Failed to fetch stage data:', error);
+                console.error('   ❌ Failed to fetch stage data:', error);
                 // On error, default to Empathize
                 setCurrentPhase('Empathize');
             } finally {
                 setIsLoadingPhase(false);
+                console.log('========================================');
             }
         };
         fetchStageData();
@@ -207,13 +276,26 @@ function ProjectContent() {
         // Save phase to database
         if (projectId) {
             try {
-                const user = localStorage.getItem('loggedInUser');
-                await fetch(`/api/projects/${projectId}?user=${user}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phase: pendingPhase })
-                });
-                console.log('Phase saved to DB:', pendingPhase);
+                const userStr = localStorage.getItem('currentUser');
+                const user = userStr ? JSON.parse(userStr) : null;
+                const username = user?.username;
+                console.log('💾 Saving phase to DB:', pendingPhase, 'for user:', username);
+
+                if (!username) {
+                    console.error('❌ No username found in localStorage!');
+                } else {
+                    const response = await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(username)}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phase: pendingPhase })
+                    });
+                    console.log('   Save response status:', response.status);
+                    if (response.ok) {
+                        console.log('   ✅ Phase saved to DB:', pendingPhase);
+                    } else {
+                        console.error('   ❌ Failed to save phase, status:', response.status);
+                    }
+                }
             } catch (error) {
                 console.error('Failed to save phase:', error);
             }
@@ -343,54 +425,87 @@ function ProjectContent() {
     return (
         <div className="bg-gray-50 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
             {/* Phase Change Confirmation Modal */}
-            {showConfirmModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={cancelPhaseChange}
-                    ></div>
+            {showConfirmModal && (() => {
+                const uncheckedItems = getUncheckedItems(currentPhase, stageData);
+                const hasUnchecked = uncheckedItems.length > 0;
 
-                    {/* Modal */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
-                        {/* Icon */}
-                        <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                return (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={cancelPhaseChange}
+                        ></div>
+
+                        {/* Modal */}
+                        <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
+                            {/* Icon */}
+                            <div className="flex justify-center mb-4">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-amber-100' : 'bg-blue-100'}`}>
+                                    {hasUnchecked ? (
+                                        <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Title */}
+                            <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                                Move to {pendingPhase}?
+                            </h3>
+
+                            {/* Description */}
+                            <p className="text-gray-600 text-center mb-4">
+                                {hasUnchecked ? (
+                                    <>You have <strong className="text-amber-600">{uncheckedItems.length} unchecked task{uncheckedItems.length !== 1 ? 's' : ''}</strong> in the <strong>{currentPhase}</strong> phase.</>
+                                ) : (
+                                    <>Great job! All tasks in the <strong>{currentPhase}</strong> phase are complete.</>
+                                )}
+                            </p>
+
+                            {/* Unchecked Items List */}
+                            {hasUnchecked && (
+                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 max-h-32 overflow-y-auto">
+                                    <p className="text-xs font-bold text-amber-700 uppercase mb-2">Incomplete tasks:</p>
+                                    <ul className="text-sm text-amber-800 space-y-1">
+                                        {uncheckedItems.slice(0, 5).map(item => (
+                                            <li key={item.key} className="flex items-center gap-2">
+                                                <span className="text-amber-400">○</span>
+                                                {item.label}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <p className="text-gray-500 text-center text-sm mb-4">
+                                {hasUnchecked ? "You can still proceed, but consider completing these tasks first." : "Ready to move forward! 🚀"}
+                            </p>
+
+                            {/* Buttons */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={cancelPhaseChange}
+                                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-colors ${hasUnchecked ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                >
+                                    Stay Here
+                                </button>
+                                <button
+                                    onClick={confirmPhaseChange}
+                                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
+                                >
+                                    Yes, Continue
+                                </button>
                             </div>
                         </div>
-
-                        {/* Title */}
-                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
-                            Move to {pendingPhase}?
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-gray-600 text-center mb-6">
-                            Make sure you've completed the key tasks in the <strong>{currentPhase}</strong> phase before moving on.
-                            You can always come back to previous phases if needed.
-                        </p>
-
-                        {/* Buttons */}
-                        <div className="flex gap-3">
-                            <button
-                                onClick={cancelPhaseChange}
-                                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-                            >
-                                Stay Here
-                            </button>
-                            <button
-                                onClick={confirmPhaseChange}
-                                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
-                            >
-                                Yes, Continue
-                            </button>
-                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
 
             {/* Error/Info Modal */}
             {showErrorModal && (
@@ -451,8 +566,24 @@ function ProjectContent() {
                 </div>
             </nav>
 
-            <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* Mobile Chat Toggle Button */}
+                <button
+                    onClick={() => setShowMobileChat(!showMobileChat)}
+                    className="lg:hidden fixed bottom-6 right-6 z-30 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition-all"
+                >
+                    {showMobileChat ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    )}
+                </button>
+
+                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
                     <div className="mb-8">
                         <h2 className="text-2xl font-bold mb-4">Project Progress: {initialName}</h2>
                         <div className="flex items-center justify-between w-full relative">
@@ -569,56 +700,104 @@ function ProjectContent() {
                     </div>
                 </main>
 
-                <aside className="w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl z-20">
-                    <div className="p-4 border-b border-gray-200 bg-blue-600 text-white">
-                        <h2 className="text-lg font-semibold">Socratic Bot</h2>
-                        <p className="text-xs text-blue-100">Design Thinking Mentor</p>
+                {/* Chat Sidebar - Hidden on mobile, slide in when toggled */}
+                {/* Desktop minimized state shows a thin bar with expand button */}
+                {isChatMinimized ? (
+                    <div className="hidden lg:flex flex-col w-12 bg-blue-600 items-center py-4 border-l border-gray-200 shadow-xl">
+                        <button
+                            onClick={() => setIsChatMinimized(false)}
+                            className="p-2 text-white hover:bg-blue-500 rounded-lg transition"
+                            title="Expand Chat"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <div className="mt-4 text-white text-xs font-bold transform -rotate-90 whitespace-nowrap origin-center" style={{ marginTop: '80px' }}>
+                            💬 Chat
+                        </div>
                     </div>
-
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                        {isLoadingHistory ? (
-                            <div className="flex items-center justify-center h-full">
-                                <div className="text-gray-500 text-sm">Loading chat history...</div>
+                ) : (
+                    <aside className={`
+                        fixed lg:relative inset-y-0 right-0 
+                        w-full sm:w-96 
+                        bg-white border-l border-gray-200 flex flex-col shadow-xl z-20
+                        transform transition-transform duration-300 ease-in-out
+                        ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+                    `}>
+                        <div className="p-4 border-b border-gray-200 bg-blue-600 text-white flex justify-between items-center">
+                            <div>
+                                <h2 className="text-lg font-semibold">Socratic Bot</h2>
+                                <p className="text-xs text-blue-100">Design Thinking Mentor</p>
                             </div>
-                        ) : (
-                            messages.map((msg, i) => (
-                                <div key={i} className="flex items-start">
-                                    <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${msg.sender === 'Bot' ? 'bg-blue-600' : 'bg-green-500'}`}>
-                                        {msg.sender === 'Bot' ? 'Bot' : 'You'}
-                                    </div>
-                                    <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-700 border border-gray-100"
-                                        dangerouslySetInnerHTML={{ __html: msg.text }}>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                        {isTyping && (
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-blue-600">
-                                    Bot
-                                </div>
-                                <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-500 border border-gray-100">
-                                    <span className="animate-pulse">Thinking...</span>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                {/* Minimize button for desktop */}
+                                <button
+                                    onClick={() => setIsChatMinimized(true)}
+                                    className="hidden lg:block p-1 hover:bg-blue-500 rounded"
+                                    title="Minimize Chat"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                                {/* Close button for mobile */}
+                                <button
+                                    onClick={() => setShowMobileChat(false)}
+                                    className="lg:hidden p-1 hover:bg-blue-500 rounded"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
-                        )}
-                    </div>
+                        </div>
 
-                    <div className="p-4 border-t border-gray-200 bg-white">
-                        <form onSubmit={sendMessage} className="flex gap-2">
-                            <input
-                                type="text"
-                                className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Type a message..."
-                                value={chatInput}
-                                onChange={(e) => setChatInput(e.target.value)}
-                            />
-                            <button type="submit" className="bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition">
-                                Send
-                            </button>
-                        </form>
-                    </div>
-                </aside>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                            {isLoadingHistory ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-gray-500 text-sm">Loading chat history...</div>
+                                </div>
+                            ) : (
+                                messages.map((msg, i) => (
+                                    <div key={i} className="flex items-start">
+                                        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${msg.sender === 'Bot' ? 'bg-blue-600' : 'bg-green-500'}`}>
+                                            {msg.sender === 'Bot' ? 'Bot' : 'You'}
+                                        </div>
+                                        <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-700 border border-gray-100"
+                                            dangerouslySetInnerHTML={{ __html: msg.text }}>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            {isTyping && (
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-blue-600">
+                                        Bot
+                                    </div>
+                                    <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-500 border border-gray-100">
+                                        <span className="animate-pulse">Thinking...</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-4 border-t border-gray-200 bg-white">
+                            <form onSubmit={sendMessage} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Type a message..."
+                                    value={chatInput}
+                                    onChange={(e) => setChatInput(e.target.value)}
+                                />
+                                <button type="submit" className="bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition">
+                                    Send
+                                </button>
+                            </form>
+                        </div>
+                    </aside>
+                )}
             </div>
 
         </div>
