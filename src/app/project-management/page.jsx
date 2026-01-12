@@ -12,10 +12,21 @@ export default function ProjectManagementPage() {
 
     const [projectName, setProjectName] = useState('');
     const [projectPhase, setProjectPhase] = useState('Empathize');
+    const [projectEmoji, setProjectEmoji] = useState('🚀');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    const EMOJI_LIST = [
+        '🚀', '⭐', '💡', '🔥', '✨', '🎨', '🎯', '🦄', '🌈', '⚡',
+        '💫', '🔮', '🎉', '🌱', '🌍', '🛠️', '🏰', '🗺️', '🧩', '🎲',
+        '🎳', '🎮', '🎪', '🎭', '🌲', '🌺', '🌻', '🏔️', '🏖️', '⛩️',
+        '🏢', '🛤️', '⚓', '🚲', '🛴', '🛸', '🤖', '👾', '🎃', '👻'
+    ];
 
     // Modal State
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [projectToShare, setProjectToShare] = useState(null);
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState(null);
 
     useEffect(() => {
         // Check authentication
@@ -74,7 +85,9 @@ export default function ProjectManagementPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: projectName,
+                    name: projectName,
                     phase: projectPhase,
+                    emoji: projectEmoji,
                     createdBy: currentUser.username
                 }),
             });
@@ -82,12 +95,43 @@ export default function ProjectManagementPage() {
             if (res.ok) {
                 setProjectName('');
                 setProjectPhase('Empathize');
+                setProjectEmoji('🚀');
                 fetchProjects(); // Refresh list
             } else {
                 alert('Failed to create project');
             }
         } catch (error) {
             console.error('Error creating project', error);
+        }
+    };
+
+    const handleDeleteProject = (e, project) => {
+        e.stopPropagation();
+        setProjectToDelete(project);
+        setShowDeleteConfirmModal(true);
+    };
+
+    const confirmDeleteProject = async () => {
+        if (!projectToDelete) return;
+
+        try {
+            const res = await fetch(`/api/projects/${projectToDelete._id}?user=${currentUser.username}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                fetchProjects();
+                setShowDeleteConfirmModal(false);
+                setProjectToDelete(null);
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete project');
+                setShowDeleteConfirmModal(false);
+            }
+        } catch (error) {
+            console.error('Failed to delete project:', error);
+            alert('Failed to delete project');
+            setShowDeleteConfirmModal(false);
         }
     };
 
@@ -175,7 +219,7 @@ export default function ProjectManagementPage() {
                                 >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="p-3 rounded-lg bg-blue-500/10 text-2xl group-hover:scale-110 transition-transform duration-300">
-                                            🚀
+                                            {project.emoji || '🚀'}
                                         </div>
                                         {/* Phase Badge */}
                                         <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-slate-300">
@@ -192,6 +236,13 @@ export default function ProjectManagementPage() {
                                         </button>
 
                                         <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={(e) => handleDeleteProject(e, project)}
+                                                className="text-slate-400 hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded-lg"
+                                                title="Delete Project"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
                                             <div onClick={(e) => e.stopPropagation()}>
                                                 <SharePopover
                                                     projectId={project._id}
@@ -260,12 +311,76 @@ export default function ProjectManagementPage() {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="w-full md:w-auto relative">
+                            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Icon</label>
+                            <button
+                                type="button"
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                className="glass-input w-full md:w-16 h-[50px] rounded-xl flex items-center justify-center text-2xl hover:bg-white/5 transition-colors"
+                            >
+                                {projectEmoji}
+                            </button>
+
+                            {showEmojiPicker && (
+                                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 glass-card bg-[#1e293b] rounded-xl border border-white/10 shadow-xl grid grid-cols-5 gap-2 z-50">
+                                    <div className="absolute inset-0 z-[-1]" onClick={() => setShowEmojiPicker(false)}></div>
+                                    {EMOJI_LIST.map(emoji => (
+                                        <button
+                                            key={emoji}
+                                            type="button"
+                                            onClick={() => {
+                                                setProjectEmoji(emoji);
+                                                setShowEmojiPicker(false);
+                                            }}
+                                            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 text-xl transition-colors"
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                         <button type="submit" className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-0.5 custom-gradient-bg bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-green-500/40">
                             Create Project +
                         </button>
                     </form>
                 </div>
-            </div>
-        </div>
+
+                {/* Delete Confirmation Modal */}
+                {
+                    showDeleteConfirmModal && (
+                        <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteConfirmModal(false)}></div>
+                            <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                                <div className="flex justify-center mb-6">
+                                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
+                                        🗑️
+                                    </div>
+                                </div>
+                                <h3 className="text-xl font-bold text-center text-white mb-2">Delete Project?</h3>
+                                <p className="text-slate-400 text-center mb-8">
+                                    Are you sure you want to delete <strong>{projectToDelete?.name}</strong>? This action <strong>cannot</strong> be undone.
+                                </p>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setShowDeleteConfirmModal(false)}
+                                        className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={confirmDeleteProject}
+                                        className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                                    >
+                                        Delete Forever
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
+            </div >
+        </div >
     );
 }

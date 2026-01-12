@@ -124,7 +124,7 @@ const ProjectPDFExport = forwardRef(({ projectName, currentPhase, stageData, mes
                     return (
                         <div key={phase} className="flex flex-col items-center bg-white px-2">
                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${isComplete ? 'bg-green-500 text-white border-green-500' :
-                                    isCurrent ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300 border-slate-200'
+                                isCurrent ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-300 border-slate-200'
                                 }`}>
                                 {isComplete ? '✓' : idx + 1}
                             </div>
@@ -195,7 +195,7 @@ const ProjectPDFExport = forwardRef(({ projectName, currentPhase, stageData, mes
                                 {empathyMap[quadrant.key]?.slice(0, 5).map((item, idx) => (
                                     <li key={idx} className="text-[10px] text-slate-700 flex items-start gap-1.5">
                                         <span className="text-slate-400 mt-0.5">•</span>
-                                        <span className="line-clamp-1">{item}</span>
+                                        <span className="line-clamp-1">{typeof item === 'object' ? item.text : item}</span>
                                     </li>
                                 ))}
                                 {(!empathyMap[quadrant.key] || empathyMap[quadrant.key].length === 0) && (

@@ -121,3 +121,37 @@ export async function PATCH(request, { params }) {
         return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
     }
 }
+
+export async function DELETE(request, { params }) {
+    try {
+        await dbConnect();
+        const { id } = await params;
+        const { searchParams } = new URL(request.url);
+        const requestingUser = searchParams.get('user');
+
+        if (!requestingUser) {
+            return NextResponse.json({ error: 'User query param required' }, { status: 400 });
+        }
+
+        const project = await Project.findById(id);
+
+        if (!project) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        // Only creator or owner can delete
+        const isCreator = project.createdBy === requestingUser;
+        const sharedUser = project.sharedWith.find(s => s.user === requestingUser);
+        const hasOwnerPermission = sharedUser && sharedUser.permission === 'Owner';
+
+        if (!isCreator && !hasOwnerPermission) {
+            return NextResponse.json({ error: 'Only owners can delete projects' }, { status: 403 });
+        }
+
+        await Project.findByIdAndDelete(id);
+
+        return NextResponse.json({ message: 'Project deleted successfully' });
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
+    }
+}

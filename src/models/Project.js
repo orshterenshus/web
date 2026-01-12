@@ -6,6 +6,10 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a project name'],
     },
+    emoji: {
+        type: String,
+        default: '🚀',
+    },
     phase: {
         type: String,
         enum: ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'],

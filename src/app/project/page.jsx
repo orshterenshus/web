@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useReactToPrint } from 'react-to-print';
 import SharePopover from '@/components/Shared/SharePopover';
-import EmpathyMap from '@/components/DesignCanvas/EmpathyMap';
+import EmpathizePhase from '@/components/DesignCanvas/EmpathizePhase';
 import StageChecklist from '@/components/ProgressTracker/StageChecklist';
 import ProjectPDFExport from '@/components/Shared/ProjectPDFExport';
 
@@ -60,11 +60,11 @@ function getPhaseChangeMessage(phase) {
 // Checklist items configuration for calculating unchecked items
 const CHECKLIST_CONFIG = {
     empathize: [
-        { key: 'conductedInterviews', label: 'Conduct user interviews' },
-        { key: 'documentedObservations', label: 'Document observations' },
-        { key: 'completedEmpathyMap', label: 'Complete Empathy Map' },
-        { key: 'identifiedPainPoints', label: 'Identify pain points' },
-        { key: 'researchedContext', label: 'Research problem context' }
+        { key: 'createdPersona', label: 'Create User Persona(s)' },
+        { key: 'conductedInterviews', label: 'Conduct User Interviews' },
+        { key: 'mappedUserEmpathy', label: 'Map User Empathy (Says/Thinks/Does/Feels)' },
+        { key: 'mappedAIEmpathy', label: 'Map AI Persona Empathy' },
+        { key: 'documentedObservations', label: 'Document Key Observations' }
     ],
     define: [
         { key: 'createdPersona', label: 'Create User Persona' },
@@ -114,6 +114,7 @@ function ProjectContent() {
     const initialName = searchParams.get('name') || 'Project';
     const initialPhase = searchParams.get('phase') || 'Empathize';
     const projectId = searchParams.get('id');
+    const [projectEmoji, setProjectEmoji] = useState('DB'); // Start with DB code, update after fetch
 
     // For existing projects, start with null phase and load from DB
     // For new projects (no projectId), use the URL param
@@ -131,6 +132,9 @@ function ProjectContent() {
     // Error/Info modal state
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Delete Confirmation Modal State
+    const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
     // Stage-specific data (empathy map, checklists, etc.)
     const [stageData, setStageData] = useState({});
@@ -164,10 +168,28 @@ function ProjectContent() {
         }
     };
 
-    // Fetch files on load
+    const fetchProjectDetails = async () => {
+        if (!projectId) return;
+        try {
+            const userStr = localStorage.getItem('currentUser');
+            if (!userStr) return;
+            const user = JSON.parse(userStr);
+
+            const res = await fetch(`/api/projects/${projectId}?user=${user.username}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.emoji) setProjectEmoji(data.emoji);
+            }
+        } catch (error) {
+            console.error('Failed to fetch project details:', error);
+        }
+    };
+
+    // Fetch files and details on load
     useEffect(() => {
         if (projectId) {
             fetchFiles();
+            fetchProjectDetails();
         }
     }, [projectId]);
 
@@ -211,6 +233,34 @@ function ProjectContent() {
             setShowErrorModal(true);
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleDeleteProject = () => {
+        setShowDeleteConfirmModal(true);
+    };
+
+    const confirmDeleteProject = async () => {
+        try {
+            const userStr = localStorage.getItem('currentUser');
+            if (!userStr) return;
+            const user = JSON.parse(userStr);
+
+            const res = await fetch(`/api/projects/${projectId}?user=${user.username}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                router.push('/project-management');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete project');
+                setShowDeleteConfirmModal(false);
+            }
+        } catch (error) {
+            console.error('Failed to delete project:', error);
+            alert('Failed to delete project');
+            setShowDeleteConfirmModal(false);
         }
     };
 
@@ -537,6 +587,38 @@ function ProjectContent() {
                     );
                 })()}
 
+                {/* Delete Confirmation Modal */}
+                {showDeleteConfirmModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteConfirmModal(false)}></div>
+                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                            <div className="flex justify-center mb-6">
+                                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
+                                    🗑️
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-center text-white mb-2">Delete Project?</h3>
+                            <p className="text-slate-400 text-center mb-8">
+                                Are you sure you want to delete <strong>{initialName}</strong>? This action <strong>cannot</strong> be undone.
+                            </p>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setShowDeleteConfirmModal(false)}
+                                    className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDeleteProject}
+                                    className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
+                                >
+                                    Delete Forever
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Error Modal */}
                 {showErrorModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -559,17 +641,24 @@ function ProjectContent() {
 
             {/* Header */}
             <header className="glass-panel border-b border-white/5 z-20 shrink-0 relative">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div className="w-full px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => router.push('/project-management')}>
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
-                                DB
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all text-xl">
+                                {projectEmoji}
                             </div>
                             <span className="font-bold text-lg text-white tracking-tight">DesignBot</span>
                         </div>
-                        <nav className="hidden md:flex space-x-1">
-                            <span className="px-3 py-1 rounded-full bg-white/5 text-sm text-slate-300 border border-white/5">
-                                Workspace / {initialName}
+                        <nav className="hidden md:flex items-center gap-2">
+                            <button
+                                onClick={() => router.push('/project-management')}
+                                className="px-3 py-1 rounded-full bg-white/5 text-sm text-slate-400 border border-white/5 hover:text-white hover:bg-white/10 hover:border-white/10 transition-all font-medium"
+                            >
+                                Workspace
+                            </button>
+                            <span className="text-slate-600">/</span>
+                            <span className="px-3 py-1 rounded-full bg-blue-500/10 text-sm text-blue-200 border border-blue-500/20">
+                                {initialName}
                             </span>
                         </nav>
                     </div>
@@ -637,6 +726,10 @@ function ProjectContent() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                             Export PDF
                                         </button>
+                                        <button onClick={handleDeleteProject} className="glass-button px-4 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            Delete
+                                        </button>
                                         <SharePopover projectId={projectId} triggerButton={
                                             <button className="glass-button px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
@@ -652,7 +745,7 @@ function ProjectContent() {
                                 {/* Empathize Stage - Show Empathy Map */}
                                 {currentPhase === 'Empathize' && projectId && (
                                     <div className="mb-8">
-                                        <EmpathyMap projectId={projectId} data={stageData} onUpdate={setStageData} />
+                                        <EmpathizePhase projectId={projectId} data={stageData} onUpdate={setStageData} />
                                     </div>
                                 )}
 
@@ -821,7 +914,7 @@ function ProjectContent() {
                     createdAt={new Date()}
                 />
             </div>
-        </div>
+        </div >
     );
 }
 
