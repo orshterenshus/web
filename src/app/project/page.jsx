@@ -7,6 +7,8 @@ import SharePopover from '@/components/Shared/SharePopover';
 import EmpathizePhase from '@/components/DesignCanvas/EmpathizePhase';
 import StageChecklist from '@/components/ProgressTracker/StageChecklist';
 import ProjectPDFExport from '@/components/Shared/ProjectPDFExport';
+import SketchPad from '@/components/SketchPad';
+import FeedbackMatrix from '@/components/Test/FeedbackMatrix';
 
 // Phase-specific information for the chatbot
 const PHASE_INFO = {
@@ -193,15 +195,12 @@ function ProjectContent() {
         }
     }, [projectId]);
 
-    const handleFileUpload = async (e) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-
+    // Unified upload function
+    const uploadFileToProject = async (file) => {
         setIsUploading(true);
-        const file = e.target.files[0];
         const formData = new FormData();
         formData.append('file', file);
 
-        // Get username from local storage
         try {
             const userStr = localStorage.getItem('currentUser');
             if (userStr) {
@@ -220,19 +219,48 @@ function ProjectContent() {
 
             if (res.ok) {
                 await fetchFiles();
-                // Clear input
-                e.target.value = null;
+                return true;
             } else {
                 const errorData = await res.json();
                 setErrorMessage(errorData.error || 'Failed to upload file');
                 setShowErrorModal(true);
+                return false;
             }
         } catch (error) {
             console.error('Upload error:', error);
             setErrorMessage('An unexpected error occurred during upload');
             setShowErrorModal(true);
+            return false;
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const success = await uploadFileToProject(e.target.files[0]);
+        if (success) {
+            e.target.value = null;
+        }
+    };
+
+    const handleSketchSave = async (dataUrl) => {
+        try {
+            // Convert dataURL to File/Blob
+            const res = await fetch(dataUrl);
+            const blob = await res.blob();
+            const file = new File([blob], `sketch-${Date.now()}.png`, { type: 'image/png' });
+
+            // Upload
+            const success = await uploadFileToProject(file);
+            if (success) {
+                // Optional: Show success notification or scroll to files
+                alert("Sketch saved to project files!");
+            }
+        } catch (error) {
+            console.error("Error saving sketch:", error);
+            setErrorMessage("Failed to save sketch");
+            setShowErrorModal(true);
         }
     };
 
@@ -753,6 +781,29 @@ function ProjectContent() {
                                 {projectId && (
                                     <div className="mb-8">
                                         <StageChecklist projectId={projectId} stage={currentPhase} data={stageData} onUpdate={setStageData} />
+                                    </div>
+                                )}
+
+                                {/* Prototype Sketch Pad */}
+                                {currentPhase === 'Prototype' && (
+                                    <div className="mb-8">
+                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Prototype Sketch Pad</h4>
+                                        <div className="h-[600px] rounded-xl overflow-hidden border border-white/20 shadow-lg">
+                                            <SketchPad onSave={handleSketchSave} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Test Feedback Matrix */}
+                                {currentPhase === 'Test' && (
+                                    <div className="mb-8">
+                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">User Feedback Matrix</h4>
+                                        <FeedbackMatrix
+                                            projectId={projectId}
+                                            data={stageData?.test?.feedbackMatrix || []}
+                                            onUpdate={setStageData}
+                                            onExport={uploadFileToProject}
+                                        />
                                     </div>
                                 )}
 
