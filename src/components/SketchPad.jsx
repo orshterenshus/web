@@ -1,0 +1,346 @@
+"use client";
+
+import React, { useRef, useState, useEffect, useCallback } from "react";
+
+/**
+ * SketchPad Component
+ *
+ * A lightweight drawing canvas for low-fidelity prototyping.
+ * Features:
+ * - Freehand drawing (Mouse & Touch)
+ * - Adjustable brush size & color
+ * - Undo functionality
+ * - Clear canvas
+ * - Export to PNG
+ * - Responsive sizing
+ */
+const SketchPad = ({
+  initialColor = "#000000",
+  initialBrushSize = 3,
+  onSave, // Optional callback if parent wants to handle save
+}) => {
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [color, setColor] = useState(initialColor);
+  const [brushSize, setBrushSize] = useState(initialBrushSize);
+  const [history, setHistory] = useState([]);
+  const [showGrid, setShowGrid] = useState(false);
+  const [tool, setTool] = useState("pen"); // "pen" or "eraser"
+
+  // Initialize canvas size
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current && canvasRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        // Save current content before resizing to avoid loss
+        const tempCanvas = document.createElement("canvas");
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCanvas.width = canvasRef.current.width;
+        tempCanvas.height = canvasRef.current.height;
+        tempCtx.drawImage(canvasRef.current, 0, 0);
+
+        // Resize
+        canvasRef.current.width = width;
+        canvasRef.current.height = height;
+
+        // Restore content (optional, or just clear. Let's clear for simplicity on drastic resize but try to keep if possible)
+        // For a simple prototype tool, clearing or simple scaling might be acceptable,
+        // but let's just re-render the history if we wanted to be perfect.
+        // For now: Just resize. The user can clear or undo.
+        // Re-applying context settings
+        const context = canvasRef.current.getContext("2d");
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.strokeStyle = color;
+        context.lineWidth = brushSize;
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []); // Run once on mount, but we also need to update context when color/size change
+
+  // Update context context when state changes
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext("2d");
+      context.lineCap = "round";
+      context.lineJoin = "round";
+
+      if (tool === "eraser") {
+        context.globalCompositeOperation = "destination-out";
+        context.lineWidth = brushSize * 2; // Eraser is typically larger
+      } else {
+        context.globalCompositeOperation = "source-over";
+        context.strokeStyle = color;
+        context.lineWidth = brushSize;
+      }
+    }
+  }, [color, brushSize, tool]);
+
+  // Save state to history for Undo
+  const savehHistory = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      setHistory((prev) => [
+        ...prev.slice(-19), // Keep last 20 states
+        canvas.toDataURL(),
+      ]);
+    }
+  };
+
+  const getCoordinates = (event) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    // Handle Touch
+    if (event.touches && event.touches[0]) {
+      return {
+        x: event.touches[0].clientX - rect.left,
+        y: event.touches[0].clientY - rect.top,
+      };
+    }
+    // Handle Mouse
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
+  const startDrawing = (e) => {
+    e.preventDefault(); // Prevent scrolling on touch
+    savehHistory(); // Save state before new stroke
+    const { x, y } = getCoordinates(e);
+    const context = canvasRef.current.getContext("2d");
+    context.beginPath();
+    context.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const { x, y } = getCoordinates(e);
+    const context = canvasRef.current.getContext("2d");
+    context.lineTo(x, y);
+    context.stroke();
+  };
+
+  const stopDrawing = () => {
+    const context = canvasRef.current.getContext("2d");
+    context.closePath();
+    setIsDrawing(false);
+  };
+
+  const undo = () => {
+    if (history.length === 0) return;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    const lastState = history[history.length - 1];
+
+    // Create an image to restore
+    const img = new Image();
+    img.src = lastState;
+    img.onload = () => {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(img, 0, 0);
+    };
+
+    // If we are at the very first state (blank), handling might be needed,
+    // but here we just pop the last state which was "before the last stroke".
+    // Wait, if we save before stroke, popping restores "before".
+    // We actually need to pop from history and set canvas to that.
+    // If we undo, we should remove the last state from history?
+    // standard undo:
+    // history = [state0, state1, state2]
+    // current = state3 (not in history implicitly, or is it?)
+    // Simple approach: history stores snapshots.
+    // Pop last snapshot -> restore it -> remove from history? No, that loses it.
+    // Usually:
+    // push current state to undoStack.
+    // undo: pop from undoStack -> draw -> push to redoStack (if implemented).
+
+    // Let's refine:
+    // saveHistory is called BEFORE drawing. So history contains state just before the stroke.
+    // So to undo: we take the last item, draw it, and remove it from history.
+
+    const newHistory = [...history];
+    const previousStateUrl = newHistory.pop();
+    setHistory(newHistory);
+
+    if (previousStateUrl) { // if history wasn't empty
+      const restoreImg = new Image();
+      restoreImg.src = previousStateUrl;
+      restoreImg.onload = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(restoreImg, 0, 0);
+      }
+    } else {
+      // History empty implies canvas was blank (or initial state)
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+  const clearCanvas = () => {
+    savehHistory();
+    const context = canvasRef.current.getContext("2d");
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  };
+
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL("image/png");
+
+    // If parent provided onSave, use it
+    if (onSave) {
+      onSave(dataUrl);
+      return;
+    }
+
+    // Default download behavior
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "prototype-sketch.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="flex flex-col h-full w-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-4 p-3 bg-gray-50 border-b border-gray-200">
+
+        {/* Color Picker */}
+        <div className="flex items-center gap-2">
+          <label title="Brush Color" className="cursor-pointer flex items-center gap-1">
+            <div className="w-6 h-6 rounded-full border border-gray-300" style={{ backgroundColor: color }}></div>
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className="sr-only" // Hidden input, triggered by label
+            />
+          </label>
+        </div>
+
+        {/* Brush Size */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">Size</span>
+          <input
+            type="range"
+            min="1"
+            max="20"
+            value={brushSize}
+            onChange={(e) => setBrushSize(parseInt(e.target.value))}
+            className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          />
+        </div>
+
+        <div className="h-6 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+
+        {/* Tools */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setTool("pen")}
+            className={`p-2 rounded transition-colors ${tool === "pen" ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200 text-gray-700'}`}
+            title="Pen"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+              <path d="M2 2l7.586 7.586"></path>
+              <circle cx="11" cy="11" r="2"></circle>
+            </svg>
+          </button>
+          <button
+            onClick={() => setTool("eraser")}
+            className={`p-2 rounded transition-colors ${tool === "eraser" ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200 text-gray-700'}`}
+            title="Eraser"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"></path>
+              <path d="M17 17L7 7"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div className="h-6 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={undo}
+            disabled={history.length === 0}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${history.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Undo"
+          >
+            {/* Simple Undo Icon SVG */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 7v6h6" /><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+            </svg>
+          </button>
+
+          <button
+            onClick={() => setShowGrid(!showGrid)}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${showGrid ? 'bg-gray-200' : ''}`}
+            title="Toggle Grid"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" /><line x1="9" y1="3" x2="9" y2="21" /><line x1="15" y1="3" x2="15" y2="21" />
+            </svg>
+          </button>
+
+          <button
+            onClick={clearCanvas}
+            className="p-2 rounded hover:bg-gray-200 transition-colors text-red-500"
+            title="Clear Canvas"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="ml-auto">
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Save
+          </button>
+        </div>
+      </div>
+
+      {/* Canvas Area */}
+      <div
+        ref={containerRef}
+        className="flex-1 relative cursor-crosshair touch-none bg-white"
+        style={{
+          backgroundImage: showGrid ? 'radial-gradient(#ddd 1px, transparent 1px)' : 'none',
+          backgroundSize: '20px 20px'
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          className="absolute top-0 left-0 w-full h-full block"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default SketchPad;
