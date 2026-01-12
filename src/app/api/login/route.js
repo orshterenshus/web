@@ -1,5 +1,5 @@
 
-import dbConnect from '@/lib/db';
+import dbConnect from '@/utils/db';
 import User from '@/models/User';
 import { log } from 'console';
 import { NextResponse } from 'next/server';
@@ -9,7 +9,7 @@ export async function POST(request) {
         console.log('Env Check:', process.env.MONGODB_URI ? 'Defined' : 'Undefined');
         await dbConnect();
         const { username, password } = await request.json();
-        
+
         // In a real app, you should hash passwords!
         // For now, we compare plain text as per migration request
 

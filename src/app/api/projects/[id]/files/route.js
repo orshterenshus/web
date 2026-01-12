@@ -1,6 +1,6 @@
-import dbConnect from '@/lib/db';
+import dbConnect from '@/utils/db';
 import Project from '@/models/Project';
-import cloudinary from '@/lib/cloudinary';
+import cloudinary from '@/utils/cloudinary';
 import { NextResponse } from 'next/server';
 
 // GET - Fetch all files for a project

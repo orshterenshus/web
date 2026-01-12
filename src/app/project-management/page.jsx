@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SharePopover from '@/components/SharePopover';
+import SharePopover from '@/components/Shared/SharePopover';
 
 export default function ProjectManagementPage() {
     const [projects, setProjects] = useState([]);
@@ -27,7 +26,6 @@ export default function ProjectManagementPage() {
         }
         const user = JSON.parse(userStr);
         setCurrentUser(user);
-
 
         // Fetch projects
         if (currentUser) {
@@ -102,66 +100,119 @@ export default function ProjectManagementPage() {
         router.push(`/project?${params.toString()}`);
     };
 
-    if (loading) return <div className="p-10 text-center">Loading...</div>;
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
+            <div className="flex flex-col items-center gap-4">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
+                <p className="text-slate-400">Loading your workspace...</p>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="font-sans bg-gray-100 min-h-screen flex flex-col items-center p-10 text-gray-800">
-            <div className="w-full max-w-4xl bg-white p-8 rounded-lg shadow-lg">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="font-bold text-3xl text-gray-800">Projects Management</h1>
-                    <div>
+        <div className="min-h-screen p-8 relative overflow-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
+            {/* Background Decorative Elements */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000"></div>
+            </div>
+
+            <div className="relative z-10 max-w-6xl mx-auto space-y-8">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6 glass-card p-6 rounded-2xl">
+                    <div className="text-center md:text-left">
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400">
+                            Project Dashboard
+                        </h1>
+                        <p className="text-slate-400 text-sm mt-1">Welcome back, <span className="text-white font-medium">{currentUser?.username}</span></p>
+                    </div>
+
+                    <div className="flex flex-wrap justify-center gap-3">
                         {currentUser?.role === 'teacher' && (
                             <button
                                 onClick={() => router.push('/teacher-dashboard')}
-                                className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition mr-2"
+                                className="px-5 py-2.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition-all text-sm font-semibold flex items-center gap-2"
                             >
-                                Teacher Dashboard 🍎
+                                <span>🍎</span> Teacher Dashboard
                             </button>
                         )}
                         {currentUser?.isAdmin && (
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition mr-2">
+                            <button className="px-5 py-2.5 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-all text-sm font-semibold">
                                 Manage Users
                             </button>
                         )}
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                            className="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-300 border border-red-500/20 hover:bg-red-500/20 transition-all text-sm font-semibold"
                         >
                             Logout
                         </button>
                     </div>
                 </div>
 
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Existing Projects</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Projects Grid */}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                            Your Projects
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {projects.length === 0 ? (
-                            <p>No projects found. Create one below!</p>
+                            <div className="col-span-full glass-panel p-12 rounded-2xl text-center border-dashed border-2 border-slate-700">
+                                <span className="text-4xl block mb-4">✨</span>
+                                <p className="text-slate-400 mb-2">No projects yet.</p>
+                                <p className="text-slate-500 text-sm">Create your first innovation journey below!</p>
+                            </div>
                         ) : (
                             projects.map((project) => (
                                 <div
                                     key={project._id}
-                                    className="p-4 border rounded shadow-sm hover:shadow-md transition bg-gray-50 cursor-pointer relative"
+                                    className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-white/5 transition-all duration-300"
                                     onClick={() => navigateToProject(project)}
                                 >
-                                    <h3 className="font-bold text-lg">{project.name}</h3>
-                                    <p className="text-gray-600">Phase: {project.phase}</p>
-                                    <div className="mt-2 text-sm text-gray-500 flex gap-2">
-                                        <button className="text-blue-500 hover:underline">Open</button>
-                                        <SharePopover
-                                            projectId={project._id}
-                                            onShareSuccess={fetchProjects}
-                                            triggerButton={
-                                                <button className="text-green-500 hover:underline">
-                                                    Share
-                                                </button>
-                                            }
-                                        />
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="p-3 rounded-lg bg-blue-500/10 text-2xl group-hover:scale-110 transition-transform duration-300">
+                                            🚀
+                                        </div>
+                                        {/* Phase Badge */}
+                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/10 text-slate-300">
+                                            {project.phase}
+                                        </span>
                                     </div>
+
+                                    <h3 className="font-bold text-lg text-white mb-2 group-hover:text-blue-400 transition-colors">{project.name}</h3>
+                                    <p className="text-xs text-slate-500 mb-6">Last updated: {new Date(project.updatedAt || Date.now()).toLocaleDateString()}</p>
+
+                                    <div className="flex items-center justify-between text-sm mt-auto border-t border-white/5 pt-4">
+                                        <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                                            Open Workspace →
+                                        </button>
+
+                                        <div className="flex items-center gap-3">
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                <SharePopover
+                                                    projectId={project._id}
+                                                    onShareSuccess={fetchProjects}
+                                                    triggerButton={
+                                                        <button className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-white/10 rounded-lg">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                                                        </button>
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* Shared Badge */}
                                     {currentUser && project.createdBy !== currentUser.username && (
-                                        <div className="absolute top-2 right-2 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full font-semibold">
-                                            Shared with me
+                                        <div className="absolute top-4 right-4">
+                                            <span className="flex h-2 w-2 relative">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                                            </span>
                                         </div>
                                     )}
                                 </div>
@@ -170,43 +221,51 @@ export default function ProjectManagementPage() {
                     </div>
                 </div>
 
-                <div className="border-t pt-8 border-gray-200">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Create New Project</h2>
-                    <form onSubmit={handleCreateProject} className="flex flex-col md:flex-row gap-4 items-end">
-                        <div className="flex-1 w-full">
-                            <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                {/* Create Project Section */}
+                <div className="glass-card p-8 rounded-2xl border-t-0 border-l-0 border-r-0 border-b-2 border-indigo-500/50">
+                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                        <span className="text-2xl">✨</span> Start New Journey
+                    </h2>
+                    <form onSubmit={handleCreateProject} className="flex flex-col md:flex-row gap-6 items-end">
+                        <div className="flex-1 w-full space-y-2">
+                            <label htmlFor="projectName" className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Project Name</label>
                             <input
                                 type="text"
                                 id="projectName"
                                 required
                                 value={projectName}
                                 onChange={(e) => setProjectName(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                className="glass-input w-full px-4 py-3 rounded-xl"
+                                placeholder="e.g. Sustainable City Garden"
                             />
                         </div>
-                        <div className="flex-1 w-full">
-                            <label htmlFor="projectPhase" className="block text-sm font-medium text-gray-700 mb-1">Phase</label>
-                            <select
-                                id="projectPhase"
-                                required
-                                value={projectPhase}
-                                onChange={(e) => setProjectPhase(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                            >
-                                <option value="Empathize">Empathize</option>
-                                <option value="Define">Define</option>
-                                <option value="Ideate">Ideate</option>
-                                <option value="Prototype">Prototype</option>
-                                <option value="Test">Test</option>
-                            </select>
+                        <div className="flex-1 w-full space-y-2">
+                            <label htmlFor="projectPhase" className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Starting Phase</label>
+                            <div className="relative">
+                                <select
+                                    id="projectPhase"
+                                    required
+                                    value={projectPhase}
+                                    onChange={(e) => setProjectPhase(e.target.value)}
+                                    className="glass-input w-full px-4 py-3 rounded-xl appearance-none cursor-pointer"
+                                >
+                                    <option value="Empathize" className="bg-slate-800 text-purple-300">💜 Empathize</option>
+                                    <option value="Define" className="bg-slate-800 text-blue-300">🎯 Define</option>
+                                    <option value="Ideate" className="bg-slate-800 text-yellow-300">💡 Ideate</option>
+                                    <option value="Prototype" className="bg-slate-800 text-green-300">🛠️ Prototype</option>
+                                    <option value="Test" className="bg-slate-800 text-indigo-300">🧪 Test</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submit" className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition w-full md:w-auto">
-                            Create Project
+                        <button type="submit" className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-0.5 custom-gradient-bg bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-green-500/40">
+                            Create Project +
                         </button>
                     </form>
                 </div>
             </div>
-
         </div>
     );
 }

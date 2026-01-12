@@ -1,13 +1,12 @@
-
 'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useReactToPrint } from 'react-to-print';
-import SharePopover from '@/components/SharePopover';
-import EmpathyMap from '@/components/EmpathyMap';
-import StageChecklist from '@/components/StageChecklist';
-import ProjectPDFExport from '@/components/ProjectPDFExport';
+import SharePopover from '@/components/Shared/SharePopover';
+import EmpathyMap from '@/components/DesignCanvas/EmpathyMap';
+import StageChecklist from '@/components/ProgressTracker/StageChecklist';
+import ProjectPDFExport from '@/components/Shared/ProjectPDFExport';
 
 // Phase-specific information for the chatbot
 const PHASE_INFO = {
@@ -296,30 +295,17 @@ function ProjectContent() {
     // Fetch stage data AND saved phase on mount
     useEffect(() => {
         const fetchStageData = async () => {
-            console.log('========================================');
-            console.log('📦 fetchStageData called');
-            console.log('   projectId:', projectId);
-            console.log('   initialPhase from URL:', initialPhase);
-
-            if (!projectId) {
-                console.log('   ⚠️ No projectId, skipping fetch');
-                return;
-            }
+            if (!projectId) return;
             try {
-                console.log('   Fetching from:', `/api/projects/${projectId}/stageData`);
                 const response = await fetch(`/api/projects/${projectId}/stageData`);
-                console.log('   Response status:', response.status);
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('   ✅ Loaded stageData from DB:', JSON.stringify(data, null, 2));
                     setStageData(data.stageData || {});
                     // Load saved phase from database - this is the source of truth
                     const savedPhase = data.phase || 'Empathize';
-                    console.log('   🎯 Setting currentPhase from DB:', savedPhase);
                     setCurrentPhase(savedPhase);
                 } else {
-                    console.log('   ❌ Response not OK, defaulting to Empathize');
                     // If fetch fails, default to Empathize
                     setCurrentPhase('Empathize');
                 }
@@ -329,7 +315,6 @@ function ProjectContent() {
                 setCurrentPhase('Empathize');
             } finally {
                 setIsLoadingPhase(false);
-                console.log('========================================');
             }
         };
         fetchStageData();
@@ -373,22 +358,13 @@ function ProjectContent() {
                 const userStr = localStorage.getItem('currentUser');
                 const user = userStr ? JSON.parse(userStr) : null;
                 const username = user?.username;
-                console.log('💾 Saving phase to DB:', pendingPhase, 'for user:', username);
 
-                if (!username) {
-                    console.error('❌ No username found in localStorage!');
-                } else {
-                    const response = await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(username)}`, {
+                if (username) {
+                    await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(username)}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ phase: pendingPhase })
                     });
-                    console.log('   Save response status:', response.status);
-                    if (response.ok) {
-                        console.log('   ✅ Phase saved to DB:', pendingPhase);
-                    } else {
-                        console.error('   ❌ Failed to save phase, status:', response.status);
-                    }
                 }
             } catch (error) {
                 console.error('Failed to save phase:', error);
@@ -478,451 +454,354 @@ function ProjectContent() {
     };
 
 
-
-
-
     const getStepClass = (stepPhase) => {
         const steps = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
         const currentIndex = steps.indexOf(currentPhase);
         const stepIndex = steps.indexOf(stepPhase);
 
         if (stepIndex === currentIndex) {
-            return "bg-blue-600 text-white";
+            return "bg-blue-600 text-white shadow-lg shadow-blue-500/50 scale-110 border-2 border-blue-400";
         } else if (stepIndex < currentIndex) {
-            return "bg-green-500 text-white";
+            return "bg-green-500 text-white border-2 border-green-400";
         } else {
-            return "bg-white border-2 border-gray-300 text-gray-500";
+            return "bg-white/10 text-slate-500 border-2 border-slate-700";
         }
     };
 
     // Show loading state while phase is being fetched
     if (isLoadingPhase) {
         return (
-            <div className="bg-gray-50 text-gray-800 font-sans h-screen flex items-center justify-center">
+            <div className="bg-[#0f172a] text-white font-sans h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading project...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p className="text-slate-400">Loading workspace...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-gray-50 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
-            {/* Phase Change Confirmation Modal */}
-            {showConfirmModal && (() => {
-                const uncheckedItems = getUncheckedItems(currentPhase, stageData);
-                const hasUnchecked = uncheckedItems.length > 0;
+        <div className="bg-[#0f172a] text-slate-200 font-sans h-screen flex flex-col overflow-hidden relative selection:bg-purple-500/30">
+            {/* Background Drops */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-900/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-900/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000"></div>
+            </div>
 
-                return (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center">
-                        {/* Backdrop */}
-                        <div
-                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                            onClick={cancelPhaseChange}
-                        ></div>
+            {/* Modal Layer */}
+            <div className="relative z-50">
+                {/* Phase Change Confirmation Modal */}
+                {showConfirmModal && (() => {
+                    const uncheckedItems = getUncheckedItems(currentPhase, stageData);
+                    const hasUnchecked = uncheckedItems.length > 0;
 
-                        {/* Modal */}
-                        <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
-                            {/* Icon */}
-                            <div className="flex justify-center mb-4">
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-amber-100' : 'bg-blue-100'}`}>
+                    return (
+                        <div className="fixed inset-0 flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={cancelPhaseChange}></div>
+                            <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
+                                <div className="flex justify-center mb-6">
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-amber-500/20 text-amber-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                                        <span className="text-3xl">{hasUnchecked ? '⚠️' : '🚀'}</span>
+                                    </div>
+                                </div>
+                                <h3 className="text-xl font-bold text-center text-white mb-2">Move to {pendingPhase}?</h3>
+                                <p className="text-slate-400 text-center mb-6">
                                     {hasUnchecked ? (
-                                        <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
+                                        <>You have <strong className="text-amber-500">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>
                                     ) : (
-                                        <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <>Great job! All tasks in {currentPhase} are complete.</>
                                     )}
-                                </div>
-                            </div>
-
-                            {/* Title */}
-                            <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
-                                Move to {pendingPhase}?
-                            </h3>
-
-                            {/* Description */}
-                            <p className="text-gray-600 text-center mb-4">
-                                {hasUnchecked ? (
-                                    <>You have <strong className="text-amber-600">{uncheckedItems.length} unchecked task{uncheckedItems.length !== 1 ? 's' : ''}</strong> in the <strong>{currentPhase}</strong> phase.</>
-                                ) : (
-                                    <>Great job! All tasks in the <strong>{currentPhase}</strong> phase are complete.</>
+                                </p>
+                                {hasUnchecked && (
+                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6 max-h-32 overflow-y-auto custom-scrollbar">
+                                        <ul className="space-y-2">
+                                            {uncheckedItems.slice(0, 5).map(item => (
+                                                <li key={item.key} className="flex items-center gap-3 text-sm text-amber-200">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                    {item.label}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 )}
-                            </p>
-
-                            {/* Unchecked Items List */}
-                            {hasUnchecked && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 max-h-32 overflow-y-auto">
-                                    <p className="text-xs font-bold text-amber-700 uppercase mb-2">Incomplete tasks:</p>
-                                    <ul className="text-sm text-amber-800 space-y-1">
-                                        {uncheckedItems.slice(0, 5).map(item => (
-                                            <li key={item.key} className="flex items-center gap-2">
-                                                <span className="text-amber-400">○</span>
-                                                {item.label}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <div className="flex gap-4">
+                                    <button onClick={cancelPhaseChange} className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors">
+                                        Stay Here
+                                    </button>
+                                    <button onClick={confirmPhaseChange} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20">
+                                        Continue
+                                    </button>
                                 </div>
-                            )}
-
-                            <p className="text-gray-500 text-center text-sm mb-4">
-                                {hasUnchecked ? "You can still proceed, but consider completing these tasks first." : "Ready to move forward! 🚀"}
-                            </p>
-
-                            {/* Buttons */}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={cancelPhaseChange}
-                                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-colors ${hasUnchecked ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                                >
-                                    Stay Here
-                                </button>
-                                <button
-                                    onClick={confirmPhaseChange}
-                                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
-                                >
-                                    Yes, Continue
-                                </button>
                             </div>
+                        </div>
+                    );
+                })()}
+
+                {/* Error Modal */}
+                {showErrorModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowErrorModal(false)}></div>
+                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+                            <div className="flex justify-center mb-6">
+                                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
+                                    ✋
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-center text-white mb-2">Hold On!</h3>
+                            <p className="text-slate-400 text-center mb-8">{errorMessage}</p>
+                            <button onClick={() => setShowErrorModal(false)} className="w-full px-4 py-3 bg-red-500/80 text-white rounded-xl font-medium hover:bg-red-500 transition-colors">
+                                Got it
+                            </button>
                         </div>
                     </div>
-                );
-            })()}
+                )}
+            </div>
 
-            {/* Error/Info Modal */}
-            {showErrorModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={() => setShowErrorModal(false)}
-                    ></div>
-
-                    {/* Modal */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 transform transition-all">
-                        {/* Icon */}
-                        <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
-                                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
+            {/* Header */}
+            <header className="glass-panel border-b border-white/5 z-20 shrink-0 relative">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => router.push('/project-management')}>
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
+                                DB
                             </div>
+                            <span className="font-bold text-lg text-white tracking-tight">DesignBot</span>
                         </div>
-
-                        {/* Title */}
-                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
-                            Hold On! ✋
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-gray-600 text-center mb-6">
-                            {errorMessage}
-                        </p>
-
-                        {/* Button */}
-                        <button
-                            onClick={() => setShowErrorModal(false)}
-                            className="w-full px-4 py-3 bg-amber-500 text-white rounded-xl font-medium hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30"
-                        >
-                            Got it!
+                        <nav className="hidden md:flex space-x-1">
+                            <span className="px-3 py-1 rounded-full bg-white/5 text-sm text-slate-300 border border-white/5">
+                                Workspace / {initialName}
+                            </span>
+                        </nav>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {/* Mobile Chat Toggle */}
+                        <button onClick={() => setShowMobileChat(!showMobileChat)} className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                            {showMobileChat ? (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            ) : (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                            )}
                         </button>
                     </div>
                 </div>
-            )}
+            </header>
 
-            {/* Nav */}
-            <nav className="bg-white shadow-sm border-b border-gray-200 z-10 shrink-0">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <div className="flex-shrink-0 flex items-center font-bold text-blue-600 text-xl cursor-pointer" onClick={() => router.push('/project-management')}>
-                                DesignBot
-                            </div>
-                            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                                <a href="#" className="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                    Workspace
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <div className="flex flex-1 overflow-hidden relative z-10">
+                {/* Main Content */}
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+                    <div className="max-w-5xl mx-auto">
 
-            <div className="flex flex-1 overflow-hidden relative">
-                {/* Mobile Chat Toggle Button */}
-                <button
-                    onClick={() => setShowMobileChat(!showMobileChat)}
-                    className="lg:hidden fixed bottom-6 right-6 z-30 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition-all"
-                >
-                    {showMobileChat ? (
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    ) : (
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                    )}
-                </button>
-
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold mb-4">Project Progress: {initialName}</h2>
-                        <div className="flex items-center justify-between w-full relative">
-                            <div className="absolute w-full top-1/2 transform -translate-y-1/2 bg-gray-200 h-1 z-0"></div>
-
-                            {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, idx) => (
-                                <div key={phase} className="relative z-10 text-center cursor-pointer" onClick={() => changePhase(phase)}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto font-bold shadow-lg transition-all ${getStepClass(phase)}`}>
-                                        {idx + 1}
+                        {/* Phase Progress Bar */}
+                        <div className="mb-10 relative">
+                            <div className="absolute top-5 left-0 w-full h-0.5 bg-white/10 z-0"></div>
+                            <div className="relative z-10 flex justify-between px-2">
+                                {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, idx) => (
+                                    <div key={phase} className="flex flex-col items-center cursor-pointer group" onClick={() => changePhase(phase)}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${getStepClass(phase)} group-hover:scale-110`}>
+                                            {idx + 1}
+                                        </div>
+                                        <span className={`text-xs font-semibold mt-3 transition-colors ${phase === currentPhase ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                                            {phase}
+                                        </span>
                                     </div>
-                                    <span className="text-sm font-medium mt-2 block text-gray-600">{phase}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Phase-specific content area with dynamic colors */}
-                    <div className={`rounded-xl shadow-lg p-6 mb-6 transition-colors duration-300 ${currentPhase === 'Empathize' ? 'bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200' :
-                        currentPhase === 'Define' ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200' :
-                            currentPhase === 'Ideate' ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200' :
-                                currentPhase === 'Prototype' ? 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200' :
-                                    'bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200'
-                        }`}>
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${currentPhase === 'Empathize' ? 'bg-purple-200' :
-                                    currentPhase === 'Define' ? 'bg-blue-200' :
-                                        currentPhase === 'Ideate' ? 'bg-yellow-200' :
-                                            currentPhase === 'Prototype' ? 'bg-green-200' :
-                                                'bg-indigo-200'
-                                    }`}>
-                                    {currentPhase === 'Empathize' && '💜'}
-                                    {currentPhase === 'Define' && '🎯'}
-                                    {currentPhase === 'Ideate' && '💡'}
-                                    {currentPhase === 'Prototype' && '🛠️'}
-                                    {currentPhase === 'Test' && '🧪'}
-                                </div>
-                                <div>
-                                    <h3 className={`text-xl font-bold ${currentPhase === 'Empathize' ? 'text-purple-800' :
-                                        currentPhase === 'Define' ? 'text-blue-800' :
-                                            currentPhase === 'Ideate' ? 'text-yellow-800' :
-                                                currentPhase === 'Prototype' ? 'text-green-800' :
-                                                    'text-indigo-800'
-                                        }`}>Phase: {currentPhase}</h3>
-                                    <p className="text-sm text-gray-600">
-                                        {currentPhase === 'Empathize' && 'Understand your users deeply'}
-                                        {currentPhase === 'Define' && 'Define the core problem'}
-                                        {currentPhase === 'Ideate' && 'Generate creative solutions'}
-                                        {currentPhase === 'Prototype' && 'Build quick prototypes'}
-                                        {currentPhase === 'Test' && 'Test and iterate'}
-                                    </p>
-                                </div>
+                                ))}
                             </div>
-                            <div className="flex items-center gap-2">
-                                {/* Export PDF Button */}
-                                <button
-                                    onClick={handlePrint}
-                                    className="flex items-center gap-2 text-sm bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors shadow"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Export PDF
-                                </button>
-                                <SharePopover
-                                    projectId={projectId}
-                                    triggerButton={
-                                        <button
-                                            className="flex items-center gap-2 text-sm bg-white/80 text-gray-700 px-3 py-2 rounded-md hover:bg-white transition-colors shadow"
-                                        >
-                                            Share Project
+                        </div>
+
+                        {/* Stage Content Card */}
+                        <div className={`glass-card rounded-2xl p-0 overflow-hidden mb-8 transition-all duration-500`}>
+                            {/* Card Header */}
+                            <div className={`p-6 border-b border-white/5 bg-white/5`}>
+                                <div className="flex flex-wrap justify-between items-center gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-2xl shadow-inner">
+                                            {currentPhase === 'Empathize' && '💜'}
+                                            {currentPhase === 'Define' && '🎯'}
+                                            {currentPhase === 'Ideate' && '💡'}
+                                            {currentPhase === 'Prototype' && '🛠️'}
+                                            {currentPhase === 'Test' && '🧪'}
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-white tracking-tight">Phase: {currentPhase}</h2>
+                                            <p className="text-slate-400 text-sm">
+                                                {currentPhase === 'Empathize' && 'Understand your users deeply'}
+                                                {currentPhase === 'Define' && 'Define the core problem'}
+                                                {currentPhase === 'Ideate' && 'Generate creative solutions'}
+                                                {currentPhase === 'Prototype' && 'Build quick prototypes'}
+                                                {currentPhase === 'Test' && 'Test and iterate'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3">
+                                        <button onClick={handlePrint} className="glass-button px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                            Export PDF
                                         </button>
-                                    }
-                                />
-                            </div>
-                        </div>
-
-                        {/* Empathize Stage - Show Empathy Map */}
-                        {currentPhase === 'Empathize' && projectId && (
-                            <EmpathyMap
-                                projectId={projectId}
-                                data={stageData}
-                                onUpdate={setStageData}
-                            />
-                        )}
-
-                        {/* Checklist for current stage */}
-                        {projectId && (
-                            <StageChecklist
-                                projectId={projectId}
-                                stage={currentPhase}
-                                data={stageData}
-                                onUpdate={setStageData}
-                            />
-                        )}
-
-
-                        {/* File upload area */}
-                        <div className="bg-white rounded-xl shadow p-6">
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">Upload Research Files</h4>
-                            <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isUploading ? 'bg-gray-50 border-gray-300' : 'border-gray-300 hover:bg-gray-50 cursor-pointer'}`}
-                                onClick={() => !isUploading && document.getElementById('file-upload')?.click()}
-                            >
-                                {isUploading ? (
-                                    <div className="flex flex-col items-center">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                                        <p className="text-sm text-gray-600">Uploading...</p>
+                                        <SharePopover projectId={projectId} triggerButton={
+                                            <button className="glass-button px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                                Share
+                                            </button>
+                                        } />
                                     </div>
-                                ) : (
-                                    <>
-                                        <p className="text-sm text-gray-600">
-                                            <span className="font-medium text-blue-600 hover:text-blue-500">Upload a file</span>
-                                            {' '}or drag and drop
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">Images, PDF, Text (Max 10MB)</p>
-                                    </>
-                                )}
-                                <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} disabled={isUploading} />
+                                </div>
                             </div>
 
-                            {files.length > 0 && (
-                                <div className="mt-4">
-                                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        {files.map((f, i) => (
-                                            <li key={i} className="bg-gray-50 border rounded-lg p-3 flex items-start justify-between group">
-                                                <div className="flex items-center flex-1 min-w-0">
-                                                    <div className={`p-2 rounded font-bold text-xs flex-shrink-0 ${f.fileType === 'image' ? 'bg-purple-100 text-purple-600' :
-                                                        f.fileType === 'pdf' ? 'bg-red-100 text-red-600' :
-                                                            'bg-blue-100 text-blue-600'
-                                                        }`}>
-                                                        {f.fileType === 'image' ? 'IMG' : f.fileType === 'pdf' ? 'PDF' : 'DOC'}
-                                                    </div>
-                                                    <div className="ml-3 flex-1 min-w-0">
-                                                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block" title={f.name}>
-                                                            {f.name}
-                                                        </a>
-                                                        <p className="text-xs text-gray-500 flex items-center gap-2">
-                                                            {f.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown size'}
-                                                            <span>•</span>
-                                                            {new Date(f.uploadedAt).toLocaleDateString()}
-                                                        </p>
-                                                    </div>
+                            {/* Card Content Body */}
+                            <div className="p-6 md:p-8 bg-[#0f172a]/50">
+                                {/* Empathize Stage - Show Empathy Map */}
+                                {currentPhase === 'Empathize' && projectId && (
+                                    <div className="mb-8">
+                                        <EmpathyMap projectId={projectId} data={stageData} onUpdate={setStageData} />
+                                    </div>
+                                )}
+
+                                {/* Checklist for current stage */}
+                                {projectId && (
+                                    <div className="mb-8">
+                                        <StageChecklist projectId={projectId} stage={currentPhase} data={stageData} onUpdate={setStageData} />
+                                    </div>
+                                )}
+
+                                {/* File Upload Area */}
+                                <div className="glass-panel rounded-xl p-6 border border-dashed border-white/20 hover:border-blue-500/50 transition-colors">
+                                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Research Files</h4>
+
+                                    <div
+                                        onClick={() => !isUploading && document.getElementById('file-upload')?.click()}
+                                        className={`rounded-xl p-8 text-center cursor-pointer transition-all ${isUploading ? 'bg-white/5' : 'hover:bg-white/5'}`}
+                                    >
+                                        {isUploading ? (
+                                            <div className="flex flex-col items-center">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
+                                                <p className="text-slate-400 text-sm">Uploading your file...</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3">
+                                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                                                 </div>
-                                                <button
-                                                    onClick={() => handleDeleteFile(f.publicId)}
-                                                    className="p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    title="Delete file"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                                <p className="text-slate-300 font-medium">Click to upload or drag and drop</p>
+                                                <p className="text-slate-500 text-xs">PDF, Images, Text (Max 10MB)</p>
+                                            </div>
+                                        )}
+                                        <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} disabled={isUploading} />
+                                    </div>
+
+                                    {files.length > 0 && (
+                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+                                            {files.map((f, i) => (
+                                                <li key={i} className="glass-button p-3 rounded-xl flex items-center justify-between group">
+                                                    <div className="flex items-center min-w-0 gap-3">
+                                                        <div className={`p-2 rounded-lg text-xs font-bold ${f.fileType === 'image' ? 'bg-purple-500/20 text-purple-300' : f.fileType === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                                                            {f.fileType === 'image' ? 'IMG' : f.fileType === 'pdf' ? 'PDF' : 'DOC'}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-200 hover:text-white truncate block" title={f.name}>
+                                                                {f.name}
+                                                            </a>
+                                                            <p className="text-[10px] text-slate-500">{f.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button onClick={() => handleDeleteFile(f.publicId)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </main>
 
-                {/* Chat Sidebar - Hidden on mobile, slide in when toggled */}
-                {/* Desktop minimized state shows a thin bar with expand button */}
+                {/* Chat Sidebar */}
                 {isChatMinimized ? (
-                    <div className="hidden lg:flex flex-col w-12 bg-blue-600 items-center py-4 border-l border-gray-200 shadow-xl">
-                        <button
-                            onClick={() => setIsChatMinimized(false)}
-                            className="p-2 text-white hover:bg-blue-500 rounded-lg transition"
-                            title="Expand Chat"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                            </svg>
+                    <div className="hidden lg:flex flex-col w-12 bg-[#1e293b] border-l border-white/5 items-center py-6 z-20">
+                        <button onClick={() => setIsChatMinimized(false)} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" title="Expand Chat">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
                         </button>
-                        <div className="mt-4 text-white text-xs font-bold transform -rotate-90 whitespace-nowrap origin-center" style={{ marginTop: '80px' }}>
-                            💬 Chat
-                        </div>
+                        <div className="mt-8 text-slate-400 text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
                     </div>
                 ) : (
-                    <aside className={`
-                        fixed lg:relative inset-y-0 right-0 
-                        w-full sm:w-96 
-                        bg-white border-l border-gray-200 flex flex-col shadow-xl z-20
-                        transform transition-transform duration-300 ease-in-out
-                        ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-                    `}>
-                        <div className="p-4 border-b border-gray-200 bg-blue-600 text-white flex justify-between items-center">
-                            <div>
-                                <h2 className="text-lg font-semibold">Socratic Bot</h2>
-                                <p className="text-xs text-blue-100">Design Thinking Mentor</p>
+                    <aside className={`fixed lg:relative inset-y-0 right-0 w-full sm:w-96 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+
+                        {/* Chat Header */}
+                        <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                                    </div>
+                                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1e293b] rounded-full"></span>
+                                </div>
+                                <div>
+                                    <h2 className="font-bold text-white text-sm">Socratic Bot</h2>
+                                    <p className="text-xs text-blue-400">Design Mentor</p>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                {/* Minimize button for desktop */}
-                                <button
-                                    onClick={() => setIsChatMinimized(true)}
-                                    className="hidden lg:block p-1 hover:bg-blue-500 rounded"
-                                    title="Minimize Chat"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                                    </svg>
+                            <div className="flex items-center gap-1">
+                                <button onClick={() => setIsChatMinimized(true)} className="hidden lg:block p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                                 </button>
-                                {/* Close button for mobile */}
-                                <button
-                                    onClick={() => setShowMobileChat(false)}
-                                    className="lg:hidden p-1 hover:bg-blue-500 rounded"
-                                >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                <button onClick={() => setShowMobileChat(false)} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                        {/* Chat Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                             {isLoadingHistory ? (
-                                <div className="flex items-center justify-center h-full">
-                                    <div className="text-gray-500 text-sm">Loading chat history...</div>
+                                <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-3">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                    <p className="text-sm">Loading history...</p>
                                 </div>
                             ) : (
                                 messages.map((msg, i) => (
-                                    <div key={i} className="flex items-start">
-                                        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${msg.sender === 'Bot' ? 'bg-blue-600' : 'bg-green-500'}`}>
-                                            {msg.sender === 'Bot' ? 'Bot' : 'You'}
+                                    <div key={i} className={`flex items-start gap-3 ${msg.sender !== 'Bot' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${msg.sender === 'Bot' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}`}>
+                                            {msg.sender === 'Bot' ? 'AI' : 'Me'}
                                         </div>
-                                        <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-700 border border-gray-100"
-                                            dangerouslySetInnerHTML={{ __html: msg.text }}>
-                                        </div>
+                                        <div
+                                            className={`p-3.5 rounded-2xl text-sm shadow-md max-w-[85%] leading-relaxed ${msg.sender === 'Bot'
+                                                ? 'bg-white/10 text-slate-200 border border-white/5 rounded-tl-none'
+                                                : 'bg-blue-600 text-white rounded-tr-none shadow-blue-500/10'
+                                                }`}
+                                            dangerouslySetInnerHTML={{ __html: msg.text }}
+                                        ></div>
                                     </div>
                                 ))
                             )}
                             {isTyping && (
-                                <div className="flex items-start">
-                                    <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold bg-blue-600">
-                                        Bot
-                                    </div>
-                                    <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-500 border border-gray-100">
-                                        <span className="animate-pulse">Thinking...</span>
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">AI</div>
+                                    <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none border border-white/5 flex gap-1.5 items-center">
+                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-4 border-t border-gray-200 bg-white">
-                            <form onSubmit={sendMessage} className="flex gap-2">
+                        {/* Chat Input */}
+                        <div className="p-4 bg-white/5 border-t border-white/5">
+                            <form onSubmit={sendMessage} className="relative">
                                 <input
                                     type="text"
-                                    className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Type a message..."
                                     value={chatInput}
                                     onChange={(e) => setChatInput(e.target.value)}
+                                    placeholder="Type your answer..."
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
                                 />
-                                <button type="submit" className="bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition">
-                                    Send
+                                <button
+                                    type="submit"
+                                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white/5 text-slate-500 cursor-not-allowed'}`}
+                                    disabled={!chatInput.trim()}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </button>
                             </form>
                         </div>
@@ -930,7 +809,7 @@ function ProjectContent() {
                 )}
             </div>
 
-            {/* Hidden PDF Export Component */}
+            {/* Hidden PDF Export Component - Keeping original as it's for print */}
             <div style={{ display: 'none' }}>
                 <ProjectPDFExport
                     ref={pdfContentRef}
@@ -942,14 +821,13 @@ function ProjectContent() {
                     createdAt={new Date()}
                 />
             </div>
-
         </div>
     );
 }
 
 export default function ProjectPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Loading...</div>}>
             <ProjectContent />
         </Suspense>
     );

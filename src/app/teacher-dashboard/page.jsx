@@ -3,56 +3,56 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Phase color configuration matching project page
+// Cosmic Phase Configuration
 const PHASE_CONFIG = {
     'Empathize': {
         emoji: '💜',
-        bgGradient: 'bg-gradient-to-br from-purple-50 to-pink-50',
-        border: 'border-purple-300',
+        bgGradient: 'bg-purple-900/20',
+        border: 'border-purple-500/30',
         borderLeft: 'border-l-purple-500',
-        badge: 'bg-purple-100 text-purple-700',
+        badge: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
         progress: 'bg-purple-500',
-        icon: 'bg-purple-200',
+        icon: 'bg-purple-500/20 text-purple-300',
         index: 1
     },
     'Define': {
         emoji: '🎯',
-        bgGradient: 'bg-gradient-to-br from-blue-50 to-cyan-50',
-        border: 'border-blue-300',
+        bgGradient: 'bg-blue-900/20',
+        border: 'border-blue-500/30',
         borderLeft: 'border-l-blue-500',
-        badge: 'bg-blue-100 text-blue-700',
+        badge: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
         progress: 'bg-blue-500',
-        icon: 'bg-blue-200',
+        icon: 'bg-blue-500/20 text-blue-300',
         index: 2
     },
     'Ideate': {
         emoji: '💡',
-        bgGradient: 'bg-gradient-to-br from-yellow-50 to-orange-50',
-        border: 'border-yellow-300',
+        bgGradient: 'bg-yellow-900/10',
+        border: 'border-yellow-500/30',
         borderLeft: 'border-l-yellow-500',
-        badge: 'bg-yellow-100 text-yellow-700',
+        badge: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30',
         progress: 'bg-yellow-500',
-        icon: 'bg-yellow-200',
+        icon: 'bg-yellow-500/20 text-yellow-300',
         index: 3
     },
     'Prototype': {
         emoji: '🛠️',
-        bgGradient: 'bg-gradient-to-br from-green-50 to-emerald-50',
-        border: 'border-green-300',
+        bgGradient: 'bg-green-900/20',
+        border: 'border-green-500/30',
         borderLeft: 'border-l-green-500',
-        badge: 'bg-green-100 text-green-700',
+        badge: 'bg-green-500/20 text-green-300 border border-green-500/30',
         progress: 'bg-green-500',
-        icon: 'bg-green-200',
+        icon: 'bg-green-500/20 text-green-300',
         index: 4
     },
     'Test': {
         emoji: '🧪',
-        bgGradient: 'bg-gradient-to-br from-indigo-50 to-violet-50',
-        border: 'border-indigo-300',
+        bgGradient: 'bg-indigo-900/20',
+        border: 'border-indigo-500/30',
         borderLeft: 'border-l-indigo-500',
-        badge: 'bg-indigo-100 text-indigo-700',
+        badge: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
         progress: 'bg-indigo-500',
-        icon: 'bg-indigo-200',
+        icon: 'bg-indigo-500/20 text-indigo-300',
         index: 5
     }
 };
@@ -137,65 +137,77 @@ export default function TeacherDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 font-sans text-gray-800">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen p-8 relative overflow-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
+            {/* Cosmic Background */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute bottom-[-20%] right-[20%] w-[600px] h-[600px] bg-indigo-900/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
+            </div>
+
+            <div className="relative z-10 max-w-6xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center glass-card p-6 rounded-2xl">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-800">Teacher Dashboard 🍎</h1>
-                        <p className="text-gray-500 mt-1">Monitor student progress in Design Thinking projects</p>
+                        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                            <span className="text-4xl">🍎</span> Teacher Dashboard
+                        </h1>
+                        <p className="text-slate-400 mt-1">Monitor student progress in Design Thinking projects</p>
                     </div>
                     <button
                         onClick={() => router.push('/project-management')}
-                        className="bg-white text-gray-700 px-4 py-2 rounded-lg shadow hover:shadow-md transition border border-gray-200"
+                        className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
                     >
                         ← Back to Projects
                     </button>
                 </div>
 
                 {/* Student Selector */}
-                <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <div className="glass-panel p-8 rounded-2xl">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-3 text-white">
                         <span className="text-2xl">👨‍🎓</span> Select a Student
                     </h2>
-                    <select
-                        value={selectedStudent}
-                        onChange={(e) => setSelectedStudent(e.target.value)}
-                        className="w-full md:w-1/2 p-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                    >
-                        <option value="">-- Choose a student --</option>
-                        {students.map(student => (
-                            <option key={student._id} value={student.username}>
-                                {student.username} ({student.email})
-                            </option>
-                        ))}
-                    </select>
+                    <div className="relative max-w-xl">
+                        <select
+                            value={selectedStudent}
+                            onChange={(e) => setSelectedStudent(e.target.value)}
+                            className="glass-input w-full p-4 rounded-xl text-lg appearance-none cursor-pointer"
+                        >
+                            <option value="" className="bg-slate-800 text-slate-400">-- Choose a student --</option>
+                            {students.map(student => (
+                                <option key={student._id} value={student.username} className="bg-slate-800 text-white">
+                                    {student.username} ({student.email})
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
                     {students.length === 0 && (
-                        <p className="text-gray-400 mt-2 text-sm italic">No students found in the system.</p>
+                        <p className="text-slate-500 mt-3 text-sm italic">No students found in the system.</p>
                     )}
                 </div>
 
                 {/* Projects Grid */}
                 {selectedStudent && (
-                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-indigo-700 flex items-center gap-2">
-                                <span>📁</span> Projects: {selectedStudent}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                                <span>📁</span> Projects: <span className="text-blue-400">{selectedStudent}</span>
                             </h2>
-                            <span className="text-sm text-gray-500">
+                            <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium border border-blue-500/20">
                                 {studentProjects.length} project{studentProjects.length !== 1 ? 's' : ''}
                             </span>
                         </div>
 
                         {loading ? (
-                            <div className="flex items-center justify-center py-12">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-                                <span className="ml-3 text-gray-500">Loading projects...</span>
+                            <div className="flex items-center justify-center py-20">
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
+                                <span className="ml-4 text-slate-400 text-lg">Loading projects...</span>
                             </div>
                         ) : studentProjects.length === 0 ? (
-                            <div className="text-center py-12">
-                                <span className="text-5xl mb-4 block">📭</span>
-                                <p className="text-gray-500 italic">No projects found for this student.</p>
+                            <div className="glass-panel p-16 rounded-2xl text-center border-dashed border-2 border-slate-700/50">
+                                <span className="text-6xl mb-6 block opacity-50">📭</span>
+                                <p className="text-slate-400 text-xl italic">No projects found for this student.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -207,67 +219,69 @@ export default function TeacherDashboard() {
                                     return (
                                         <div
                                             key={project._id}
-                                            className={`rounded-xl p-5 hover:shadow-xl transition-all duration-300 border-l-4 ${config.borderLeft} ${config.bgGradient} border ${config.border}`}
+                                            className={`rounded-2xl p-6 hover:translate-y-[-4px] transition-all duration-300 border-l-4 ${config.borderLeft} ${config.bgGradient} backdrop-blur-md border ${config.border} shadow-lg relative overflow-hidden`}
                                         >
+
                                             {/* Project Header */}
-                                            <div className="flex items-start justify-between mb-3">
-                                                <h3 className="font-bold text-xl text-gray-800">{project.name}</h3>
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xl ${config.icon}`}>
+                                            <div className="flex items-start justify-between mb-4">
+                                                <h3 className="font-bold text-xl text-white tracking-wide">{project.name}</h3>
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${config.icon}`}>
                                                     {config.emoji}
                                                 </div>
                                             </div>
 
                                             {/* Current Phase Badge */}
-                                            <div className="mb-4">
-                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Current Phase</span>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${config.badge}`}>
+                                            <div className="mb-6">
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Phase</span>
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <span className={`px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm ${config.badge}`}>
                                                         {config.emoji} {project.phase}
                                                     </span>
-                                                    <span className="text-xs text-gray-400">({config.index}/5)</span>
+                                                    <span className="text-xs text-slate-500 font-mono">Step {config.index}/5</span>
                                                 </div>
                                             </div>
 
                                             {/* Progress Bar */}
-                                            <div className="mb-4">
-                                                <div className="flex justify-between text-xs mb-1">
-                                                    <span className="font-bold text-gray-400 uppercase tracking-wide">Completion</span>
-                                                    <span className="font-semibold text-gray-600">{completion}%</span>
+                                            <div className="mb-6">
+                                                <div className="flex justify-between text-xs mb-2">
+                                                    <span className="font-bold text-slate-400 uppercase tracking-wider">Completion</span>
+                                                    <span className="font-bold text-white">{completion}%</span>
                                                 </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div className="w-full bg-black/20 rounded-full h-2">
                                                     <div
-                                                        className={`h-2.5 rounded-full transition-all duration-500 ${config.progress}`}
+                                                        className={`h-2 rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_currentColor] ${config.progress}`}
                                                         style={{ width: `${completion}%` }}
                                                     ></div>
                                                 </div>
                                             </div>
 
                                             {/* Stats Row */}
-                                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                                <div className="bg-white/60 rounded-lg p-2 text-center">
-                                                    <span className="text-lg font-bold text-gray-700">{messageCount}</span>
-                                                    <p className="text-xs text-gray-500">💬 Messages</p>
+                                            <div className="grid grid-cols-2 gap-3 mb-6">
+                                                <div className="bg-black/20 rounded-xl p-3 text-center border border-white/5">
+                                                    <span className="text-lg font-bold text-white">{messageCount}</span>
+                                                    <p className="text-xs text-slate-400 mt-1">💬 Messages</p>
                                                 </div>
-                                                <div className="bg-white/60 rounded-lg p-2 text-center">
-                                                    <span className="text-lg font-bold text-gray-700">{config.index}</span>
-                                                    <p className="text-xs text-gray-500">📍 Phase</p>
+                                                <div className="bg-black/20 rounded-xl p-3 text-center border border-white/5">
+                                                    <span className="text-lg font-bold text-white">{config.index}</span>
+                                                    <p className="text-xs text-slate-400 mt-1">📍 Phase Step</p>
                                                 </div>
                                             </div>
 
                                             {/* Last Activity */}
-                                            <div className="mb-4">
-                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Last Active</span>
-                                                <p className="text-sm text-gray-600">{getLastActivity(project)}</p>
+                                            <div className="mb-6">
+                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Last Active</span>
+                                                <p className="text-sm text-slate-300 mt-1 font-medium">{getLastActivity(project)}</p>
                                             </div>
 
                                             {/* View Button */}
                                             <button
-                                                className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${config.badge} hover:opacity-80`}
+                                                className={`w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 border border-white/10 hover:bg-white/10 text-white shadow-lg`}
+                                                style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
                                                 onClick={() => {
                                                     router.push(`/project?id=${project._id}&name=${project.name}&phase=${project.phase}`);
                                                 }}
                                             >
-                                                View Project Details →
+                                                View Details →
                                             </button>
                                         </div>
                                     );

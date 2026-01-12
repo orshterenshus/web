@@ -1,5 +1,5 @@
 
-import dbConnect from '@/lib/db';
+import dbConnect from '@/utils/db';
 import Project from '@/models/Project';
 import User from '@/models/User';
 import { NextResponse } from 'next/server';
