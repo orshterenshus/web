@@ -167,7 +167,7 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                     disabled={isCreating}
                     className={`px-4 py-2 text-white rounded-lg font-medium transition-colors shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'ai' ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/20'}`}
                 >
-                    <span>{isCreating ? '...' : '+'}</span> {isCreating ? 'Creating...' : 'New Session'}
+                    <span>{isCreating ? '' : '+'}</span> {isCreating ? 'Creating...' : 'New Session'}
                 </button>
             </div>
 
