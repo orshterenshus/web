@@ -270,7 +270,7 @@ Respond as Socratic Bot:`;
         // Handle specific Gemini errors
         if (error.message?.includes('API_KEY') || error.message?.includes('API key')) {
             return NextResponse.json(
-                { error: 'Invalid API key. Please check your GEMINI_API_KEY in .env.local' },
+                { error: 'Invalid API key. Please check your GEMINI_API_KEY in .env' },
                 { status: 401 }
             );
         }

@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId }) {
     const [newNote, setNewNote] = useState({ quadrant: null, text: '' });
     const [isAdding, setIsAdding] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(null); // Stores ID of note being deleted
     const [activeTab, setActiveTab] = useState('user'); // 'user' or 'ai'
 
     const quadrants = [
@@ -58,7 +59,9 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
     };
 
     const handleDeleteNote = async (quadrant, noteId) => {
-        if (!activePersonaId) return;
+        if (!activePersonaId || isDeleting) return;
+
+        setIsDeleting(noteId);
         try {
             const fieldPath = getFieldPath(activeTab, quadrant);
 
@@ -79,6 +82,8 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
             }
         } catch (error) {
             console.error('Failed to delete note:', error);
+        } finally {
+            setIsDeleting(null);
         }
     };
 
@@ -157,10 +162,11 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
                                     <p className="break-words w-full">{typeof note === 'object' ? note.text : note}</p>
                                     <button
                                         onClick={() => handleDeleteNote(q.key, note.id)}
-                                        className="absolute top-1 right-1 w-5 h-5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full text-lg opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"
+                                        disabled={isDeleting === note.id}
+                                        className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-gray-300' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100'}`}
                                         title="Delete note"
                                     >
-                                        ×
+                                        {isDeleting === note.id ? '...' : '×'}
                                     </button>
                                 </div>
                             ))}

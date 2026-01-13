@@ -1,10 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ConfirmationModal from '../Shared/ConfirmationModal';
 
 export default function UserInterviews({ projectId, data, onUpdate, activePersonaId, personaName }) {
     const [interviews, setInterviews] = useState([]);
     const [activeInterviewId, setActiveInterviewId] = useState(null);
+    const [isCreating, setIsCreating] = useState(false);
+
+    // Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [interviewToDelete, setInterviewToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Sync local interviews state with prop data
     useEffect(() => {
@@ -31,9 +38,10 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
         }
     }, [activePersonaId, interviews]);
 
-    const handleAddInterview = () => {
+    const handleAddInterview = async () => {
         if (!activePersonaId) return;
 
+        setIsCreating(true);
         const newInterview = {
             id: Date.now().toString(),
             personaId: activePersonaId,
@@ -42,8 +50,11 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
             questions: [] // Array of { q: '', a: '' }
         };
         const updated = [...interviews, newInterview];
-        updateData(updated);
+
+        await updateData(updated);
+
         setActiveInterviewId(newInterview.id);
+        setIsCreating(false);
     };
 
     const handleUpdateInterview = (id, field, value) => {
@@ -87,16 +98,28 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
         updateData(interviews);
     };
 
-    const handleDelete = (id) => {
-        if (confirm('Delete this interview record?')) {
-            const updated = interviews.filter(i => i.id !== id);
-            updateData(updated);
-            if (activeInterviewId === id) {
-                // Find next interview for this persona
-                const remaining = updated.filter(i => i.personaId === activePersonaId);
-                setActiveInterviewId(remaining.length > 0 ? remaining[0].id : null);
-            }
+    const handleDeleteClick = (id) => {
+        setInterviewToDelete(id);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDeleteInterview = async () => {
+        if (!interviewToDelete) return;
+
+        setIsDeleting(true);
+        const updated = interviews.filter(i => i.id !== interviewToDelete);
+
+        await updateData(updated);
+
+        if (activeInterviewId === interviewToDelete) {
+            // Find next interview for this persona
+            const remaining = updated.filter(i => i.personaId === activePersonaId);
+            setActiveInterviewId(remaining.length > 0 ? remaining[0].id : null);
         }
+
+        setIsDeleting(false);
+        setDeleteModalOpen(false);
+        setInterviewToDelete(null);
     };
 
     const updateData = async (updatedInterviews) => {
@@ -141,9 +164,10 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                 </div>
                 <button
                     onClick={handleAddInterview}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                    disabled={isCreating}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <span>+</span> New Session
+                    <span>{isCreating ? '...' : '+'}</span> {isCreating ? 'Creating...' : 'New Session'}
                 </button>
             </div>
 
@@ -259,7 +283,7 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
 
                             <div className="flex justify-end pt-4 border-t border-gray-50">
                                 <button
-                                    onClick={() => handleDelete(activeInterview.id)}
+                                    onClick={() => handleDeleteClick(activeInterview.id)}
                                     className="text-red-400 text-xs hover:text-red-600 uppercase font-bold tracking-wider"
                                 >
                                     Delete Interview
@@ -274,6 +298,16 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                     )}
                 </div>
             </div>
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={confirmDeleteInterview}
+                title="Delete Interview?"
+                message="Are you sure you want to delete this interview session? This action cannot be undone."
+                confirmText="Delete Interview"
+                isDangerous={true}
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

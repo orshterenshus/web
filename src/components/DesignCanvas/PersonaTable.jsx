@@ -1,9 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ConfirmationModal from '../Shared/ConfirmationModal';
 
 export default function PersonaTable({ projectId, data, onUpdate, activePersonaId, onPersonaSelect }) {
     const [personas, setPersonas] = useState([]);
+    const [isCreating, setIsCreating] = useState(false);
+
+    // Modal State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [personaToDelete, setPersonaToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (data?.empathize?.personas) {
@@ -11,13 +18,11 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
         }
     }, [data]);
 
-    const handleAddPersona = () => {
+    const handleAddPersona = async () => {
+        setIsCreating(true);
         const newPersona = {
             id: Date.now().toString(),
             name: 'New Persona',
-            demographics: '',
-            bio: '',
-            needs: '',
             demographics: '',
             bio: '',
             needs: '',
@@ -25,9 +30,12 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
             image: null
         };
         const updatedPersonas = [...personas, newPersona];
-        updateData(updatedPersonas);
+
+        await updateData(updatedPersonas);
+
         // Select the new persona
         onPersonaSelect(newPersona.id);
+        setIsCreating(false);
     };
 
     const handleUpdatePersona = (id, field, value) => {
@@ -42,20 +50,31 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
         updateData(personas);
     }
 
-    const handleDeletePersona = (id) => {
-        if (confirm('Are you sure you want to delete this persona?')) {
-            const updatedPersonas = personas.filter(p => p.id !== id);
-            updateData(updatedPersonas);
+    const handleDeleteClick = (id) => {
+        setPersonaToDelete(id);
+        setDeleteModalOpen(true);
+    };
 
-            // If we deleted the active persona, select another one
-            if (activePersonaId === id) {
-                if (updatedPersonas.length > 0) {
-                    onPersonaSelect(updatedPersonas[0].id);
-                } else {
-                    onPersonaSelect(null);
-                }
+    const confirmDeletePersona = async () => {
+        if (!personaToDelete) return;
+
+        setIsDeleting(true);
+        const updatedPersonas = personas.filter(p => p.id !== personaToDelete);
+
+        await updateData(updatedPersonas);
+
+        // If we deleted the active persona, select another one
+        if (activePersonaId === personaToDelete) {
+            if (updatedPersonas.length > 0) {
+                onPersonaSelect(updatedPersonas[0].id);
+            } else {
+                onPersonaSelect(null);
             }
         }
+
+        setIsDeleting(false);
+        setDeleteModalOpen(false);
+        setPersonaToDelete(null);
     };
 
     const updateData = async (updatedPersonas) => {
@@ -91,9 +110,10 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                 <p className="text-gray-500 mb-6">Create personas to represent your target audience.</p>
                 <button
                     onClick={handleAddPersona}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/30"
+                    disabled={isCreating}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    + Create First Persona
+                    {isCreating ? 'Creating...' : '+ Create First Persona'}
                 </button>
             </div>
         );
@@ -137,10 +157,11 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                     ))}
                     <button
                         onClick={handleAddPersona}
-                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                        disabled={isCreating}
+                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-blue-100 hover:text-blue-600 transition-colors disabled:opacity-50"
                         title="Add Persona"
                     >
-                        +
+                        {isCreating ? '...' : '+'}
                     </button>
                 </div>
             </div>
@@ -247,7 +268,7 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                 {activePersona && (
                     <div className="mt-6 flex justify-end">
                         <button
-                            onClick={() => handleDeletePersona(activePersona.id)}
+                            onClick={() => handleDeleteClick(activePersona.id)}
                             className="text-red-400 text-sm hover:text-red-600 font-medium flex items-center gap-1"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -256,6 +277,17 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                     </div>
                 )}
             </div>
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={confirmDeletePersona}
+                title="Delete Persona?"
+                message="Are you sure you want to delete this persona? This action cannot be undone."
+                confirmText="Delete Persona"
+                isDangerous={true}
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

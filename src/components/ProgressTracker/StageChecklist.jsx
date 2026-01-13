@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Checklist items for each stage
 const STAGE_CHECKLISTS = {
@@ -8,11 +8,11 @@ const STAGE_CHECKLISTS = {
         title: 'Empathize Checklist',
         icon: '💜',
         items: [
-            { key: 'conductedInterviews', label: 'Conducted at least 3 user interviews' },
-            { key: 'documentedObservations', label: 'Documented observations and insights' },
-            { key: 'completedEmpathyMap', label: 'Completed the Empathy Map' },
-            { key: 'identifiedPainPoints', label: 'Identified key user pain points' },
-            { key: 'researchedContext', label: 'Researched the problem context' }
+            { key: 'identifyTargetUsers', label: 'Identify Target Users' },
+            { key: 'knowPhysicalEnv', label: 'Do I know the physical or digital environment where the "pain" occurs?' },
+            { key: 'createdPersona', label: 'Created a User Persona' },
+            { key: 'conductedInterviews', label: 'Conduct an interview' },
+            { key: 'completedEmpathyMap', label: 'Complete the Empathy map' }
         ]
     },
     define: {
@@ -71,6 +71,75 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
 
     // Safety: ensure data exists
     const checklistData = data?.[stageKey]?.checklist || {};
+
+    // Helper to update checklist item with explicit value
+    const updateChecklistItem = async (itemKey, newValue) => {
+        try {
+            const response = await fetch(`/api/projects/${projectId}/stageData`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    stage: stageKey,
+                    field: `checklist.${itemKey}`,
+                    value: newValue
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                onUpdate(result.stageData);
+            }
+        } catch (error) {
+            console.error(`Failed to auto-update checklist ${itemKey}:`, error);
+        }
+    };
+
+    // Check if an item is satisfied by data
+    const isSystemVerified = (key) => {
+        if (stageKey !== 'empathize' || !data?.empathize) return false;
+
+        const { personas, interviews, empathyMaps } = data.empathize;
+
+        if (key === 'createdPersona') {
+            return personas && personas.length > 0;
+        }
+
+        if (key === 'conductedInterviews') {
+            return interviews && interviews.length > 0;
+        }
+
+        if (key === 'completedEmpathyMap') {
+            if (!empathyMaps) return false;
+            return Object.values(empathyMaps).some(personaMap => {
+                return Object.values(personaMap).some(typeMap =>
+                    // typeMap is 'user' or 'ai' containing quadrants
+                    typeMap && Object.values(typeMap).some(notes => Array.isArray(notes) && notes.length > 0)
+                );
+            });
+        }
+
+        return false;
+    };
+
+    // Auto-check logic for Empathize phase
+    useEffect(() => {
+        if (stageKey !== 'empathize') return;
+
+        // check each auto-verifiable item
+        const verifyAndSync = (key) => {
+            const shouldBeChecked = isSystemVerified(key);
+            const isChecked = checklistData[key] || false;
+
+            if (shouldBeChecked !== isChecked) {
+                updateChecklistItem(key, shouldBeChecked);
+            }
+        };
+
+        verifyAndSync('createdPersona');
+        verifyAndSync('conductedInterviews');
+        verifyAndSync('completedEmpathyMap');
+
+    }, [data, stageKey, checklistData]); // Dependencies ensure we check whenever data updates
 
     const handleToggle = async (itemKey) => {
         setIsUpdating(itemKey);
@@ -151,12 +220,17 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={() => handleToggle(item.key)}
-                                disabled={isLoading}
+                                disabled={isLoading || isSystemVerified(item.key)}
                                 className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                             />
                             <span className={`flex-1 ${isChecked ? 'text-purple-700 line-through' : 'text-gray-700'}`}>
                                 {item.label}
                             </span>
+                            {isSystemVerified(item.key) && (
+                                <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-medium">
+                                    Auto-verified
+                                </span>
+                            )}
                             {isLoading && (
                                 <span className="text-gray-400 text-sm">Saving...</span>
                             )}
