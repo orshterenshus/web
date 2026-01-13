@@ -203,7 +203,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                                 onChange={(e) => setInputValues({ ...inputValues, technical: e.target.value })}
                                 onKeyPress={(e) => e.key === 'Enter' && addConstraint('technical')}
                                 placeholder="Enter technical constraint..."
-                                className="flex-1 px-4 py-2 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 px-4 py-2 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                             />
                             <button
                                 onClick={() => addConstraint('technical')}
@@ -250,7 +250,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                                 onChange={(e) => setInputValues({ ...inputValues, business: e.target.value })}
                                 onKeyPress={(e) => e.key === 'Enter' && addConstraint('business')}
                                 placeholder="Enter business constraint..."
-                                className="flex-1 px-4 py-2 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                className="flex-1 px-4 py-2 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
                             />
                             <button
                                 onClick={() => addConstraint('business')}
@@ -296,7 +296,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                             onChange={(e) => setInputValues({ ...inputValues, kpiMetric: e.target.value })}
                             onKeyPress={(e) => e.key === 'Enter' && document.getElementById('kpi-target').focus()}
                             placeholder="Metric name..."
-                            className="flex-1 px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="flex-1 px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                         />
                         <input
                             id="kpi-target"
@@ -305,7 +305,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                             onChange={(e) => setInputValues({ ...inputValues, kpiTarget: e.target.value })}
                             onKeyPress={(e) => e.key === 'Enter' && addKPI()}
                             placeholder="Target (e.g., < 2s or 90%)"
-                            className="flex-1 px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="flex-1 px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900"
                         />
                         <button
                             onClick={addKPI}

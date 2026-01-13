@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function PrioritizationMatrix({ projectId, ideas, currentUser, onWinningConcept, initialPrioritizedIdeas, initialVotes, initialWinningConcept }) {
+export default function PrioritizationMatrix({ projectId, ideas, currentUser, onWinningConcept, initialPrioritizedIdeas, initialVotes, initialWinningConcept, onMatrixUpdate }) {
     const [prioritizedIdeas, setPrioritizedIdeas] = useState([]);
     const [votes, setVotes] = useState({});
     const [winningConcept, setWinningConcept] = useState(null);
@@ -11,12 +11,23 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
 
     // Initialize state from props
     useEffect(() => {
-        if (initialPrioritizedIdeas) setPrioritizedIdeas(initialPrioritizedIdeas);
+        if (initialPrioritizedIdeas) {
+            // Defensive: Ensure we work with an array even if object is passed
+            if (Array.isArray(initialPrioritizedIdeas)) {
+                setPrioritizedIdeas(initialPrioritizedIdeas);
+            } else if (typeof initialPrioritizedIdeas === 'object') {
+                // Try to flatten if it matches the schema structure { quickWins: [], ... }
+                const flat = [];
+                Object.values(initialPrioritizedIdeas).forEach(val => {
+                    if (Array.isArray(val)) flat.push(...val);
+                });
+                setPrioritizedIdeas(flat);
+            }
+        }
         if (initialVotes) setVotes(initialVotes);
         if (initialWinningConcept) {
             setWinningConcept(initialWinningConcept);
-            // Ensure parent knows about the winner too if needed
-            if (onWinningConcept) onWinningConcept(initialWinningConcept);
+            // FIX: Do NOT call onWinningConcept here. It triggers parent handler -> scroll -> loop/jump.
         }
     }, [initialPrioritizedIdeas, initialVotes, initialWinningConcept]);
 
@@ -59,6 +70,22 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
 
         // Auto-save
         saveMatrix(winningConcept, newMatrix);
+
+        // Notify parent if handler provided
+        if (onMatrixUpdate) {
+            // If parent expects structure, we should convert? 
+            // For now pass flat, parent is flexible in current page.jsx implementation?
+            // page.jsx currently sets matrixData to flat if we pass flat. 
+            // BUT saveIdeationState sends it to API. API schema expects structured.
+            // We should map to structure for parent.
+            const structured = {
+                quickWins: newMatrix.filter(i => i.quadrant === 'high-low'),
+                majorProjects: newMatrix.filter(i => i.quadrant === 'high-high'),
+                fillIns: newMatrix.filter(i => i.quadrant === 'low-low'),
+                thanklessTasks: newMatrix.filter(i => i.quadrant === 'low-high')
+            };
+            onMatrixUpdate(structured);
+        }
     };
 
     const getIdeasInQuadrant = (quadrantId) => {
@@ -66,7 +93,12 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     };
 
     const getUnplacedIdeas = () => {
-        return ideas.filter(idea => !prioritizedIdeas.find(p => p.id === idea.id));
+        // Defensive check: Ensure we have arrays to work with
+        const safePlacedIdeas = Array.isArray(prioritizedIdeas) ? prioritizedIdeas : [];
+
+        return ideas.filter(idea =>
+            !safePlacedIdeas.find(p => p.id === idea.id)
+        );
     };
 
     const voteForIdea = (ideaId) => {
@@ -134,7 +166,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             {showVoting ? '📊 Hide Voting' : '🗳️ Start Voting'}
                         </button>
                         <button
-                            onClick={saveMatrix}
+                            onClick={() => saveMatrix()}
                             className="px-4 py-2 bg-white text-indigo-600 rounded-lg font-bold hover:bg-indigo-50 transition-colors shadow-lg"
                         >
                             Save Matrix
@@ -202,7 +234,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         onDragStart={(e) => handleDragStart(e, idea)}
                                         className="bg-white p-3 rounded-lg shadow-sm border border-green-300 group hover:shadow-md transition-all relative cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-gray-800">{idea.text}</p>
+                                        <p className="text-sm font-medium text-gray-900">{idea.text}</p>
 
                                         <div className="flex items-center justify-between mt-2">
                                             {showVoting && (
@@ -251,7 +283,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         onDragStart={(e) => handleDragStart(e, idea)}
                                         className="bg-white p-3 rounded-lg shadow-sm border border-blue-300 group hover:shadow-md transition-all cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-gray-800">{idea.text}</p>
+                                        <p className="text-sm font-medium text-gray-900">{idea.text}</p>
                                         {showVoting && (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button
@@ -289,7 +321,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         onDragStart={(e) => handleDragStart(e, idea)}
                                         className="bg-white p-3 rounded-lg shadow-sm border border-yellow-300 group hover:shadow-md transition-all cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-gray-800">{idea.text}</p>
+                                        <p className="text-sm font-medium text-gray-900">{idea.text}</p>
                                         {showVoting && (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button

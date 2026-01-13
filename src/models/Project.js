@@ -150,42 +150,41 @@ const ProjectSchema = new mongoose.Schema({
     },
 
     // IDEATE PHASE - Structured data
-    ideate: {
-        ideas: [{
+    ideation: {
+        // 1. Brainstorming Notes
+        brainstormingNotes: [{
             id: String,
-            text: String,
-            color: mongoose.Schema.Types.Mixed,
-            position: {
-                x: Number,
-                y: Number
-            },
-            createdBy: String,
-            createdAt: Date,
-            combined: Boolean,
-            originalIdeas: [String]
+            content: String,
+            x: Number,
+            y: Number,
+            color: mongoose.Schema.Types.Mixed, // Allows flexible color objects
+            rotation: Number
         }],
-        aiSuggestions: [{
-            technique: String,
-            text: String,
-            reasoning: String,
-            createdAt: Date
-        }],
-        prioritization: {
-            matrix: mongoose.Schema.Types.Mixed,
-            votes: mongoose.Schema.Types.Mixed,
-            winningConcept: mongoose.Schema.Types.Mixed
+
+        // 2. Prioritization Matrix (Semantic Keys)
+        matrix: {
+            quickWins: [{ id: String, content: String, quadrant: String }],
+            majorProjects: [{ id: String, content: String, quadrant: String }],
+            fillIns: [{ id: String, content: String, quadrant: String }],
+            thanklessTasks: [{ id: String, content: String, quadrant: String }]
         },
-        techSpec: {
-            functionalRequirements: [String],
-            nonFunctionalRequirements: [String],
-            architectureDiagram: String,
-            techStack: {
-                frontend: String,
-                backend: String,
-                database: String,
-                infrastructure: String
-            },
-            generatedAt: Date
+
+        // 3. Selection
+        winningSolution: {
+            id: String,
+            content: String
+        },
+
+        // 4. Specs & Architecture
+        requirements: {
+            functional: [String],
+            nonFunctional: [String]
+        },
+        architecture: {
+            frontend: String,
+            backend: String,
+            database: String,
+            dataFlow: String
         }
     }
 });

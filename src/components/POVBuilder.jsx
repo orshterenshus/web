@@ -151,7 +151,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.personaName}
                                 onChange={(e) => setPov({ ...pov, personaName: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-blue-300 rounded-lg font-bold text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[150px]"
+                                className="inline-block px-3 py-1.5 bg-white border-2 border-blue-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[150px]"
                                 placeholder="Persona Name"
                             />
                         </span>
@@ -161,7 +161,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.userNeed}
                                 onChange={(e) => setPov({ ...pov, userNeed: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-indigo-300 rounded-lg font-bold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-w-[200px]"
+                                className="inline-block px-3 py-1.5 bg-white border-2 border-indigo-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-w-[200px]"
                                 placeholder="accomplish something"
                             />
                         </span>
@@ -171,7 +171,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.insight}
                                 onChange={(e) => setPov({ ...pov, insight: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-purple-300 rounded-lg font-bold text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all min-w-[200px]"
+                                className="inline-block px-3 py-1.5 bg-white border-2 border-purple-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all min-w-[200px]"
                                 placeholder="root cause / insight"
                             />
                         </span>

@@ -3,87 +3,122 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function POST(request, { params }) {
-    try {
-        const { id } = params;
-        const body = await request.json();
-        const { user, winningConcept, pov, constraints, action } = body;
+  try {
+    const { id } = params;
+    const body = await request.json();
+    const { user, winningConcept, pov, constraints, action, funcCount = 5, nonFuncCount = 3, userStack } = body;
 
-        if (!user || !winningConcept) {
-            return Response.json({ error: 'Missing required fields' }, { status: 400 });
-        }
+    console.log('API /generate-techspec Received:', {
+      user,
+      hasWinningConcept: !!winningConcept,
+      winningConceptText: winningConcept?.text,
+      action,
+      hasConstraints: !!constraints
+    });
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    if (!user || !winningConcept) {
+      console.error('Missing required fields:', { user, winningConcept });
+      return Response.json({ error: 'Missing required fields: user or winningConcept' }, { status: 400 });
+    }
 
-        let prompt;
-        if (action === 'architecture') {
-            prompt = `Act as a CTO. Recommend the best tech stack and data flow for this solution, considering the constraints.
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is missing');
+      return Response.json({ error: 'Server configuration error: Missing API Key' }, { status: 500 });
+    }
 
-Winning Concept: ${winningConcept.text}
-Constraints: ${constraints?.technical?.join(', ') || 'None'}
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-Return JSON structure:
+
+    let prompt;
+    if (action === 'architecture') {
+      const solutionText = winningConcept.text || winningConcept;
+      const constraintsText = constraints ? JSON.stringify(constraints) : 'None';
+
+      prompt = `
+Act as a Senior System Architect.
+Task: Define the optimal Tech Stack & Data Flow for this specific solution: "${solutionText}".
+Constraints: "${constraintsText}".
+
+RULES:
+1. **Be Specific:** Do not say "React or Angular". Choose ONE best fit (e.g., "Next.js").
+2. **Context Aware:** - If it's a real-time app, suggest Node.js/Socket.io + Redis.
+   - If it's a financial app, suggest Java/Go + PostgreSQL.
+   - If it's a simple content site, suggest Gatsby/Jekyll + Headless CMS.
+3. **Format:** JSON ONLY.
+
+Output JSON Structure:
 {
-  "techStack": {
-    "frontend": "e.g., React, Tailwind",
-    "backend": "e.g., Node.js, Python",
-    "database": "e.g., PostgreSQL",
-    "infrastructure": "e.g., AWS, Vercel"
-  },
-  "architectureDiagram": "Description of data flow and system components..."
-}`;
-        } else {
-            // Default: Requirements
-            prompt = `You are a technical requirements engineer. Generate specific requirements for:
-Winning Concept: ${winningConcept.text}
-POV: ${pov?.personaName} needs ${pov?.userNeed}.
+  "architecture": {
+    "frontend": "Specific Framework (e.g., React Native)",
+    "backend": "Specific Runtime/Lang (e.g., Python FastAPI)",
+    "database": "Specific DB (e.g., PostgreSQL)",
+    "description": "A concise, technical description of how data flows from client to server to DB and back. Mention protocols (REST/GraphQL/WebSocket) if relevant."
+  }
+}
+`;
+    } else {
+      prompt = `
+Act as a Senior System Analyst.
+Task: Generate technical requirements for: "${winningConcept?.text || winningConcept}".
+Quantity: Generate EXACTLY ${funcCount} Functional requirements and ${nonFuncCount} Non-Functional requirements.
+CRITICAL: Ensure all ${parseInt(funcCount) + parseInt(nonFuncCount)} items are DISTINCT and non-repetitive. Do not duplicate ideas.
+Context:
+User Need: "${pov?.personaName || 'User'} needs to ${pov?.userNeed || 'solve a problem'} because ${pov?.insight || 'reason'}."
+Constraints: "${constraints?.technical?.join(', ') || 'None'}; ${constraints?.business?.join(', ') || 'None'}"
 
-Generate:
-1. Functional Requirements (5 items)
-2. Non-Functional Requirements (5 items)
+Output Language: ENGLISH ONLY.
 
-Return JSON:
+Style Guidelines:
+1. **Functional:** Must start with "The system shall allow...". Keep strictly UNDER 15 words.
+2. **Non-Functional:** Focus on Performance, Security, & Scalability. Allow up to 25 words for technical precision.
+
+Output Structure (JSON) - MUST MATCH EXACTLY:
 {
   "techSpec": {
-    "functionalRequirements": ["req1", ...],
-    "nonFunctionalRequirements": ["req1", ...]
+    "functionalRequirements": [ 
+       "Array of exactly ${funcCount} strings.",
+       "Example: The system shall allow users to reset their password via email."
+    ],
+    "nonFunctionalRequirements": [ 
+       "Array of exactly ${nonFuncCount} strings.",
+       "Example: The system shall render the main dashboard in under 1.5 seconds."
+    ]
   }
-}`;
-        }
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        let techSpecResponse;
-        try {
-            techSpecResponse = JSON.parse(text);
-        } catch (parseError) {
-            // Fallback tech spec
-            techSpecResponse = {
-                techSpec: {
-                    functionalRequirements: [
-                        `System must allow users to ${pov?.userNeed || 'complete their tasks'}`,
-                        'User authentication and authorization',
-                        'Data persistence and retrieval',
-                        'Real-time updates and notifications',
-                        'Search and filter functionality'
-                    ],
-                    nonFunctionalRequirements: [
-                        'Response time: < 2 seconds for all operations',
-                        'System availability: 99.9% uptime',
-                        'Data encryption at rest and in transit',
-                        'GDPR compliance for user data',
-                        'Mobile-responsive design'
-                    ],
-                    architecture: 'React/Next.js frontend, Node.js backend with Express, PostgreSQL database for structured data, Redis for caching, deployed on cloud infrastructure (AWS/Vercel). RESTful API design with JWT authentication.'
-                }
-            };
-        }
-
-        return Response.json(techSpecResponse);
-
-    } catch (error) {
-        console.error('Error generating tech spec:', error);
-        return Response.json({ error: 'Failed to generate technical specification' }, { status: 500 });
+}
+`;
     }
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
+
+    // Clean markdown code blocks if present
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    let techSpecResponse;
+    try {
+      techSpecResponse = JSON.parse(text);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.log('Raw Text:', text);
+      // Fallback tech spec structure if parsing fails
+      techSpecResponse = {
+        techSpec: {
+          functionalRequirements: ["Could not parse generated requirements. Please try again."],
+          nonFunctionalRequirements: ["Could not parse generated requirements."]
+        },
+        techStack: { frontend: "", backend: "", database: "", infrastructure: "" },
+        architectureDiagram: "Error generating architecture."
+      };
+    }
+
+    return Response.json(techSpecResponse);
+
+  } catch (error) {
+    console.error("AI Generation Error:", error);
+    return Response.json({
+      error: "AI generation failed",
+      details: error.message || error.toString()
+    }, { status: 500 });
+  }
 }

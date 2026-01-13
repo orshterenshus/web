@@ -121,3 +121,47 @@ export async function PATCH(request, { params }) {
         return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
     }
 }
+
+export async function PUT(request, { params }) {
+    try {
+        await dbConnect();
+        const { id } = await params;
+        const body = await request.json();
+
+        // Log for debugging
+        if (body.ideation) {
+            console.log(`Saving Ideation for ${id}:`,
+                body.ideation.winningSolution ? 'Has Winner' : 'No Winner',
+                body.ideation.matrix ? 'Has Matrix' : 'No Matrix'
+            );
+        }
+
+        const updateQuery = {};
+
+        if (body.ideation) {
+            updateQuery.ideation = body.ideation;
+        }
+
+        if (body.phase) {
+            updateQuery.phase = body.phase;
+        }
+
+        // Use $set to ensure we update fields without overwriting everything if not intended
+        // But for ideation, we usually overwrite the sub-document to sync state
+        // runValidators: false helps avoid strict schema errors if mixed types are used
+        const updatedProject = await Project.findByIdAndUpdate(
+            id,
+            { $set: updateQuery },
+            { new: true, runValidators: false }
+        );
+
+        if (!updatedProject) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(updatedProject);
+    } catch (error) {
+        console.error("Save Error:", error);
+        return NextResponse.json({ error: "Failed to save project data" }, { status: 500 });
+    }
+}

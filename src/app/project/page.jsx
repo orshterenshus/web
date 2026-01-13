@@ -44,6 +44,21 @@ const PHASE_INFO = {
     }
 };
 
+// Helpers for Schema Mapping (Frontend Keys <-> Backend Semantic Keys)
+const mapMatrixToBackend = (matrix) => matrix ? ({
+    quickWins: matrix.highLow || [],
+    majorProjects: matrix.highHigh || [],
+    fillIns: matrix.lowLow || [],
+    thanklessTasks: matrix.lowHigh || []
+}) : {};
+
+const mapMatrixFromBackend = (matrix) => matrix ? ({
+    highLow: matrix.quickWins || [],
+    highHigh: matrix.majorProjects || [],
+    lowLow: matrix.fillIns || [],
+    lowHigh: matrix.thanklessTasks || []
+}) : {};
+
 function getWelcomeMessage(phase) {
     const info = PHASE_INFO[phase] || PHASE_INFO['Empathize'];
     return `Hello! 👋 I'm your Socratic Design Thinking Coach, here to guide you through your project.<br><br>` +
@@ -154,6 +169,14 @@ function ProjectContent() {
     const [ideateData, setIdeateData] = useState(null);
     const [ideas, setIdeas] = useState([]);
     const [winningConcept, setWinningConcept] = useState(null);
+    const [matrixData, setMatrixData] = useState({});
+    const [techSpecData, setTechSpecData] = useState({});
+
+    // UX Refactor: Progressive State
+    const [showMatrix, setShowMatrix] = useState(false);
+
+    // Auto-Open Matrix if data exists
+    // (Auto-Open Logic moved to data loading effect for better hydration reliability)
 
     // Load current user
     useEffect(() => {
@@ -172,6 +195,8 @@ function ProjectContent() {
             const ideaObj = {
                 id: Date.now().toString(),
                 text: newIdea,
+                color: { bg: 'bg-yellow-200', border: 'border-yellow-400', text: 'text-yellow-900' },
+                position: { x: Math.random() * 60 + 5, y: Math.random() * 60 + 5 },
                 createdBy: currentUser.username,
                 createdAt: new Date()
             };
@@ -331,32 +356,64 @@ function ProjectContent() {
     }, [projectId, initialPhase]);
 
     // Fetch stage data AND saved phase on mount
+    // Fetch stage data AND saved phase on mount - ROBUST STATE RESTORATION
+    // Fetch stage data AND saved phase on mount - ARCHITECTURAL REFACTOR (Separate Ideation)
     useEffect(() => {
         const fetchStageData = async () => {
             if (!projectId) return;
             try {
-                const response = await fetch(`/api/projects/${projectId}/stageData`, { cache: 'no-store' });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setStageData(data.stageData || {});
-                    setDefineData(data.define || {});
-                    setIdeateData(data.ideate || {});
-
-                    // Initialize ideation state
-                    if (data.ideate?.ideas) setIdeas(data.ideate.ideas);
-                    if (data.ideate?.prioritization?.winningConcept) setWinningConcept(data.ideate.prioritization.winningConcept);
-
-                    // Load saved phase from database - this is the source of truth
-                    const savedPhase = data.phase || 'Empathize';
-                    setCurrentPhase(savedPhase);
-                } else {
-                    // If fetch fails, default to Empathize
-                    setCurrentPhase('Empathize');
+                // 1. Fetch Main Project Data (Legacy phases + metadata)
+                const projectRes = await fetch(`/api/projects/${projectId}/stageData`, { cache: 'no-store' });
+                if (projectRes.ok) {
+                    const projectData = await projectRes.json();
+                    setStageData(projectData.stageData || {});
+                    setDefineData(projectData.define || {});
+                    setCurrentPhase(projectData.phase || 'Empathize');
                 }
+
+                // 2. Fetch BRAND NEW Ideation Data Service
+                const ideationRes = await fetch(`/api/ideation/${projectId}`, { cache: 'no-store' });
+                if (ideationRes.ok) {
+                    const ideation = await ideationRes.json();
+
+                    // A. Restore Brainstorming
+                    const notes = ideation.brainstorming?.notes || [];
+                    setIdeas(notes.map(n => ({
+                        ...n,
+                        text: n.content,
+                        position: { x: n.x, y: n.y }
+                    })));
+
+                    // B. Restore Matrix
+                    const matrix = mapMatrixFromBackend(ideation.matrix);
+                    setMatrixData(matrix);
+
+                    // C. Restore Winner
+                    const winner = ideation.matrix?.winningSolution;
+                    if (winner) setWinningConcept(winner.content || winner);
+
+                    // D. Restore Specs
+                    if (ideation.specs) {
+                        setTechSpecData({
+                            functionalRequirements: ideation.specs.requirements?.functional || [],
+                            nonFunctionalRequirements: ideation.specs.requirements?.nonFunctional || [],
+                            techStack: {
+                                frontend: ideation.specs.architecture?.frontend,
+                                backend: ideation.specs.architecture?.backend,
+                                database: ideation.specs.architecture?.db
+                            },
+                            architectureDiagram: ideation.specs.architecture?.dataFlow
+                        });
+                    }
+
+                    // E. Restore Flow Visibility
+                    if (ideation.brainstorming?.isFinished) {
+                        setShowMatrix(true);
+                    }
+                }
+
             } catch (error) {
-                console.error('   ❌ Failed to fetch stage data:', error);
-                // On error, default to Empathize
+                console.error('❌ Failed to restore project state:', error);
                 setCurrentPhase('Empathize');
             } finally {
                 setIsLoadingPhase(false);
@@ -374,14 +431,16 @@ function ProjectContent() {
         // Don't do anything if staying on the same phase
         if (formattedPhase === currentPhase) return;
 
-        // Only allow moving to the NEXT phase (not previous, not skipping ahead)
-        if (targetIndex !== currentIndex + 1) {
+        // Allow going back immediately
+        if (targetIndex < currentIndex) {
+            setCurrentPhase(formattedPhase);
+            return;
+        }
+
+        // Only allow moving to the NEXT phase (block skipping ahead)
+        if (targetIndex > currentIndex + 1) {
             // Show styled error modal instead of browser alert
-            if (targetIndex < currentIndex) {
-                setErrorMessage("You cannot go back to previous phases. Keep moving forward! 🚀");
-            } else if (targetIndex > currentIndex + 1) {
-                setErrorMessage(`Please complete the ${phases[currentIndex + 1]} phase first before moving to ${formattedPhase}.`);
-            }
+            setErrorMessage(`Please complete the ${phases[currentIndex + 1]} phase first before moving to ${formattedPhase}.`);
             setShowErrorModal(true);
             return;
         }
@@ -498,6 +557,93 @@ function ProjectContent() {
         }
     };
 
+    // MASTER SAVE FUNCTION
+    const saveIdeationState = async (updatedData = {}) => {
+        if (!projectId) return;
+
+        // Merge updatedData with current state to ensure we have the latest before saving
+        const currentIdeas = updatedData.ideas || ideas;
+        const currentMatrix = updatedData.matrix || matrixData;
+        const currentWinner = updatedData.winningConcept !== undefined ? updatedData.winningConcept : winningConcept;
+        const currentTechSpec = updatedData.techSpec || techSpecData;
+
+        // Construct Payload matching new Schema
+        // Determines Override > State
+        const notesToSave = updatedData.ideas || ideas;
+        const matrixToSave = updatedData.matrix || matrixData;
+        const winnerToSave = updatedData.winningConcept !== undefined ? updatedData.winningConcept : winningConcept;
+        const techSpecToSave = updatedData.techSpec || techSpecData;
+
+        // Construct Payload for NEW IDEATION SCHEMA
+        const payload = {
+            brainstorming: {
+                notes: notesToSave.map(idea => ({
+                    id: idea.id,
+                    content: idea.text || idea.content,
+                    x: idea.position?.x,
+                    y: idea.position?.y,
+                    color: idea.color,
+                    rotation: idea.rotation
+                })),
+                isFinished: showMatrix // persist visibility stage
+            },
+            matrix: {
+                ...mapMatrixToBackend(matrixToSave),
+                winningSolution: typeof winnerToSave === 'string' ? { id: 'manual', content: winnerToSave } : winnerToSave
+            },
+            specs: {
+                requirements: {
+                    functional: techSpecToSave.functionalRequirements || [],
+                    nonFunctional: techSpecToSave.nonFunctionalRequirements || []
+                },
+                architecture: {
+                    frontend: techSpecToSave.techStack?.frontend,
+                    backend: techSpecToSave.techStack?.backend,
+                    db: techSpecToSave.techStack?.database, // Use 'db' as per new schema
+                    dataFlow: techSpecToSave.architectureDiagram
+                }
+            }
+        };
+
+        try {
+            console.log('Using New Ideation API for Upsert...');
+            await fetch(`/api/ideation/${projectId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            // Update local state if provided in args (to sync UI)
+            if (updatedData.ideas) setIdeas(updatedData.ideas);
+            if (updatedData.matrix) setMatrixData(updatedData.matrix);
+            if (updatedData.winningConcept !== undefined) setWinningConcept(updatedData.winningConcept);
+            if (updatedData.techSpec) setTechSpecData(updatedData.techSpec);
+
+        } catch (error) {
+            console.error('Master Save Failed:', error);
+        }
+    };
+
+
+
+    // UX Handlers for Ideate Phase
+    // UX Handlers for Ideate Phase - SCROLL FIX
+    const handleFinishBrainstorming = async () => {
+        setShowMatrix(true);
+        await saveIdeationState({ ideas }); // Force save current ideas
+        // Only scroll here, once, on user interaction (UX Fix)
+        setTimeout(() => {
+            document.getElementById('matrix-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+    };
+
+    const handleWinnerSelected = (concept) => {
+        setWinningConcept(concept);
+        saveIdeationState({ winningConcept: concept });
+        // Only scroll here
+        setTimeout(() => {
+            document.getElementById('specs-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+    };
 
     const getStepClass = (stepPhase) => {
         const steps = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
@@ -633,7 +779,7 @@ function ProjectContent() {
 
             <div className="flex flex-1 overflow-hidden relative z-10">
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-48">
                     <div className="max-w-5xl mx-auto">
 
                         {/* Phase Progress Bar */}
@@ -737,73 +883,197 @@ function ProjectContent() {
                                     </div>
                                 )}
 
-                                {/* IDEATE PHASE COMPONENTS */}
+                                {/* IDEATE PHASE COMPONENTS - Progressive Workflow */}
                                 {currentPhase === 'Ideate' && projectId && (
-                                    <div className="space-y-8 mb-8 animate-fadeIn">
-                                        {/* Persona Reminder */}
+                                    <div className="space-y-12 pb-32 animate-fadeIn">
+
+                                        {/* Persona Context Reminder */}
                                         {defineData?.persona && (
-                                            <PersonaContextWidget persona={defineData.persona} />
+                                            <div className="mb-4">
+                                                <PersonaContextWidget persona={defineData.persona} />
+                                            </div>
                                         )}
 
-                                        {/* Section 1: The Header (Context) */}
-                                        <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100">
-                                            <div className="flex items-center gap-4">
-                                                <div className="bg-purple-100 p-3 rounded-full">
-                                                    <span className="text-2xl">🎯</span>
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Current Challenge (HMW)</h2>
-                                                    {defineData?.selectedHmw ? (
-                                                        <p className="text-2xl font-bold text-gray-800 mt-1">{defineData.selectedHmw}</p>
-                                                    ) : (
-                                                        <div className="flex items-center gap-4 mt-1">
-                                                            <p className="text-xl text-gray-400 italic">No HMW Question selected yet.</p>
-                                                            <button
-                                                                onClick={() => changePhase('Define')}
-                                                                className="text-sm px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium transition-colors"
-                                                            >
-                                                                ← Go back to Define
-                                                            </button>
-                                                        </div>
-                                                    )}
+                                        {/* STEP 1: BRAINSTORMING (Always Visible) */}
+                                        <section className="space-y-8 relative">
+                                            {/* Header */}
+                                            <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100 mb-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="bg-purple-100 p-3 rounded-full">
+                                                        <span className="text-2xl">⚡</span>
+                                                    </div>
+                                                    <div>
+                                                        <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Step 1: Brainstorming</h2>
+                                                        {defineData?.selectedHmw ? (
+                                                            <p className="text-xl font-bold text-gray-800 mt-1">{defineData.selectedHmw}</p>
+                                                        ) : (
+                                                            <p className="text-gray-500 italic mt-1">No HMW question selected.</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <BrainstormingCanvas
-                                            projectId={projectId}
-                                            currentUser={currentUser}
-                                            onIdeasUpdated={setIdeas}
-                                            initialIdeas={stageData?.ideate?.ideas}
-                                        />
-
-                                        <AISpark
-                                            projectId={projectId}
-                                            pov={defineData?.pov}
-                                            currentUser={currentUser}
-                                            onIdeaGenerated={handleIdeaAdded}
-                                        />
-
-                                        {ideas.length > 0 && (
-                                            <PrioritizationMatrix
+                                            <BrainstormingCanvas
                                                 projectId={projectId}
-                                                ideas={ideas}
                                                 currentUser={currentUser}
-                                                onWinningConcept={setWinningConcept}
-                                                initialPrioritizedIdeas={stageData?.ideate?.prioritization?.matrix}
-                                                initialVotes={stageData?.ideate?.prioritization?.votes}
-                                                initialWinningConcept={stageData?.ideate?.prioritization?.winningConcept}
+                                                onIdeasUpdated={(newIdeas) => {
+                                                    setIdeas(newIdeas);
+                                                    saveIdeationState({ ideas: newIdeas });
+                                                }}
+                                                onSave={() => saveIdeationState()}
+                                                initialIdeas={ideas}
                                             />
+
+                                            <AISpark
+                                                projectId={projectId}
+                                                pov={defineData?.pov}
+                                                currentUser={currentUser}
+                                                onIdeaGenerated={handleIdeaAdded}
+                                            />
+
+                                            {/* Transition Action to Step 2 */}
+                                            {!showMatrix && ideas.length > 0 && (
+                                                <div className="flex justify-center mt-12 pb-4">
+                                                    <button
+                                                        onClick={handleFinishBrainstorming}
+                                                        className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:from-blue-700 hover:to-indigo-700 hover:scale-105 shadow-xl hover:shadow-blue-500/50"
+                                                    >
+                                                        <span className="mr-3 text-xl">⬇️</span>
+                                                        <span>Finish Brainstorming & Prioritize</span>
+                                                        <div className="absolute inset-0 rounded-full ring-2 ring-white/20 group-hover:ring-white/40 animate-pulse"></div>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </section>
+
+                                        {/* STEP 2: MATRIX (Conditional) */}
+                                        {showMatrix && (
+                                            <section id="matrix-section" className="animate-in fade-in slide-in-from-bottom-10 duration-700 relative z-10">
+                                                <div className="flex items-center gap-4 mb-8 border-t border-gray-600/20 pt-12">
+                                                    <div className="bg-blue-100 p-3 rounded-full shadow-lg">
+                                                        <span className="text-2xl">📊</span>
+                                                    </div>
+                                                    <h2 className="text-3xl font-bold text-white">Step 2: Prioritize Your Ideas</h2>
+                                                </div>
+
+                                                <PrioritizationMatrix
+                                                    projectId={projectId}
+                                                    ideas={ideas}
+                                                    currentUser={currentUser}
+                                                    onWinningConcept={handleWinnerSelected}
+                                                    initialPrioritizedIdeas={matrixData}
+                                                    initialVotes={stageData?.ideate?.prioritization?.votes}
+                                                    initialWinningConcept={winningConcept}
+                                                    onMatrixUpdate={(matrix) => {
+                                                        setMatrixData(matrix);
+                                                        saveIdeationState({ matrix });
+                                                    }}
+                                                />
+                                            </section>
                                         )}
 
-                                        <TechSpecGenerator
-                                            projectId={projectId}
-                                            winningConcept={winningConcept}
-                                            pov={defineData?.pov}
-                                            constraints={defineData?.constraints}
-                                            currentUser={currentUser}
-                                            initialTechSpec={stageData?.ideate?.techSpec}
-                                        />
+                                        {/* STEP 3: SPECS & ARCH (Conditional) */}
+                                        {winningConcept && (
+                                            <section id="specs-section" className="animate-in fade-in slide-in-from-bottom-10 duration-700 pb-24 relative z-10">
+                                                <div className="flex items-center gap-4 mb-8 border-t border-gray-600/20 pt-12">
+                                                    <div className="bg-indigo-100 p-3 rounded-full shadow-lg">
+                                                        <span className="text-2xl">🏗️</span>
+                                                    </div>
+                                                    <h2 className="text-3xl font-bold text-white">Step 3: Define & Architect</h2>
+                                                </div>
+
+                                                <TechSpecGenerator
+                                                    projectId={projectId}
+                                                    winningConcept={winningConcept}
+                                                    pov={defineData?.pov}
+                                                    constraints={defineData?.constraints}
+                                                    currentUser={currentUser}
+                                                    initialTechSpec={techSpecData}
+                                                    onUpdate={(ts) => {
+                                                        setTechSpecData(ts);
+                                                    }}
+                                                    onSave={() => saveIdeationState()}
+                                                />
+
+                                                {/* File Upload Section (Moved Here) */}
+                                                <div className="mt-12">
+                                                    <div className="glass-panel rounded-xl p-6 border border-dashed border-white/20 hover:border-blue-500/50 transition-colors">
+                                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Research Files</h4>
+                                                        <div
+                                                            onClick={() => !isUploading && document.getElementById('file-upload')?.click()}
+                                                            className={`rounded-xl p-8 text-center cursor-pointer transition-all ${isUploading ? 'bg-white/5' : 'hover:bg-white/5'}`}
+                                                        >
+                                                            {isUploading ? (
+                                                                <div className="flex flex-col items-center">
+                                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
+                                                                    <p className="text-slate-400 text-sm">Uploading...</p>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-2">
+                                                                    <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3">
+                                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                                                    </div>
+                                                                    <p className="text-slate-300 font-medium">Click to upload or drag and drop</p>
+                                                                    <p className="text-slate-500 text-xs">PDF, Images, Text (Max 10MB)</p>
+                                                                </div>
+                                                            )}
+                                                            <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} disabled={isUploading} />
+                                                        </div>
+
+                                                        {files.length > 0 && (
+                                                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+                                                                {files.map((f, i) => (
+                                                                    <li key={i} className="glass-button p-3 rounded-xl flex items-center justify-between group">
+                                                                        <div className="flex items-center min-w-0 gap-3">
+                                                                            <div className={`p-2 rounded-lg text-xs font-bold ${f.fileType === 'image' ? 'bg-purple-500/20 text-purple-300' : f.fileType === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                                                                                {f.fileType === 'image' ? 'IMG' : f.fileType === 'pdf' ? 'PDF' : 'DOC'}
+                                                                            </div>
+                                                                            <div className="min-w-0">
+                                                                                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-200 hover:text-white truncate block" title={f.name}>
+                                                                                    {f.name}
+                                                                                </a>
+                                                                                <p className="text-[10px] text-slate-500">{f.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button onClick={() => handleDeleteFile(f.publicId)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                                        </button>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* HUGE SPACER */}
+                                                <div className="w-full h-64 pointer-events-none bg-transparent"></div>
+                                            </section>
+                                        )}
+
+
+                                        {/* FIXED ACTION BAR (Sticky Store) */}
+                                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex justify-between items-center px-8">
+                                            <div className="text-sm text-gray-500 font-medium flex items-center gap-2">
+                                                <span className={`w-2 h-2 rounded-full ${winningConcept ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                                                Status: {winningConcept ? 'Architecture Phase' : showMatrix ? 'Prioritization Phase' : 'Brainstorming'}
+                                            </div>
+
+                                            <div className="flex gap-4">
+                                                <button
+                                                    onClick={() => saveIdeationState()}
+                                                    className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                                                >
+                                                    Save Draft
+                                                </button>
+
+                                                <button
+                                                    onClick={() => { saveIdeationState(); alert('Progress Saved!'); }}
+                                                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                                                >
+                                                    <span>💾</span> Save All Progress
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
 
@@ -814,150 +1084,107 @@ function ProjectContent() {
                                     </div>
                                 )}
 
-                                {/* File Upload Area */}
-                                <div className="glass-panel rounded-xl p-6 border border-dashed border-white/20 hover:border-blue-500/50 transition-colors">
-                                    <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Research Files</h4>
-
-                                    <div
-                                        onClick={() => !isUploading && document.getElementById('file-upload')?.click()}
-                                        className={`rounded-xl p-8 text-center cursor-pointer transition-all ${isUploading ? 'bg-white/5' : 'hover:bg-white/5'}`}
-                                    >
-                                        {isUploading ? (
-                                            <div className="flex flex-col items-center">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
-                                                <p className="text-slate-400 text-sm">Uploading your file...</p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3">
-                                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                                                </div>
-                                                <p className="text-slate-300 font-medium">Click to upload or drag and drop</p>
-                                                <p className="text-slate-500 text-xs">PDF, Images, Text (Max 10MB)</p>
-                                            </div>
-                                        )}
-                                        <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} disabled={isUploading} />
-                                    </div>
-
-                                    {files.length > 0 && (
-                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
-                                            {files.map((f, i) => (
-                                                <li key={i} className="glass-button p-3 rounded-xl flex items-center justify-between group">
-                                                    <div className="flex items-center min-w-0 gap-3">
-                                                        <div className={`p-2 rounded-lg text-xs font-bold ${f.fileType === 'image' ? 'bg-purple-500/20 text-purple-300' : f.fileType === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                                                            {f.fileType === 'image' ? 'IMG' : f.fileType === 'pdf' ? 'PDF' : 'DOC'}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-200 hover:text-white truncate block" title={f.name}>
-                                                                {f.name}
-                                                            </a>
-                                                            <p className="text-[10px] text-slate-500">{f.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
-                                                        </div>
-                                                    </div>
-                                                    <button onClick={() => handleDeleteFile(f.publicId)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    </button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
+                                { /* Old File Upload Removed */}
                             </div>
                         </div>
+                        {/* MASSIVE SCROLL SPACER */}
+                        <div className="w-full h-64 bg-transparent pointer-events-none"></div>
                     </div>
                 </main>
 
                 {/* Chat Sidebar */}
-                {isChatMinimized ? (
-                    <div className="hidden lg:flex flex-col w-12 bg-[#1e293b] border-l border-white/5 items-center py-6 z-20">
-                        <button onClick={() => setIsChatMinimized(false)} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" title="Expand Chat">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
-                        </button>
-                        <div className="mt-8 text-slate-400 text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
-                    </div>
-                ) : (
-                    <aside className={`fixed lg:relative inset-y-0 right-0 w-full sm:w-96 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
-
-                        {/* Chat Header */}
-                        <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="relative">
-                                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-                                    </div>
-                                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1e293b] rounded-full"></span>
-                                </div>
-                                <div>
-                                    <h2 className="font-bold text-white text-sm">Socratic Bot</h2>
-                                    <p className="text-xs text-blue-400">Design Mentor</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <button onClick={() => setIsChatMinimized(true)} className="hidden lg:block p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-                                </button>
-                                <button onClick={() => setShowMobileChat(false)} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                </button>
-                            </div>
+                {
+                    isChatMinimized ? (
+                        <div className="hidden lg:flex flex-col w-12 bg-[#1e293b] border-l border-white/5 items-center py-6 z-20">
+                            <button onClick={() => setIsChatMinimized(false)} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" title="Expand Chat">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                            </button>
+                            <div className="mt-8 text-slate-400 text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
                         </div>
+                    ) : (
+                        <aside className={`fixed lg:relative inset-y-0 right-0 w-full sm:w-96 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
 
-                        {/* Chat Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                            {isLoadingHistory ? (
-                                <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-3">
-                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                                    <p className="text-sm">Loading history...</p>
-                                </div>
-                            ) : (
-                                messages.map((msg, i) => (
-                                    <div key={i} className={`flex items-start gap-3 ${msg.sender !== 'Bot' ? 'flex-row-reverse' : ''}`}>
-                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${msg.sender === 'Bot' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}`}>
-                                            {msg.sender === 'Bot' ? 'AI' : 'Me'}
+                            {/* Chat Header */}
+                            <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
                                         </div>
-                                        <div
-                                            className={`p-3.5 rounded-2xl text-sm shadow-md max-w-[85%] leading-relaxed ${msg.sender === 'Bot'
-                                                ? 'bg-white/10 text-slate-200 border border-white/5 rounded-tl-none'
-                                                : 'bg-blue-600 text-white rounded-tr-none shadow-blue-500/10'
-                                                }`}
-                                            dangerouslySetInnerHTML={{ __html: msg.text }}
-                                        ></div>
+                                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1e293b] rounded-full"></span>
                                     </div>
-                                ))
-                            )}
-                            {isTyping && (
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">AI</div>
-                                    <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none border border-white/5 flex gap-1.5 items-center">
-                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
-                                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
+                                    <div>
+                                        <h2 className="font-bold text-white text-sm">Socratic Bot</h2>
+                                        <p className="text-xs text-blue-400">Design Mentor</p>
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => setIsChatMinimized(true)} className="hidden lg:block p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                                    </button>
+                                    <button onClick={() => setShowMobileChat(false)} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            </div>
 
-                        {/* Chat Input */}
-                        <div className="p-4 bg-white/5 border-t border-white/5">
-                            <form onSubmit={sendMessage} className="relative">
-                                <input
-                                    type="text"
-                                    value={chatInput}
-                                    onChange={(e) => setChatInput(e.target.value)}
-                                    placeholder="Type your answer..."
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                                />
-                                <button
-                                    type="submit"
-                                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white/5 text-slate-500 cursor-not-allowed'}`}
-                                    disabled={!chatInput.trim()}
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                                </button>
-                            </form>
-                        </div>
-                    </aside>
-                )}
+                            {/* Chat Messages */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                {isLoadingHistory ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-3">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                        <p className="text-sm">Loading history...</p>
+                                    </div>
+                                ) : (
+                                    messages.map((msg, i) => (
+                                        <div key={i} className={`flex items-start gap-3 ${msg.sender !== 'Bot' ? 'flex-row-reverse' : ''}`}>
+                                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${msg.sender === 'Bot' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}`}>
+                                                {msg.sender === 'Bot' ? 'AI' : 'Me'}
+                                            </div>
+                                            <div
+                                                className={`p-3.5 rounded-2xl text-sm shadow-md max-w-[85%] leading-relaxed ${msg.sender === 'Bot'
+                                                    ? 'bg-white/10 text-slate-200 border border-white/5 rounded-tl-none'
+                                                    : 'bg-blue-600 text-white rounded-tr-none shadow-blue-500/10'
+                                                    }`}
+                                                dangerouslySetInnerHTML={{ __html: msg.text }}
+                                            ></div>
+                                        </div>
+                                    ))
+                                )}
+                                {isTyping && (
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">AI</div>
+                                        <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none border border-white/5 flex gap-1.5 items-center">
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Chat Input */}
+                            <div className="p-4 bg-white/5 border-t border-white/5">
+                                <form onSubmit={sendMessage} className="relative">
+                                    <input
+                                        type="text"
+                                        value={chatInput}
+                                        onChange={(e) => setChatInput(e.target.value)}
+                                        placeholder="Type your answer..."
+                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                    />
+                                    <button
+                                        type="submit"
+                                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white/5 text-slate-500 cursor-not-allowed'}`}
+                                        disabled={!chatInput.trim()}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </aside>
+                    )
+                }
             </div>
 
             {/* Hidden PDF Export Component - Keeping original as it's for print */}
