@@ -115,7 +115,73 @@ const ProjectSchema = new mongoose.Schema({
         size: { type: Number },
         uploadedAt: { type: Date, default: Date.now },
         uploadedBy: { type: String }
-    }]
+    }],
+
+    // DEFINE PHASE - Structured data
+    define: {
+        persona: {
+            name: String,
+            image: String,
+            painPoint: String,
+            demographics: mongoose.Schema.Types.Mixed
+        },
+        pov: {
+            personaName: String,
+            userNeed: String,
+            insight: String,
+            createdAt: Date
+        },
+        hmwQuestions: [String],
+        selectedHmw: String,
+        constraints: {
+            technical: [String],
+            business: [String],
+            kpis: [{
+                metric: String,
+                target: String
+            }]
+        },
+        validationFlags: [{
+            _id: false,
+            flagType: { type: String, enum: ['success', 'warning', 'critical'], default: 'success' },
+            severity: { type: String, default: 'low' },
+            message: { type: String }
+        }]
+    },
+
+    // IDEATE PHASE - Structured data
+    ideate: {
+        ideas: [{
+            id: String,
+            text: String,
+            color: mongoose.Schema.Types.Mixed,
+            position: {
+                x: Number,
+                y: Number
+            },
+            createdBy: String,
+            createdAt: Date,
+            combined: Boolean,
+            originalIdeas: [String]
+        }],
+        aiSuggestions: [{
+            technique: String,
+            text: String,
+            reasoning: String,
+            createdAt: Date
+        }],
+        prioritization: {
+            matrix: mongoose.Schema.Types.Mixed,
+            votes: mongoose.Schema.Types.Mixed,
+            winningConcept: mongoose.Schema.Types.Mixed
+        },
+        techSpec: {
+            functionalRequirements: [String],
+            nonFunctionalRequirements: [String],
+            architecture: String,
+            generatedAt: Date
+        }
+    }
 });
 
 export default mongoose.models.Project || mongoose.model('Project', ProjectSchema);

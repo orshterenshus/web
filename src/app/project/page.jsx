@@ -7,6 +7,13 @@ import SharePopover from '@/components/Shared/SharePopover';
 import EmpathyMap from '@/components/DesignCanvas/EmpathyMap';
 import StageChecklist from '@/components/ProgressTracker/StageChecklist';
 import ProjectPDFExport from '@/components/Shared/ProjectPDFExport';
+import PersonaContextWidget from '@/components/PersonaContextWidget';
+import POVBuilder from '@/components/POVBuilder';
+import RealityBoard from '@/components/RealityBoard';
+import BrainstormingCanvas from '@/components/BrainstormingCanvas';
+import AISpark from '@/components/AISpark';
+import PrioritizationMatrix from '@/components/PrioritizationMatrix';
+import TechSpecGenerator from '@/components/TechSpecGenerator';
 
 // Phase-specific information for the chatbot
 const PHASE_INFO = {
@@ -140,6 +147,37 @@ function ProjectContent() {
 
     // Desktop chat minimized state
     const [isChatMinimized, setIsChatMinimized] = useState(false);
+
+    // New Data States for Define & Ideate Phases
+    const [currentUser, setCurrentUser] = useState(null);
+    const [defineData, setDefineData] = useState(null);
+    const [ideateData, setIdeateData] = useState(null);
+    const [ideas, setIdeas] = useState([]);
+    const [winningConcept, setWinningConcept] = useState(null);
+
+    // Load current user
+    useEffect(() => {
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr) {
+            try {
+                setCurrentUser(JSON.parse(userStr));
+            } catch (e) {
+                console.error('Failed to parse user', e);
+            }
+        }
+    }, []);
+
+    const handleIdeaAdded = (newIdea) => {
+        if (typeof newIdea === 'string' && currentUser) {
+            const ideaObj = {
+                id: Date.now().toString(),
+                text: newIdea,
+                createdBy: currentUser.username,
+                createdAt: new Date()
+            };
+            setIdeas(prev => [...prev, ideaObj]);
+        }
+    };
 
     // PDF Export
     const pdfContentRef = useRef(null);
@@ -297,11 +335,18 @@ function ProjectContent() {
         const fetchStageData = async () => {
             if (!projectId) return;
             try {
-                const response = await fetch(`/api/projects/${projectId}/stageData`);
+                const response = await fetch(`/api/projects/${projectId}/stageData`, { cache: 'no-store' });
 
                 if (response.ok) {
                     const data = await response.json();
                     setStageData(data.stageData || {});
+                    setDefineData(data.define || {});
+                    setIdeateData(data.ideate || {});
+
+                    // Initialize ideation state
+                    if (data.ideate?.ideas) setIdeas(data.ideate.ideas);
+                    if (data.ideate?.prioritization?.winningConcept) setWinningConcept(data.ideate.prioritization.winningConcept);
+
                     // Load saved phase from database - this is the source of truth
                     const savedPhase = data.phase || 'Empathize';
                     setCurrentPhase(savedPhase);
@@ -656,8 +701,86 @@ function ProjectContent() {
                                     </div>
                                 )}
 
-                                {/* Checklist for current stage */}
-                                {projectId && (
+                                {/* DEFINE PHASE COMPONENTS */}
+                                {currentPhase === 'Define' && projectId && (
+                                    <div className="space-y-8 mb-8">
+                                        {/* Persona Widget (if available from previous step or define data) */}
+                                        {(defineData?.persona || stageData?.define?.checklist?.createdPersona) && (
+                                            <PersonaContextWidget persona={defineData?.persona || { name: 'Target User' }} />
+                                        )}
+
+                                        <POVBuilder
+                                            projectId={projectId}
+                                            persona={defineData?.persona}
+                                            initialData={defineData}
+                                            currentUser={currentUser}
+                                            onPOVComplete={(data) => {
+                                                setDefineData(prev => ({
+                                                    ...prev,
+                                                    pov: data.pov,
+                                                    hmwQuestions: data.hmwQuestions,
+                                                    selectedHmw: data.selectedHmw
+                                                }));
+                                            }}
+                                        />
+
+                                        <RealityBoard
+                                            projectId={projectId}
+                                            pov={defineData?.pov}
+                                            initialConstraints={defineData?.constraints}
+                                            initialValidationFlags={defineData?.validationFlags}
+                                            currentUser={currentUser}
+                                            onConstraintsSaved={(constraints) => {
+                                                setDefineData(prev => ({ ...prev, constraints }));
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* IDEATE PHASE COMPONENTS */}
+                                {currentPhase === 'Ideate' && projectId && (
+                                    <div className="space-y-8 mb-8">
+                                        {/* Persona Reminder */}
+                                        {defineData?.persona && (
+                                            <PersonaContextWidget persona={defineData.persona} />
+                                        )}
+
+                                        <BrainstormingCanvas
+                                            projectId={projectId}
+                                            currentUser={currentUser}
+                                            onIdeasUpdated={setIdeas}
+                                        />
+
+                                        <AISpark
+                                            projectId={projectId}
+                                            pov={defineData?.pov}
+                                            currentUser={currentUser}
+                                            onIdeaGenerated={handleIdeaAdded}
+                                        />
+
+                                        {ideas.length > 0 && (
+                                            <PrioritizationMatrix
+                                                projectId={projectId}
+                                                ideas={ideas}
+                                                currentUser={currentUser}
+                                                onWinningConcept={setWinningConcept}
+                                            />
+                                        )}
+
+                                        {winningConcept && (
+                                            <TechSpecGenerator
+                                                projectId={projectId}
+                                                winningConcept={winningConcept}
+                                                pov={defineData?.pov}
+                                                constraints={defineData?.constraints}
+                                                currentUser={currentUser}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Checklist for Empathize, Prototype, Test phases only */}
+                                {projectId && ['Empathize', 'Prototype', 'Test'].includes(currentPhase) && (
                                     <div className="mb-8">
                                         <StageChecklist projectId={projectId} stage={currentPhase} data={stageData} onUpdate={setStageData} />
                                     </div>

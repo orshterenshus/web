@@ -2,6 +2,103 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import PersonaContextWidget from '@/components/PersonaContextWidget';
+import POVBuilder from '@/components/POVBuilder';
+import RealityBoard from '@/components/RealityBoard';
+import BrainstormingCanvas from '@/components/BrainstormingCanvas';
+import AISpark from '@/components/AISpark';
+import PrioritizationMatrix from '@/components/PrioritizationMatrix';
+import TechSpecGenerator from '@/components/TechSpecGenerator';
+
+function DefinePhaseContent({ projectId, project, currentUser }) {
+    const [povData, setPovData] = useState(project?.define?.pov || null);
+
+    return (
+        <div className="space-y-6">
+            {/* Persona Context Widget */}
+            {project?.define?.persona && (
+                <PersonaContextWidget persona={project.define.persona} />
+            )}
+
+            {/* POV Builder */}
+            <POVBuilder
+                projectId={projectId}
+                persona={project?.define?.persona}
+                currentUser={currentUser}
+                onPOVComplete={(data) => setPovData(data.pov)}
+            />
+
+            {/* Reality Board */}
+            <RealityBoard
+                projectId={projectId}
+                pov={povData}
+                currentUser={currentUser}
+            />
+        </div>
+    );
+}
+
+function IdeatePhaseContent({ projectId, project, currentUser }) {
+    const [ideas, setIdeas] = useState(project?.ideate?.ideas || []);
+    const [winningConcept, setWinningConcept] = useState(project?.ideate?.prioritization?.winningConcept || null);
+
+    const handleIdeaAdded = (newIdea) => {
+        if (typeof newIdea === 'string') {
+            const ideaObj = {
+                id: Date.now().toString(),
+                text: newIdea,
+                createdBy: currentUser.username,
+                createdAt: new Date()
+            };
+            setIdeas(prev => [...prev, ideaObj]);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Persona Context Widget */}
+            {project?.define?.persona && (
+                <PersonaContextWidget persona={project.define.persona} />
+            )}
+
+            {/* Brainstorming Canvas */}
+            <BrainstormingCanvas
+                projectId={projectId}
+                currentUser={currentUser}
+                onIdeasUpdated={setIdeas}
+            />
+
+            {/* AI Spark */}
+            <AISpark
+                projectId={projectId}
+                pov={project?.define?.pov}
+                currentUser={currentUser}
+                onIdeaGenerated={handleIdeaAdded}
+            />
+
+            {/* Prioritization Matrix */}
+            {ideas.length > 0 && (
+                <PrioritizationMatrix
+                    projectId={projectId}
+                    ideas={ideas}
+                    currentUser={currentUser}
+                    onWinningConcept={setWinningConcept}
+                />
+            )}
+
+            {/* Technical Specification Generator */}
+            {winningConcept && (
+                <TechSpecGenerator
+                    projectId={projectId}
+                    winningConcept={winningConcept}
+                    pov={project?.define?.pov}
+                    constraints={project?.define?.constraints}
+                    currentUser={currentUser}
+                />
+            )}
+        </div>
+    );
+}
 
 function ProjectContent() {
     const params = useParams();
@@ -12,14 +109,11 @@ function ProjectContent() {
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [currentPhase, setCurrentPhase] = useState('Empathize');
     const [messages, setMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
-    const [files, setFiles] = useState([]);
 
     useEffect(() => {
-        // Check authentication
         const userStr = localStorage.getItem('currentUser');
         if (!userStr) {
             router.push('/login');
@@ -27,13 +121,10 @@ function ProjectContent() {
         }
         const user = JSON.parse(userStr);
         setCurrentUser(user);
-
-        // Fetch project details - pass user directly to avoid race condition
         fetchProject(user);
     }, [projectId]);
 
     const fetchProject = async (user) => {
-        // Use provided user or fallback to currentUser state
         const username = user?.username || currentUser?.username;
         if (!username) {
             setError('User not found');
@@ -48,10 +139,9 @@ function ProjectContent() {
                 setCurrentPhase(projectData.phase);
 
                 const loadedMessages = projectData.messages || [];
-                // If no messages, show intro
                 if (loadedMessages.length === 0) {
                     setMessages([
-                        { sender: 'Bot', text: `Hello! I am the Socratic Bot accompanying the project. Currently, we are in the <strong>${projectData.phase}</strong> phase. <br><br>How can you enter your user's inner circle?` }
+                        { sender: 'Bot', text: `Hello! I'm your AI assistant for the <strong>${projectData.phase}</strong> phase. How can I help you today?` }
                     ]);
                 } else {
                     setMessages(loadedMessages);
@@ -75,7 +165,6 @@ function ProjectContent() {
         const formattedPhase = phase.charAt(0).toUpperCase() + phase.slice(1);
         setCurrentPhase(formattedPhase);
 
-        // Update phase in database
         try {
             const res = await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(currentUser.username)}`, {
                 method: 'PATCH',
@@ -91,7 +180,7 @@ function ProjectContent() {
 
         setMessages(prev => [...prev, {
             sender: 'Bot',
-            text: `Switched to <strong>${formattedPhase}</strong> phase. What are your goals for this step?`
+            text: `Switched to <strong>${formattedPhase}</strong> phase. Let's focus on this stage!`
         }]);
     };
 
@@ -103,7 +192,6 @@ function ProjectContent() {
         setMessages(prev => [...prev, newMessage]);
         setChatInput('');
 
-        // Persist user message
         try {
             await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(currentUser.username)}`, {
                 method: 'PATCH',
@@ -123,7 +211,6 @@ function ProjectContent() {
             const botMessage = { sender: 'Bot', text: botReplyText, timestamp: new Date() };
             setMessages(prev => [...prev, botMessage]);
 
-            // Persist bot message
             try {
                 await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(currentUser.username)}`, {
                     method: 'PATCH',
@@ -134,17 +221,6 @@ function ProjectContent() {
                 console.error('Failed to save bot message', error);
             }
         }, 1000);
-    };
-
-    const handleFileUpload = (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const newFiles = Array.from(e.target.files).map(file => ({
-                name: file.name,
-                size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-                date: 'Just now'
-            }));
-            setFiles(prev => [...prev, ...newFiles]);
-        }
     };
 
     const getStepClass = (stepPhase) => {
@@ -166,7 +242,7 @@ function ProjectContent() {
     if (!project) return <div className="p-10 text-center">Project not found</div>;
 
     return (
-        <div className="bg-gray-50 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
+        <div className="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
             {/* Nav */}
             <nav className="bg-white shadow-sm border-b border-gray-200 z-10 shrink-0">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,19 +252,24 @@ function ProjectContent() {
                                 DesignBot
                             </div>
                             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                                <a href="#" className="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <span className="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                                     Workspace
-                                </a>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </nav>
 
-            <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold mb-4">Project Progress: {project.name}</h2>
+            {/* Main Content Area */}
+            <div className="flex-1 flex overflow-hidden">
+                {/* Left Side - Phase Content */}
+                <main className="flex-1 overflow-y-auto">
+                    {/* Phase Progress Tracker */}
+                    <div className="bg-white border-b border-gray-200 px-6 py-6">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                            {project.name}
+                        </h2>
                         <div className="flex items-center justify-between w-full relative">
                             <div className="absolute w-full top-1/2 transform -translate-y-1/2 bg-gray-200 h-1 z-0"></div>
 
@@ -203,88 +284,54 @@ function ProjectContent() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow p-6 mb-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center gap-4">
-                                <h3 className="text-xl font-bold text-gray-800">Phase: {currentPhase}</h3>
-                                {project && currentUser && (
-                                    <span className={`text-xs px-2 py-1 rounded-full font-bold border ${project.createdBy === currentUser.username ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                                        {project.createdBy === currentUser.username ? 'Owner' : (project.sharedWith?.find(s => s.user === currentUser.username)?.permission || 'Viewer')}
-                                    </span>
-                                )}
-                            </div>
+                    {/* Phase-Specific Content */}
+                    <div className="p-6">
+                        {currentPhase === 'Define' && (
+                            <DefinePhaseContent
+                                projectId={projectId}
+                                project={project}
+                                currentUser={currentUser}
+                            />
+                        )}
 
-                            {(project.createdBy === currentUser.username || project.sharedWith?.find(s => s.user === currentUser.username)?.permission === 'Owner') && (
-                                <button
-                                    onClick={() => {
-                                        console.log('Share button clicked');
-                                        const userToShare = prompt("Enter username to share with:");
-                                        if (userToShare) {
-                                            console.log('User entered:', userToShare);
-                                            fetch(`/api/projects/${projectId}?user=${encodeURIComponent(currentUser.username)}`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({
-                                                    shareWithUser: { user: userToShare, permission: 'Basic' }
-                                                })
-                                            }).then(res => {
-                                                console.log('Fetch response:', res.status);
-                                                if (res.ok) alert('Project shared successfully!');
-                                                else res.json().then(d => {
-                                                    console.error('Share failed:', d);
-                                                    alert(d.error || 'Failed to share');
-                                                });
-                                            }).catch(err => console.error('Share fetch error:', err));
-                                        } else {
-                                            console.log('Share prompt cancelled');
-                                        }
-                                    }}
-                                    className="flex items-center gap-2 text-sm bg-indigo-50 text-indigo-700 px-3 py-2 rounded-md hover:bg-indigo-100 transition-colors">
-                                    Share Project
-                                </button>
-                            )}
-                        </div>
+                        {currentPhase === 'Ideate' && (
+                            <IdeatePhaseContent
+                                projectId={projectId}
+                                project={project}
+                                currentUser={currentUser}
+                            />
+                        )}
 
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:bg-gray-50 transition-colors"
-                            onClick={() => document.getElementById('file-upload')?.click()}
-                        >
-                            <p className="mt-1 text-sm text-gray-600">
-                                <span className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none cursor-pointer">Upload a file</span>
-                                or drag and drop
-                            </p>
-                            <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} />
-                        </div>
-
-                        {files.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="text-sm font-medium text-gray-700 mb-3">Uploaded Files:</h4>
-                                <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {files.map((f, i) => (
-                                        <li key={i} className="col-span-1 bg-white border rounded-lg shadow-sm p-4 flex items-center">
-                                            <div className="bg-blue-100 p-2 rounded text-blue-600 font-bold text-xs">FILE</div>
-                                            <div className="ml-3">
-                                                <p className="text-sm font-medium text-gray-900">{f.name}</p>
-                                                <p className="text-xs text-gray-500">{f.size}</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
+                        {/* Fallback for other phases */}
+                        {currentPhase !== 'Define' && currentPhase !== 'Ideate' && (
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-12 text-center">
+                                <div className="text-6xl mb-4">🚧</div>
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                    {currentPhase} Phase
+                                </h3>
+                                <p className="text-gray-600">
+                                    Interactive tools for this phase are coming soon!
+                                </p>
+                                <p className="text-sm text-gray-500 mt-2">
+                                    For now, use the chat assistant to guide you through this phase.
+                                </p>
                             </div>
                         )}
                     </div>
                 </main>
 
+                {/* Right Side - Chat Assistant */}
                 <aside className="w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl z-20">
-                    <div className="p-4 border-b border-gray-200 bg-blue-600 text-white">
-                        <h2 className="text-lg font-semibold">Socratic Bot</h2>
-                        <p className="text-xs text-blue-100">Design Thinking Mentor</p>
+                    <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                        <h2 className="text-lg font-semibold">AI Assistant</h2>
+                        <p className="text-xs text-blue-100">Design Thinking Companion</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                         {messages.map((msg, i) => (
                             <div key={i} className="flex items-start">
                                 <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${msg.sender === 'Bot' ? 'bg-blue-600' : 'bg-green-500'}`}>
-                                    {msg.sender === 'Bot' ? 'Bot' : 'You'}
+                                    {msg.sender === 'Bot' ? '🤖' : '👤'}
                                 </div>
                                 <div className="ml-3 bg-white p-3 rounded-lg shadow-sm text-sm text-gray-700 border border-gray-100"
                                     dangerouslySetInnerHTML={{ __html: msg.text }}>
@@ -298,11 +345,11 @@ function ProjectContent() {
                             <input
                                 type="text"
                                 className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Type a message..."
+                                placeholder="Ask me anything..."
                                 value={chatInput}
                                 onChange={(e) => setChatInput(e.target.value)}
                             />
-                            <button type="submit" className="bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition">
+                            <button type="submit" className="bg-blue-600 text-white rounded-full px-4 py-2 hover:bg-blue-700 transition text-sm font-medium">
                                 Send
                             </button>
                         </form>
