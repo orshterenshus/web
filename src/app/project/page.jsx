@@ -739,16 +739,42 @@ function ProjectContent() {
 
                                 {/* IDEATE PHASE COMPONENTS */}
                                 {currentPhase === 'Ideate' && projectId && (
-                                    <div className="space-y-8 mb-8">
+                                    <div className="space-y-8 mb-8 animate-fadeIn">
                                         {/* Persona Reminder */}
                                         {defineData?.persona && (
                                             <PersonaContextWidget persona={defineData.persona} />
                                         )}
 
+                                        {/* Section 1: The Header (Context) */}
+                                        <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100">
+                                            <div className="flex items-center gap-4">
+                                                <div className="bg-purple-100 p-3 rounded-full">
+                                                    <span className="text-2xl">🎯</span>
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Current Challenge (HMW)</h2>
+                                                    {defineData?.selectedHmw ? (
+                                                        <p className="text-2xl font-bold text-gray-800 mt-1">{defineData.selectedHmw}</p>
+                                                    ) : (
+                                                        <div className="flex items-center gap-4 mt-1">
+                                                            <p className="text-xl text-gray-400 italic">No HMW Question selected yet.</p>
+                                                            <button
+                                                                onClick={() => changePhase('Define')}
+                                                                className="text-sm px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 font-medium transition-colors"
+                                                            >
+                                                                ← Go back to Define
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <BrainstormingCanvas
                                             projectId={projectId}
                                             currentUser={currentUser}
                                             onIdeasUpdated={setIdeas}
+                                            initialIdeas={stageData?.ideate?.ideas}
                                         />
 
                                         <AISpark
@@ -764,18 +790,20 @@ function ProjectContent() {
                                                 ideas={ideas}
                                                 currentUser={currentUser}
                                                 onWinningConcept={setWinningConcept}
+                                                initialPrioritizedIdeas={stageData?.ideate?.prioritization?.matrix}
+                                                initialVotes={stageData?.ideate?.prioritization?.votes}
+                                                initialWinningConcept={stageData?.ideate?.prioritization?.winningConcept}
                                             />
                                         )}
 
-                                        {winningConcept && (
-                                            <TechSpecGenerator
-                                                projectId={projectId}
-                                                winningConcept={winningConcept}
-                                                pov={defineData?.pov}
-                                                constraints={defineData?.constraints}
-                                                currentUser={currentUser}
-                                            />
-                                        )}
+                                        <TechSpecGenerator
+                                            projectId={projectId}
+                                            winningConcept={winningConcept}
+                                            pov={defineData?.pov}
+                                            constraints={defineData?.constraints}
+                                            currentUser={currentUser}
+                                            initialTechSpec={stageData?.ideate?.techSpec}
+                                        />
                                     </div>
                                 )}
 

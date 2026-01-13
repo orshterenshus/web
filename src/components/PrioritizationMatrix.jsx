@@ -1,13 +1,24 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
-export default function PrioritizationMatrix({ projectId, ideas, currentUser, onWinningConcept }) {
+export default function PrioritizationMatrix({ projectId, ideas, currentUser, onWinningConcept, initialPrioritizedIdeas, initialVotes, initialWinningConcept }) {
     const [prioritizedIdeas, setPrioritizedIdeas] = useState([]);
     const [votes, setVotes] = useState({});
     const [winningConcept, setWinningConcept] = useState(null);
     const [draggedIdea, setDraggedIdea] = useState(null);
     const [showVoting, setShowVoting] = useState(false);
+
+    // Initialize state from props
+    useEffect(() => {
+        if (initialPrioritizedIdeas) setPrioritizedIdeas(initialPrioritizedIdeas);
+        if (initialVotes) setVotes(initialVotes);
+        if (initialWinningConcept) {
+            setWinningConcept(initialWinningConcept);
+            // Ensure parent knows about the winner too if needed
+            if (onWinningConcept) onWinningConcept(initialWinningConcept);
+        }
+    }, [initialPrioritizedIdeas, initialVotes, initialWinningConcept]);
 
     const quadrants = [
         { id: 'high-low', name: 'Quick Wins', impact: 'high', effort: 'low', color: 'bg-green-100 border-green-400', emoji: '🎯' },
@@ -38,12 +49,16 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
             quadrant: quadrant.id
         };
 
-        setPrioritizedIdeas(prev => {
-            const filtered = prev.filter(i => i.id !== draggedIdea.id);
-            return [...filtered, newPrioritizedIdea];
-        });
+        const newMatrix = [
+            ...prioritizedIdeas.filter(i => i.id !== draggedIdea.id),
+            newPrioritizedIdea
+        ];
 
+        setPrioritizedIdeas(newMatrix);
         setDraggedIdea(null);
+
+        // Auto-save
+        saveMatrix(winningConcept, newMatrix);
     };
 
     const getIdeasInQuadrant = (quadrantId) => {
@@ -61,28 +76,30 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
         }));
     };
 
-    const selectWinner = (idea) => {
-        setWinningConcept(idea);
-        if (onWinningConcept) {
-            onWinningConcept(idea);
-        }
-    };
-
-    const saveMatrix = async () => {
+    const saveMatrix = async (currentWinner = winningConcept, currentMatrix = prioritizedIdeas) => {
         try {
             await fetch(`/api/projects/${projectId}/prioritize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user: currentUser.username,
-                    matrix: prioritizedIdeas,
+                    matrix: currentMatrix,
                     votes,
-                    winningConcept
+                    winningConcept: currentWinner
                 })
             });
         } catch (err) {
             console.error('Error saving prioritization:', err);
         }
+    };
+
+    const selectWinner = (idea) => {
+        setWinningConcept(idea);
+        if (onWinningConcept) {
+            onWinningConcept(idea);
+        }
+        // Auto-save the winner
+        saveMatrix(idea);
     };
 
     const getTopVotedIdeas = () => {
@@ -181,20 +198,33 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                 {getIdeasInQuadrant(quadrants[0].id).map(idea => (
                                     <div
                                         key={idea.id}
-                                        className="bg-white p-3 rounded-lg shadow-sm border border-green-300 group hover:shadow-md transition-all"
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, idea)}
+                                        className="bg-white p-3 rounded-lg shadow-sm border border-green-300 group hover:shadow-md transition-all relative cursor-move"
                                     >
                                         <p className="text-sm font-medium text-gray-800">{idea.text}</p>
-                                        {showVoting && (
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <button
-                                                    onClick={() => voteForIdea(idea.id)}
-                                                    className="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                                                >
-                                                    👍 Vote
-                                                </button>
-                                                <span className="text-xs text-gray-600">{votes[idea.id] || 0} votes</span>
-                                            </div>
-                                        )}
+
+                                        <div className="flex items-center justify-between mt-2">
+                                            {showVoting && (
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => voteForIdea(idea.id)}
+                                                        className="text-xs px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                                    >
+                                                        👍 Vote
+                                                    </button>
+                                                    <span className="text-xs text-gray-600">{votes[idea.id] || 0}</span>
+                                                </div>
+                                            )}
+
+                                            <button
+                                                onClick={() => selectWinner(idea)}
+                                                className="opacity-0 group-hover:opacity-100 transition-opacity text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded hover:bg-yellow-200 font-bold flex items-center gap-1"
+                                                title="Mark as Winning Concept"
+                                            >
+                                                🏆 Winner
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -217,7 +247,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                 {getIdeasInQuadrant(quadrants[1].id).map(idea => (
                                     <div
                                         key={idea.id}
-                                        className="bg-white p-3 rounded-lg shadow-sm border border-blue-300 group hover:shadow-md transition-all"
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, idea)}
+                                        className="bg-white p-3 rounded-lg shadow-sm border border-blue-300 group hover:shadow-md transition-all cursor-move"
                                     >
                                         <p className="text-sm font-medium text-gray-800">{idea.text}</p>
                                         {showVoting && (
@@ -253,7 +285,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                 {getIdeasInQuadrant(quadrants[2].id).map(idea => (
                                     <div
                                         key={idea.id}
-                                        className="bg-white p-3 rounded-lg shadow-sm border border-yellow-300 group hover:shadow-md transition-all"
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, idea)}
+                                        className="bg-white p-3 rounded-lg shadow-sm border border-yellow-300 group hover:shadow-md transition-all cursor-move"
                                     >
                                         <p className="text-sm font-medium text-gray-800">{idea.text}</p>
                                         {showVoting && (
@@ -289,7 +323,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                 {getIdeasInQuadrant(quadrants[3].id).map(idea => (
                                     <div
                                         key={idea.id}
-                                        className="bg-white p-3 rounded-lg shadow-sm border border-red-300 group hover:shadow-md transition-all"
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, idea)}
+                                        className="bg-white p-3 rounded-lg shadow-sm border border-red-300 group hover:shadow-md transition-all cursor-move"
                                     >
                                         <p className="text-sm font-medium text-gray-800">{idea.text}</p>
                                         {showVoting && (

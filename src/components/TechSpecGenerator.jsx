@@ -2,12 +2,29 @@
 
 import { useState, useEffect } from 'react';
 
-export default function TechSpecGenerator({ projectId, winningConcept, pov, constraints, currentUser }) {
+export default function TechSpecGenerator({ projectId, winningConcept, pov, constraints, currentUser, initialTechSpec }) {
     const [techSpec, setTechSpec] = useState({
         functionalRequirements: [],
         nonFunctionalRequirements: [],
-        architecture: ''
+        architectureDiagram: '',
+        techStack: {
+            frontend: '',
+            backend: '',
+            database: '',
+            infrastructure: ''
+        }
     });
+
+    useEffect(() => {
+        if (initialTechSpec) {
+            setTechSpec(prev => ({
+                ...prev,
+                ...initialTechSpec,
+                techStack: initialTechSpec.techStack || prev.techStack
+            }));
+        }
+    }, [initialTechSpec]);
+
     const [isGenerating, setIsGenerating] = useState(false);
     const [isGenerated, setIsGenerated] = useState(false);
     const [inputValues, setInputValues] = useState({
@@ -36,12 +53,7 @@ export default function TechSpecGenerator({ projectId, winningConcept, pov, cons
         setIsSaved(false);
     };
 
-    const generateTechSpec = async () => {
-        if (!winningConcept) {
-            alert('Please select a winning concept first');
-            return;
-        }
-
+    const draftRequirements = async () => {
         setIsGenerating(true);
         try {
             const response = await fetch(`/api/projects/${projectId}/generate-techspec`, {
@@ -51,17 +63,52 @@ export default function TechSpecGenerator({ projectId, winningConcept, pov, cons
                     user: currentUser.username,
                     winningConcept,
                     pov,
-                    constraints
+                    constraints,
+                    action: 'requirements'
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                setTechSpec(data.techSpec);
+                setTechSpec(prev => ({
+                    ...prev,
+                    functionalRequirements: data.techSpec?.functionalRequirements || [],
+                    nonFunctionalRequirements: data.techSpec?.nonFunctionalRequirements || []
+                }));
                 setIsGenerated(true);
             }
         } catch (err) {
-            console.error('Error generating tech spec:', err);
+            console.error('Error requirements:', err);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const suggestArchitecture = async () => {
+        setIsGenerating(true);
+        try {
+            const response = await fetch(`/api/projects/${projectId}/generate-techspec`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user: currentUser.username,
+                    winningConcept,
+                    pov,
+                    constraints,
+                    action: 'architecture'
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setTechSpec(prev => ({
+                    ...prev,
+                    techStack: data.techStack || prev.techStack,
+                    architectureDiagram: data.architectureDiagram || prev.architectureDiagram
+                }));
+            }
+        } catch (err) {
+            console.error('Error architecture:', err);
         } finally {
             setIsGenerating(false);
         }
@@ -145,236 +192,185 @@ export default function TechSpecGenerator({ projectId, winningConcept, pov, cons
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 px-6 py-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Technical Specification Generator
-                        </h2>
-                        <p className="text-cyan-100 text-sm mt-1">
-                            Transform your winning concept into technical requirements
-                        </p>
+        <div className="space-y-8">
+            {/* Module 3: Requirements Definition */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 px-6 py-4">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Requirements Definition
+                    </h2>
+                    <p className="text-cyan-100 text-sm mt-1">Transform your winning concept into specific requirements</p>
+                </div>
+
+                <div className="p-6 space-y-6">
+                    {/* Winning Concept Display */}
+                    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-r-lg p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="text-3xl">🏆</div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-gray-800 mb-1">Winning Concept</h3>
+                                <p className="text-gray-700">{winningConcept.text}</p>
+                            </div>
+                        </div>
                     </div>
 
-                    {isGenerated && (
-                        <div className="flex items-center gap-2">
+                    <div className="flex justify-center">
+                        {!isGenerated && techSpec.functionalRequirements.length === 0 ? (
                             <button
-                                onClick={exportToMarkdown}
-                                className="px-3 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
+                                onClick={draftRequirements}
+                                disabled={isGenerating}
+                                className="px-8 py-3 bg-blue-600 text-white rounded-full font-bold shadow-lg hover:bg-blue-700 transition-all flex items-center gap-2"
                             >
-                                📄 Export MD
+                                {isGenerating ? 'Drafting...' : '✨ Draft Specs with AI'}
                             </button>
-                            <button
-                                onClick={exportToPDF}
-                                className="px-3 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
-                            >
-                                📑 Export PDF
-                            </button>
+                        ) : null}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Functional */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                                <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                </svg>
+                                <h3 className="font-bold text-gray-800">Functional Requirements</h3>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-xl p-4 min-h-[200px] border border-gray-100">
+                                <div className="space-y-2 mb-3">
+                                    {techSpec.functionalRequirements.map((req, index) => (
+                                        <div key={index} className="flex gap-2 text-sm bg-white p-2 rounded shadow-sm">
+                                            <span className="text-blue-500 font-bold">{index + 1}.</span>
+                                            <span className="text-gray-700 flex-1">{req}</span>
+                                            <button onClick={() => removeRequirement('functional', index)} className="text-gray-400 hover:text-red-500">×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={inputValues.functional}
+                                        onChange={(e) => setInputValues({ ...inputValues, functional: e.target.value })}
+                                        onKeyPress={(e) => e.key === 'Enter' && addRequirement('functional')}
+                                        placeholder="Add requirement..."
+                                        className="flex-1 px-3 py-1.5 text-sm border rounded"
+                                    />
+                                    <button onClick={() => addRequirement('functional')} className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm">+</button>
+                                </div>
+                            </div>
                         </div>
-                    )}
+
+                        {/* Non-Functional */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                                <svg className="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <h3 className="font-bold text-gray-800">Non-Functional Requirements</h3>
+                            </div>
+
+                            <div className="bg-gray-50 rounded-xl p-4 min-h-[200px] border border-gray-100">
+                                <div className="space-y-2 mb-3">
+                                    {techSpec.nonFunctionalRequirements.map((req, index) => (
+                                        <div key={index} className="flex gap-2 text-sm bg-white p-2 rounded shadow-sm">
+                                            <span className="text-purple-500 font-bold">{index + 1}.</span>
+                                            <span className="text-gray-700 flex-1">{req}</span>
+                                            <button onClick={() => removeRequirement('nonFunctional', index)} className="text-gray-400 hover:text-red-500">×</button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={inputValues.nonFunctional}
+                                        onChange={(e) => setInputValues({ ...inputValues, nonFunctional: e.target.value })}
+                                        onKeyPress={(e) => e.key === 'Enter' && addRequirement('nonFunctional')}
+                                        placeholder="Add requirement..."
+                                        className="flex-1 px-3 py-1.5 text-sm border rounded"
+                                    />
+                                    <button onClick={() => addRequirement('nonFunctional')} className="px-3 py-1.5 bg-purple-500 text-white rounded text-sm">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="p-6 space-y-6">
-                {/* Winning Concept Display */}
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 rounded-r-lg p-4">
-                    <div className="flex items-start gap-3">
-                        <div className="text-3xl">🏆</div>
-                        <div className="flex-1">
-                            <h3 className="font-bold text-gray-800 mb-1">Selected Winning Concept</h3>
-                            <p className="text-gray-700">{winningConcept.text}</p>
-                        </div>
-                    </div>
+            {/* Module 4: System Architecture */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-6 py-4">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        System Architecture
+                    </h2>
+                    <p className="text-slate-300 text-sm mt-1">Tech Stack & Data Flow</p>
                 </div>
 
-                {/* Generate Button */}
-                {!isGenerated && (
-                    <button
-                        onClick={generateTechSpec}
-                        disabled={isGenerating}
-                        className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isGenerating ? (
-                            <>
-                                <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Generating Technical Specification...
-                            </>
-                        ) : (
-                            <>
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                Generate AI-Powered Tech Spec
-                            </>
-                        )}
-                    </button>
-                )}
-
-                {/* Functional Requirements */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                        </svg>
-                        <h3 className="font-bold text-gray-700">Functional Requirements</h3>
-                        <span className="text-xs text-gray-500">(What the system does)</span>
+                <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Frontend</label>
+                            <input
+                                type="text"
+                                value={techSpec.techStack.frontend}
+                                onChange={e => setTechSpec({ ...techSpec, techStack: { ...techSpec.techStack, frontend: e.target.value } })}
+                                className="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:white transition-colors"
+                                placeholder="e.g. React, Vue"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Backend</label>
+                            <input
+                                type="text"
+                                value={techSpec.techStack.backend}
+                                onChange={e => setTechSpec({ ...techSpec, techStack: { ...techSpec.techStack, backend: e.target.value } })}
+                                className="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:white transition-colors"
+                                placeholder="e.g. Node.js, Python"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Database</label>
+                            <input
+                                type="text"
+                                value={techSpec.techStack.database}
+                                onChange={e => setTechSpec({ ...techSpec, techStack: { ...techSpec.techStack, database: e.target.value } })}
+                                className="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:white transition-colors"
+                                placeholder="e.g. PostgreSQL, Mongo"
+                            />
+                        </div>
                     </div>
 
-                    {isGenerated && techSpec.functionalRequirements.length === 0 && (
-                        <p className="text-sm text-gray-500 italic">No AI-generated requirements. Add your own below.</p>
-                    )}
-
-                    <div className="space-y-2">
-                        {techSpec.functionalRequirements.map((req, index) => (
-                            <div
-                                key={index}
-                                className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start justify-between group hover:bg-blue-100 transition-colors"
-                            >
-                                <div className="flex items-start gap-3 flex-1">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                                        {index + 1}
-                                    </span>
-                                    <p className="text-sm text-gray-800 flex-1">{req}</p>
-                                </div>
-                                <button
-                                    onClick={() => removeRequirement('functional', index)}
-                                    className="text-red-500 hover:text-red-700 transition-colors ml-2"
-                                >
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={inputValues.functional}
-                            onChange={(e) => setInputValues({ ...inputValues, functional: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && addRequirement('functional')}
-                            placeholder="Add functional requirement..."
-                            className="flex-1 px-4 py-2 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <div>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wide">Data Flow & Architecture Description</label>
+                            <button onClick={suggestArchitecture} disabled={isGenerating} className="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-full hover:bg-slate-200 font-bold transition-all flex items-center gap-1">
+                                🤖 Suggest Architecture
+                            </button>
+                        </div>
+                        <textarea
+                            value={techSpec.architectureDiagram}
+                            onChange={(e) => {
+                                setTechSpec({ ...techSpec, architectureDiagram: e.target.value });
+                                setIsSaved(false);
+                            }}
+                            placeholder="Describe how data moves through the system..."
+                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 min-h-[150px] font-mono text-sm bg-gray-50"
                         />
+                    </div>
+
+                    <div className="flex justify-end pt-4 border-t border-gray-100">
                         <button
-                            onClick={() => addRequirement('functional')}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            onClick={saveTechSpec}
+                            className="px-6 py-2 bg-green-600 text-white rounded-lg font-bold shadow hover:shadow-lg hover:bg-green-700 transition-all flex items-center gap-2"
                         >
-                            Add
+                            {isSaved ? '✓ Saved' : 'Save Full Specification'}
                         </button>
                     </div>
-                </div>
-
-                {/* Non-Functional Requirements */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <h3 className="font-bold text-gray-700">Non-Functional Requirements</h3>
-                        <span className="text-xs text-gray-500">(Security, Performance, Scalability)</span>
-                    </div>
-
-                    {isGenerated && techSpec.nonFunctionalRequirements.length > 0 && (
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                                <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-                                </svg>
-                                <span className="text-sm font-bold text-purple-700">AI Suggested Requirements</span>
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="space-y-2">
-                        {techSpec.nonFunctionalRequirements.map((req, index) => (
-                            <div
-                                key={index}
-                                className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-start justify-between group hover:bg-purple-100 transition-colors"
-                            >
-                                <div className="flex items-start gap-3 flex-1">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                                        {index + 1}
-                                    </span>
-                                    <p className="text-sm text-gray-800 flex-1">{req}</p>
-                                </div>
-                                <button
-                                    onClick={() => removeRequirement('nonFunctional', index)}
-                                    className="text-red-500 hover:text-red-700 transition-colors ml-2"
-                                >
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={inputValues.nonFunctional}
-                            onChange={(e) => setInputValues({ ...inputValues, nonFunctional: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && addRequirement('nonFunctional')}
-                            placeholder="Add non-functional requirement..."
-                            className="flex-1 px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                        <button
-                            onClick={() => addRequirement('nonFunctional')}
-                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-                        >
-                            Add
-                        </button>
-                    </div>
-                </div>
-
-                {/* Architecture Design */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                        </svg>
-                        <h3 className="font-bold text-gray-700">Architecture High-Level Design</h3>
-                        <span className="text-xs text-gray-500">(Client/Server stack, Database schema)</span>
-                    </div>
-
-                    <textarea
-                        value={techSpec.architecture}
-                        onChange={(e) => {
-                            setTechSpec({ ...techSpec, architecture: e.target.value });
-                            setIsSaved(false);
-                        }}
-                        placeholder="Describe the architecture (e.g., React frontend, Node.js backend, PostgreSQL database...)"
-                        className="w-full px-4 py-3 border-2 border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-[120px] font-mono text-sm"
-                    />
-                </div>
-
-                {/* Save Button */}
-                <div className="flex items-center gap-4 pt-4">
-                    <button
-                        onClick={saveTechSpec}
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
-                    >
-                        Save Technical Specification
-                    </button>
-
-                    {isSaved && (
-                        <div className="flex items-center gap-2 text-green-600 font-medium">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            Saved
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

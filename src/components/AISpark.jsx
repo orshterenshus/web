@@ -7,6 +7,7 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
     const [generatedIdeas, setGeneratedIdeas] = useState([]);
     const [selectedTechnique, setSelectedTechnique] = useState(null);
     const [showTechniques, setShowTechniques] = useState(false);
+    const [sparkMode, setSparkMode] = useState('standard'); // 'standard' | 'cross-domain'
 
     const techniques = [
         {
@@ -64,7 +65,10 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                 body: JSON.stringify({
                     user: currentUser.username,
                     pov,
-                    technique: techniqueToUse
+                    user: currentUser.username,
+                    pov,
+                    technique: techniqueToUse,
+                    mode: sparkMode
                 })
             });
 
@@ -107,8 +111,32 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
             </div>
 
             <div className="p-6 space-y-6">
+                {/* Mode Selection */}
+                <div className="flex justify-center mb-4">
+                    <div className="bg-gray-100 p-1 rounded-lg flex gap-1">
+                        <button
+                            onClick={() => setSparkMode('standard')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sparkMode === 'standard'
+                                ? 'bg-white text-purple-700 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Standard Spark
+                        </button>
+                        <button
+                            onClick={() => setSparkMode('cross-domain')}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sparkMode === 'cross-domain'
+                                ? 'bg-white text-purple-700 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Cross-Domain Mashup 🧬
+                        </button>
+                    </div>
+                </div>
+
                 {/* Quick Spark Button */}
-                <div className="text-center">
+                <div className="flex flex-col items-center gap-3">
                     <button
                         onClick={() => generateIdea(null)}
                         disabled={isGenerating}

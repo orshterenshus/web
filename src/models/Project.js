@@ -178,7 +178,13 @@ const ProjectSchema = new mongoose.Schema({
         techSpec: {
             functionalRequirements: [String],
             nonFunctionalRequirements: [String],
-            architecture: String,
+            architectureDiagram: String,
+            techStack: {
+                frontend: String,
+                backend: String,
+                database: String,
+                infrastructure: String
+            },
             generatedAt: Date
         }
     }

@@ -2,13 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpdated }) {
+export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpdated, initialIdeas }) {
     const [ideas, setIdeas] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [selectedIdea, setSelectedIdea] = useState(null);
     const [draggedIdea, setDraggedIdea] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
     const canvasRef = useRef(null);
+
+    useEffect(() => {
+        if (initialIdeas && initialIdeas.length > 0) {
+            setIdeas(initialIdeas);
+        }
+    }, [initialIdeas]);
 
     const colors = [
         { bg: 'bg-yellow-200', border: 'border-yellow-400', text: 'text-yellow-900' },
@@ -35,19 +41,23 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
             combined: false
         };
 
-        setIdeas(prev => [...prev, newIdea]);
+        const newIdeas = [...ideas, newIdea];
+        setIdeas(newIdeas);
         setInputValue('');
         setIsSaved(false);
 
         if (onIdeasUpdated) {
-            onIdeasUpdated([...ideas, newIdea]);
+            onIdeasUpdated(newIdeas);
         }
+        saveIdeas(newIdeas);
     };
 
     const deleteIdea = (id) => {
-        setIdeas(prev => prev.filter(idea => idea.id !== id));
+        const newIdeas = ideas.filter(idea => idea.id !== id);
+        setIdeas(newIdeas);
         setSelectedIdea(null);
         setIsSaved(false);
+        saveIdeas(newIdeas);
     };
 
     const handleDragStart = (e, idea) => {
@@ -69,8 +79,6 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
             return;
         }
 
-        // Combine ideas
-        const combinedText = `${draggedIdea.text} + ${targetIdea.text}`;
         const combinedIdea = {
             id: Date.now().toString(),
             text: combinedText,
@@ -82,13 +90,15 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
             originalIdeas: [draggedIdea.id, targetIdea.id]
         };
 
-        setIdeas(prev => [
-            ...prev.filter(i => i.id !== draggedIdea.id && i.id !== targetIdea.id),
+        const newIdeas = [
+            ...ideas.filter(i => i.id !== draggedIdea.id && i.id !== targetIdea.id),
             combinedIdea
-        ]);
+        ];
 
+        setIdeas(newIdeas);
         setDraggedIdea(null);
         setIsSaved(false);
+        saveIdeas(newIdeas);
     };
 
     const handleCanvasDrop = (e) => {
@@ -99,24 +109,26 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-        setIdeas(prev => prev.map(idea =>
+        const newIdeas = ideas.map(idea =>
             idea.id === draggedIdea.id
                 ? { ...idea, position: { x: Math.max(0, Math.min(95, x)), y: Math.max(0, Math.min(95, y)) } }
                 : idea
-        ));
+        );
 
+        setIdeas(newIdeas);
         setDraggedIdea(null);
         setIsSaved(false);
+        saveIdeas(newIdeas);
     };
 
-    const saveIdeas = async () => {
+    const saveIdeas = async (ideasToSave = ideas) => {
         try {
             const response = await fetch(`/api/projects/${projectId}/ideas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user: currentUser.username,
-                    ideas
+                    ideas: ideasToSave
                 })
             });
 
@@ -180,7 +192,7 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && addIdea()}
                         placeholder="Type your idea and press Enter..."
-                        className="flex-1 px-4 py-3 border-2 border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-lg"
+                        className="flex-1 px-4 py-3 border-2 border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-lg text-gray-900 placeholder-gray-400"
                     />
                     <button
                         onClick={addIdea}
