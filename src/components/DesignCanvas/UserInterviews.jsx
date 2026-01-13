@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import ConfirmationModal from '../Shared/ConfirmationModal';
 
-export default function UserInterviews({ projectId, data, onUpdate, activePersonaId, personaName }) {
+export default function UserInterviews({ projectId, data, onUpdate, activePersonaId, personaName, activeTab }) {
     const [interviews, setInterviews] = useState([]);
     const [activeInterviewId, setActiveInterviewId] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
@@ -154,18 +154,18 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                        <span className="text-xl">🎙️</span>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activeTab === 'ai' ? 'bg-purple-100' : 'bg-orange-100'}`}>
+                        <span className="text-xl">{activeTab === 'ai' ? '🤖' : '🎙️'}</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-800">{personaName ? `${personaName} Interview` : 'User Interviews'}</h3>
-                        <p className="text-sm text-gray-500">Document Q&A sessions for this persona</p>
+                        <h3 className="text-lg font-bold text-gray-800">{personaName ? `${personaName} Interview` : (activeTab === 'ai' ? 'AI Interviews' : 'User Interviews')}</h3>
+                        <p className="text-sm text-gray-500">{activeTab === 'ai' ? 'Simulate conversations with this AI persona' : 'Document Q&A sessions for this persona'}</p>
                     </div>
                 </div>
                 <button
                     onClick={handleAddInterview}
                     disabled={isCreating}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`px-4 py-2 text-white rounded-lg font-medium transition-colors shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'ai' ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/20'}`}
                 >
                     <span>{isCreating ? '...' : '+'}</span> {isCreating ? 'Creating...' : 'New Session'}
                 </button>
@@ -184,7 +184,7 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                             key={interview.id}
                             onClick={() => setActiveInterviewId(interview.id)}
                             className={`p-3 rounded-lg cursor-pointer mb-2 transition-all ${activeInterviewId === interview.id
-                                ? 'bg-white shadow-md border-l-4 border-orange-500'
+                                ? `bg-white shadow-md border-l-4 ${activeTab === 'ai' ? 'border-purple-500' : 'border-orange-500'}`
                                 : 'hover:bg-gray-100 text-gray-600'
                                 }`}
                         >

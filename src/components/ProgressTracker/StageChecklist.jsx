@@ -11,6 +11,7 @@ const STAGE_CHECKLISTS = {
             { key: 'identifyTargetUsers', label: 'Identify Target Users' },
             { key: 'knowPhysicalEnv', label: 'Do I know the physical or digital environment where the "pain" occurs?' },
             { key: 'createdPersona', label: 'Created a User Persona' },
+            { key: 'createAiPersona', label: 'Created an AI Persona' },
             { key: 'conductedInterviews', label: 'Conduct an interview' },
             { key: 'completedEmpathyMap', label: 'Complete the Empathy map' }
         ]
@@ -98,14 +99,18 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
     const isSystemVerified = (key) => {
         if (stageKey !== 'empathize' || !data?.empathize) return false;
 
-        const { personas, interviews, empathyMaps } = data.empathize;
+        const { personas, aiPersonas, interviews, empathyMaps } = data.empathize;
 
         if (key === 'createdPersona') {
-            return personas && personas.length > 0;
+            return (personas?.length || 0) > 0;
+        }
+
+        if (key === 'createAiPersona') {
+            return (aiPersonas?.length || 0) > 0;
         }
 
         if (key === 'conductedInterviews') {
-            return interviews && interviews.length > 0;
+            return (interviews?.length || 0) > 0;
         }
 
         if (key === 'completedEmpathyMap') {
@@ -136,6 +141,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
         };
 
         verifyAndSync('createdPersona');
+        verifyAndSync('createAiPersona');
         verifyAndSync('conductedInterviews');
         verifyAndSync('completedEmpathyMap');
 

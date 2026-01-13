@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 
-export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId }) {
+export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId, activeAiPersonaId, activePersonaName, activeAiPersonaName, activeTab }) {
     const [newNote, setNewNote] = useState({ quadrant: null, text: '' });
     const [isAdding, setIsAdding] = useState(false);
     const [isDeleting, setIsDeleting] = useState(null); // Stores ID of note being deleted
-    const [activeTab, setActiveTab] = useState('user'); // 'user' or 'ai'
 
     const quadrants = [
         { key: 'says', label: 'Says', icon: '💬', color: 'bg-purple-100 border-purple-300', textColor: 'text-purple-900 placeholder-purple-400' },
@@ -16,14 +15,18 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
     ];
 
     // Helper to get nested field path based on wrapper structure
-    // We store scoped maps in `empathyMapScoped.[personaId].[type].[quadrant]`
+    // Stores scoped maps in `empathyMapScoped.[personaId].[type].[quadrant]`
+    // User Persona -> empathyMaps.[userId].user.[quadrant]
+    // AI Persona -> empathyMaps.[aiId].ai.[quadrant]
     const getFieldPath = (type, quadrant) => {
-        if (!activePersonaId) return null;
-        return `empathyMaps.${activePersonaId}.${type}.${quadrant}`;
+        const id = type === 'user' ? activePersonaId : activeAiPersonaId;
+        if (!id) return null;
+        return `empathyMaps.${id}.${type}.${quadrant}`;
     };
 
     const handleAddNote = async (quadrant) => {
-        if (!newNote.text.trim() || !activePersonaId) return;
+        const currentId = activeTab === 'user' ? activePersonaId : activeAiPersonaId;
+        if (!newNote.text.trim() || !currentId) return;
 
         setIsAdding(true);
         try {
@@ -59,7 +62,8 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
     };
 
     const handleDeleteNote = async (quadrant, noteId) => {
-        if (!activePersonaId || isDeleting) return;
+        const currentId = activeTab === 'user' ? activePersonaId : activeAiPersonaId;
+        if (!currentId || isDeleting) return;
 
         setIsDeleting(noteId);
         try {
@@ -88,13 +92,14 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
     };
 
     const getNotes = (quadrant) => {
-        if (!activePersonaId || !data?.empathize?.empathyMaps?.[activePersonaId]) return [];
+        const currentId = activeTab === 'user' ? activePersonaId : activeAiPersonaId;
+        if (!currentId || !data?.empathize?.empathyMaps?.[currentId]) return [];
 
-        const typeMap = data.empathize.empathyMaps[activePersonaId][activeTab];
+        const typeMap = data.empathize.empathyMaps[currentId][activeTab];
         return typeMap?.[quadrant] || [];
     };
 
-    if (!activePersonaId) return null;
+    if (!activePersonaId && activeTab === 'user') return null;
 
     return (
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
@@ -108,103 +113,96 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId 
                         <p className="text-sm text-gray-500">Map out what the persona Says, Thinks, Does, and Feels</p>
                     </div>
                 </div>
+                {/* Current Persona Indicator */}
+                <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ${activeTab === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span>{activeTab === 'ai' ? '🤖' : '👤'}</span>
+                    <span>{activeTab === 'ai' ? (activeAiPersonaName || 'AI Persona') : (activePersonaName || 'User Persona')}</span>
+                </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex p-1 bg-gray-100 rounded-lg mb-6 w-fit">
-                <button
-                    onClick={() => setActiveTab('user')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'user'
-                        ? 'bg-white text-purple-700 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                        }`}
-                >
-                    👤 User Persona
-                </button>
-                <button
-                    onClick={() => setActiveTab('ai')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'ai'
-                        ? 'bg-white text-purple-700 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
-                        }`}
-                >
-                    🤖 AI Persona
-                </button>
-            </div>
+            {/* Warning if no AI persona selected */}
+            {activeTab === 'ai' && !activeAiPersonaId && (
+                <div className="text-center p-8 bg-purple-50 rounded-lg border border-purple-100 mb-6">
+                    <p className="text-purple-800 font-medium">No AI Persona Selected</p>
+                    <p className="text-sm text-purple-600 mt-1">Please create or select an AI Persona above to start mapping.</p>
+                </div>
+            )}
 
-            <div className="grid grid-cols-2 gap-4">
-                {quadrants.map((q) => (
-                    <div
-                        key={q.key}
-                        className={`${q.color} border-2 rounded-xl p-4 min-h-[180px] flex flex-col`}
-                    >
-                        {/* Header */}
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl">{q.icon}</span>
-                                <span className={`font-bold ${q.textColor}`}>{q.label}</span>
-                            </div>
-                            <button
-                                onClick={() => setNewNote({ quadrant: q.key, text: '' })}
-                                className={`w-7 h-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
-                            >
-                                +
-                            </button>
-                        </div>
-
-                        {/* Notes */}
-                        <div className="flex-1 space-y-2 overflow-y-auto max-h-[120px] custom-scrollbar">
-                            {getNotes(q.key).map((note) => (
-                                <div
-                                    key={note.id}
-                                    className="bg-white/90 rounded-lg p-2 pr-7 text-sm text-gray-900 font-medium shadow-sm group relative min-h-[40px] flex items-center"
+            {(activeTab === 'user' || activeAiPersonaId) && (
+                <div className="grid grid-cols-2 gap-4">
+                    {quadrants.map((q) => (
+                        <div
+                            key={q.key}
+                            className={`${q.color} border-2 rounded-xl p-4 min-h-[180px] flex flex-col`}
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl">{q.icon}</span>
+                                    <span className={`font-bold ${q.textColor}`}>{q.label}</span>
+                                </div>
+                                <button
+                                    onClick={() => setNewNote({ quadrant: q.key, text: '' })}
+                                    className={`w-7 h-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
                                 >
-                                    <p className="break-words w-full">{typeof note === 'object' ? note.text : note}</p>
-                                    <button
-                                        onClick={() => handleDeleteNote(q.key, note.id)}
-                                        disabled={isDeleting === note.id}
-                                        className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-gray-300' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100'}`}
-                                        title="Delete note"
+                                    +
+                                </button>
+                            </div>
+
+                            {/* Notes */}
+                            <div className="flex-1 space-y-2 overflow-y-auto max-h-[120px] custom-scrollbar">
+                                {getNotes(q.key).map((note) => (
+                                    <div
+                                        key={note.id}
+                                        className="bg-white/90 rounded-lg p-2 pr-7 text-sm text-gray-900 font-medium shadow-sm group relative min-h-[40px] flex items-center"
                                     >
-                                        {isDeleting === note.id ? '...' : '×'}
+                                        <p className="break-words w-full">{typeof note === 'object' ? note.text : note}</p>
+                                        <button
+                                            onClick={() => handleDeleteNote(q.key, note.id)}
+                                            disabled={isDeleting === note.id}
+                                            className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-gray-300' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100'}`}
+                                            title="Delete note"
+                                        >
+                                            {isDeleting === note.id ? '...' : '×'}
+                                        </button>
+                                    </div>
+                                ))}
+                                {getNotes(q.key).length === 0 && (
+                                    <p className="text-xs text-gray-400/60 italic text-center mt-4">Empty</p>
+                                )}
+                            </div>
+
+                            {/* Add Note Input */}
+                            {newNote.quadrant === q.key && (
+                                <div className="mt-3 flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newNote.text}
+                                        onChange={(e) => setNewNote({ ...newNote, text: e.target.value })}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddNote(q.key)}
+                                        className="flex-1 px-3 py-2 rounded-lg text-sm border-0 focus:ring-2 focus:ring-purple-400 text-gray-900 placeholder-gray-500 font-medium"
+                                        autoFocus
+                                        placeholder="Type a note..."
+                                    />
+                                    <button
+                                        onClick={() => handleAddNote(q.key)}
+                                        disabled={isAdding}
+                                        className="px-3 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 disabled:opacity-50"
+                                    >
+                                        {isAdding ? '...' : 'Add'}
+                                    </button>
+                                    <button
+                                        onClick={() => setNewNote({ quadrant: null, text: '' })}
+                                        className="px-2 py-2 text-gray-500 hover:text-gray-700"
+                                    >
+                                        ✕
                                     </button>
                                 </div>
-                            ))}
-                            {getNotes(q.key).length === 0 && (
-                                <p className="text-xs text-gray-400/60 italic text-center mt-4">Empty</p>
                             )}
                         </div>
-
-                        {/* Add Note Input */}
-                        {newNote.quadrant === q.key && (
-                            <div className="mt-3 flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newNote.text}
-                                    onChange={(e) => setNewNote({ ...newNote, text: e.target.value })}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleAddNote(q.key)}
-                                    className="flex-1 px-3 py-2 rounded-lg text-sm border-0 focus:ring-2 focus:ring-purple-400 text-gray-900 placeholder-gray-500 font-medium"
-                                    autoFocus
-                                    placeholder="Type a note..."
-                                />
-                                <button
-                                    onClick={() => handleAddNote(q.key)}
-                                    disabled={isAdding}
-                                    className="px-3 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 disabled:opacity-50"
-                                >
-                                    {isAdding ? '...' : 'Add'}
-                                </button>
-                                <button
-                                    onClick={() => setNewNote({ quadrant: null, text: '' })}
-                                    className="px-2 py-2 text-gray-500 hover:text-gray-700"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
