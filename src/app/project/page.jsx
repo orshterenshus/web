@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useReactToPrint } from 'react-to-print';
 import SharePopover from '@/components/Shared/SharePopover';
@@ -180,6 +180,40 @@ function ProjectContent() {
 
     // UX Refactor: Progressive State
     const [showMatrix, setShowMatrix] = useState(false);
+
+    // Resizable Sidebar State
+    const [sidebarWidth, setSidebarWidth] = useState(400);
+    const [isResizing, setIsResizing] = useState(false);
+    const sidebarRef = useRef(null);
+
+    const startResizing = useCallback((mouseDownEvent) => {
+        setIsResizing(true);
+    }, []);
+
+    const stopResizing = useCallback(() => {
+        setIsResizing(false);
+    }, []);
+
+    const resize = useCallback((mouseMoveEvent) => {
+        if (isResizing) {
+            const newWidth = window.innerWidth - mouseMoveEvent.clientX;
+            if (newWidth > 300 && newWidth < 800) {
+                setSidebarWidth(newWidth);
+            }
+        }
+    }, [isResizing]);
+
+    useEffect(() => {
+        window.addEventListener("mousemove", resize);
+        window.addEventListener("mouseup", stopResizing);
+        return () => {
+            window.removeEventListener("mousemove", resize);
+            window.removeEventListener("mouseup", stopResizing);
+        };
+    }, [resize, stopResizing]);
+
+    // Prevent duplicate welcome messages
+    const initialFetchDone = useRef(false);
 
     // Auto-Open Matrix if data exists
     // (Auto-Open Logic moved to data loading effect for better hydration reliability)
@@ -391,15 +425,19 @@ function ProjectContent() {
     // Fetch chat history on component mount
     useEffect(() => {
         const fetchChatHistory = async () => {
-            if (!projectId) {
-                setIsLoadingHistory(false);
-                // Show welcome message if no project ID
-                setMessages([{
-                    sender: 'Bot',
-                    text: getWelcomeMessage(initialPhase)
-                }]);
+            if (!projectId || initialFetchDone.current) {
+                if (!projectId) {
+                    setIsLoadingHistory(false);
+                    // Show welcome message if no project ID
+                    setMessages([{
+                        sender: 'Bot',
+                        text: getWelcomeMessage(initialPhase)
+                    }]);
+                }
                 return;
             }
+
+            initialFetchDone.current = true;
 
             try {
                 const response = await fetch(`/api/projects/${projectId}/messages`);
@@ -900,7 +938,18 @@ function ProjectContent() {
                     <div className="max-w-5xl mx-auto">
 
                         {/* Phase Progress Bar - Strict Linear Flow */}
-                        <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5">
+                        <div className="relative flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5">
+                            {/* Continuous Line Background */}
+                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-white/10 -z-10"></div>
+
+                            {/* Continuous Progress Line */}
+                            <div
+                                className="absolute left-10 top-1/2 h-0.5 bg-emerald-500/50 -z-10 transition-all duration-500 ease-in-out"
+                                style={{
+                                    width: `calc(${['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].indexOf(currentPhase) / 4 * 100}% - 5rem)`
+                                }}
+                            ></div>
+
                             {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, index) => {
                                 const phases = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
                                 const currentPhaseIndex = phases.indexOf(currentPhase);
@@ -916,14 +965,14 @@ function ProjectContent() {
                                         disabled={!isClickable}
                                         onClick={() => changePhase(phase)}
                                         className={`
-                                            relative flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all whitespace-nowrap
+                                            relative flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all whitespace-nowrap z-10
                                             ${isActive
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
                                                 : isPast
-                                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-not-allowed opacity-70' // Past (Done & Locked)
+                                                    ? 'bg-[#0f172a] text-emerald-400 border border-emerald-500/20 cursor-not-allowed opacity-100' // Past (Done & Locked)
                                                     : isClickable
                                                         ? 'bg-white text-blue-900 hover:bg-blue-50 cursor-pointer shadow-md transform hover:-translate-y-0.5' // Next (Actionable)
-                                                        : 'bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed' // Future (Locked)
+                                                        : 'bg-[#0f172a] text-slate-600 border border-white/5 cursor-not-allowed' // Future (Locked)
                                             }
                                         `}
                                     >
@@ -932,11 +981,6 @@ function ProjectContent() {
                                         {isActive && <span className="animate-pulse">📍</span>}
 
                                         <span>{phase}</span>
-
-                                        {/* Connector Line (Visual only) */}
-                                        {index < phases.length - 1 && (
-                                            <div className={`absolute -right-6 top-1/2 w-4 h-0.5 -z-10 hidden md:block ${index < currentPhaseIndex ? 'bg-emerald-500/30' : 'bg-white/5'}`}></div>
-                                        )}
                                     </button>
                                 );
                             })}
@@ -1264,6 +1308,7 @@ function ProjectContent() {
 
                 {/* Chat Sidebar */}
                 {
+
                     isChatMinimized ? (
                         <div className="hidden lg:flex flex-col w-12 bg-[#1e293b] border-l border-white/5 items-center py-6 z-20">
                             <button onClick={() => setIsChatMinimized(false)} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" title="Expand Chat">
@@ -1272,10 +1317,19 @@ function ProjectContent() {
                             <div className="mt-8 text-slate-400 text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
                         </div>
                     ) : (
-                        <aside className={`fixed lg:relative inset-y-0 right-0 w-full sm:w-96 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+                        <aside
+                            ref={sidebarRef}
+                            style={{ width: showMobileChat ? '100%' : `${sidebarWidth}px` }}
+                            className={`fixed lg:relative inset-y-0 right-0 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0 w-full' : 'translate-x-full lg:translate-x-0'}`}
+                        >
+                            {/* Resize Handle */}
+                            <div
+                                className="hidden lg:block absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-blue-500/50 transition-colors z-50"
+                                onMouseDown={startResizing}
+                            ></div>
 
                             {/* Chat Header */}
-                            <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                            <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center shrink-0">
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
                                         <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
@@ -1298,15 +1352,30 @@ function ProjectContent() {
                                 </div>
                             </div>
 
+                            {/* Global Style for hiding scrollbar */}
+                            <style jsx global>{`
+                        .no-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .no-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                    `}</style>
+
                             {/* Chat Messages */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
                                 {isLoadingHistory ? (
                                     <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-3">
                                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                                         <p className="text-sm">Loading history...</p>
                                     </div>
                                 ) : (
-                                    messages.map((msg, i) => (
+                                    messages.filter((msg, index, self) =>
+                                        index === self.findIndex((t) => (
+                                            t.timestamp === msg.timestamp && t.text === msg.text
+                                        ))
+                                    ).map((msg, i) => (
                                         <div key={i} className={`flex items-start gap-3 ${msg.sender !== 'Bot' ? 'flex-row-reverse' : ''}`}>
                                             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${msg.sender === 'Bot' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}`}>
                                                 {msg.sender === 'Bot' ? 'AI' : 'Me'}
@@ -1334,7 +1403,7 @@ function ProjectContent() {
                             </div>
 
                             {/* Chat Input */}
-                            <div className="p-4 bg-white/5 border-t border-white/5">
+                            <div className="p-4 bg-white/5 border-t border-white/5 shrink-0">
                                 <form onSubmit={sendMessage} className="relative">
                                     <input
                                         type="text"

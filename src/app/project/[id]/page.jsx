@@ -270,17 +270,30 @@ function ProjectContent() {
                         <h2 className="text-2xl font-bold mb-4 text-gray-800">
                             {project.name}
                         </h2>
-                        <div className="flex items-center justify-between w-full relative">
-                            <div className="absolute w-full top-1/2 transform -translate-y-1/2 bg-gray-200 h-1 z-0"></div>
+                        <div className="relative w-full">
+                            {/* Connector Lines */}
+                            <div className="absolute top-5 left-0 w-full h-1 z-0 transform -translate-y-1/2">
+                                {/* Background Gray Line (starts at 10% ends at 90% for 5 cols) */}
+                                <div className="absolute top-0 left-[10%] right-[10%] h-full bg-gray-200"></div>
+                                {/* Colored Progress Line */}
+                                <div
+                                    className="absolute top-0 left-[10%] h-full bg-green-500 transition-all duration-500"
+                                    style={{ width: `${['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].indexOf(currentPhase) * 20}%` }}
+                                ></div>
+                            </div>
 
-                            {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, idx) => (
-                                <div key={phase} className="relative z-10 text-center cursor-pointer" onClick={() => changePhase(phase)}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto font-bold shadow-lg transition-all ${getStepClass(phase)}`}>
-                                        {idx + 1}
+                            <div className="grid grid-cols-5 w-full relative z-10">
+                                {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, idx) => (
+                                    <div key={phase} className="text-center cursor-pointer group" onClick={() => changePhase(phase)}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto font-bold shadow-lg transition-all relative z-20 ${getStepClass(phase)}`}>
+                                            {idx + 1}
+                                        </div>
+                                        <span className={`text-sm font-medium mt-2 block transition-colors ${phase === currentPhase ? 'text-blue-600' : 'text-gray-600'}`}>
+                                            {phase}
+                                        </span>
                                     </div>
-                                    <span className="text-sm font-medium mt-2 block text-gray-600">{phase}</span>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
 
