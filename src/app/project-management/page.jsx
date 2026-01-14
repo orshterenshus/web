@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import SharePopover from '@/components/Shared/SharePopover';
 
@@ -15,12 +15,84 @@ export default function ProjectManagementPage() {
     const [projectEmoji, setProjectEmoji] = useState('🚀');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+    // Filter & Sort State
+    const ALL_PHASES = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
+    const [sortBy, setSortBy] = useState('updated');
+    const [filterPhases, setFilterPhases] = useState([...ALL_PHASES]);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef(null);
+    const [isSortOpen, setIsSortOpen] = useState(false);
+    const sortRef = useRef(null);
+    const [sortDirection, setSortDirection] = useState('desc');
+
+    // Click outside handler for filter & sort dropdowns
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setIsFilterOpen(false);
+            }
+            if (sortRef.current && !sortRef.current.contains(event.target)) {
+                setIsSortOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // Derived Projects List
+    const processedProjects = useMemo(() => {
+        // ... existing memo logic ...
+        let result = [...projects];
+
+        // 1. Filter (Multi-select)
+        if (filterPhases.length > 0) {
+            result = result.filter(p => filterPhases.includes(p.phase));
+        } else {
+            result = []; // If nothing selected, show nothing? Or all? Usually nothing.
+        }
+
+        // 2. Sort
+        result.sort((a, b) => {
+            let comparison = 0;
+            if (sortBy === 'updated') {
+                comparison = new Date(a.updatedAt || 0) - new Date(b.updatedAt || 0); // Base ASC
+            } else if (sortBy === 'name') {
+                comparison = a.name.localeCompare(b.name); // Base ASC
+            } else if (sortBy === 'phase') {
+                const phases = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
+                comparison = phases.indexOf(a.phase) - phases.indexOf(b.phase); // Base ASC
+            }
+            return sortDirection === 'asc' ? comparison : -comparison;
+        });
+
+        return result;
+    }, [projects, filterPhases, sortBy, sortDirection]);
+
+
+    const togglePhase = (phase) => {
+        setFilterPhases(prev =>
+            prev.includes(phase)
+                ? prev.filter(p => p !== phase)
+                : [...prev, phase]
+        );
+    };
+
+    const toggleAllPhases = () => {
+        if (filterPhases.length === ALL_PHASES.length) {
+            setFilterPhases([]); // Deselect all
+        } else {
+            setFilterPhases([...ALL_PHASES]); // Select all
+        }
+    };
+
     const EMOJI_LIST = [
         '🚀', '⭐', '💡', '🔥', '✨', '🎨', '🎯', '🦄', '🌈', '⚡',
         '💫', '🔮', '🎉', '🌱', '🌍', '🛠️', '🏰', '🗺️', '🧩', '🎲',
         '🎳', '🎮', '🎪', '🎭', '🌲', '🌺', '🌻', '🏔️', '🏖️', '⛩️',
         '🏢', '🛤️', '⚓', '🚲', '🛴', '🛸', '🤖', '👾', '🎃', '👻'
     ];
+
+    // ... (rest of logic) ...
 
     // Modal State
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -37,13 +109,6 @@ export default function ProjectManagementPage() {
         }
         const user = JSON.parse(userStr);
         setCurrentUser(user);
-
-        // Fetch projects
-        if (currentUser) {
-            // We need to call fetchProjects here or inside a separate useEffect dependent on currentUser
-            // But since fetchProjects relies on currentUser state which might not be set immediately if we just set it...
-            // actually currentUser is set above.
-        }
     }, [router]);
 
     // Effect to fetch projects once currentUser is set
@@ -154,7 +219,7 @@ export default function ProjectManagementPage() {
     );
 
     return (
-        <div className="min-h-screen p-8 relative overflow-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
+        <div className="min-h-screen p-8 relative overflow-x-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
             {/* Background Decorative Elements */}
             <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
@@ -196,22 +261,162 @@ export default function ProjectManagementPage() {
 
                 {/* Projects Grid */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                             <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
                             Your Projects
                         </h2>
+
+                        {/* Search, Sort & Filter Controls */}
+                        <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
+                            {/* Multi-Select Filter */}
+                            <div className="relative min-w-[180px]" ref={filterRef}>
+                                <button
+                                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                    className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
+                                >
+                                    <span className="truncate">
+                                        {filterPhases.length === ALL_PHASES.length
+                                            ? 'All Phases'
+                                            : filterPhases.length === 0
+                                                ? 'No Phases Selected'
+                                                : `${filterPhases.length} Selected`}
+                                    </span>
+                                    <svg className={`w-3 h-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                {isFilterOpen && (
+                                    <div className="absolute top-full left-0 mt-2 w-64 glass-card bg-[#0f172a] border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                        {/* Select All Control */}
+                                        <div className="p-3 border-b border-slate-700/50 flex items-center justify-between bg-black/20">
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter Phases</span>
+                                            <button
+                                                onClick={toggleAllPhases}
+                                                className="text-xs text-blue-400 hover:text-blue-300 font-medium"
+                                            >
+                                                {filterPhases.length === ALL_PHASES.length ? 'Deselect All' : 'Select All'}
+                                            </button>
+                                        </div>
+
+                                        {/* Options List */}
+                                        <div className="p-2 space-y-1 max-h-60 overflow-y-auto no-scrollbar">
+                                            {ALL_PHASES.map((phase) => {
+                                                const isSelected = filterPhases.includes(phase);
+                                                return (
+                                                    <label
+                                                        key={phase}
+                                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-blue-500/10' : 'hover:bg-white/5'}`}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => togglePhase(phase)}
+                                                            className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/20"
+                                                        />
+                                                        <span className={`text-sm ${isSelected ? 'text-white font-medium' : 'text-slate-400'}`}>
+                                                            {phase}
+                                                        </span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Sort Group */}
+                            <div className="flex items-center gap-2">
+                                <div className="relative min-w-[180px]" ref={sortRef}>
+                                    <button
+                                        onClick={() => setIsSortOpen(!isSortOpen)}
+                                        className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
+                                    >
+                                        <span className="truncate">
+                                            {sortBy === 'updated' && '🕒 Last Updated'}
+                                            {sortBy === 'phase' && '📊 Phase Progress'}
+                                            {sortBy === 'name' && 'sz Name (A-Z)'}
+                                        </span>
+                                        <svg className={`w-3 h-3 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+
+                                    {isSortOpen && (
+                                        <div className="absolute top-full right-0 mt-2 w-full glass-card bg-[#0f172a] border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                            <div className="p-1">
+                                                {[
+                                                    { value: 'updated', label: '🕒 Last Updated' },
+                                                    { value: 'phase', label: '📊 Phase Progress' },
+                                                    { value: 'name', label: 'sz Name (A-Z)' }
+                                                ].map((option) => (
+                                                    <button
+                                                        key={option.value}
+                                                        onClick={() => {
+                                                            setSortBy(option.value);
+                                                            setIsSortOpen(false);
+                                                        }}
+                                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${sortBy === option.value ? 'bg-blue-500/10 text-white font-medium' : 'text-slate-400 hover:bg-white/5'}`}
+                                                    >
+                                                        {option.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Sort Direction Toggle */}
+                                <button
+                                    onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                                    className="p-2.5 rounded-lg glass-input bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                                    title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+                                >
+                                    {sortDirection === 'asc' ? (
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                                    ) : (
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h5m4 0v12m0 0l-4-4m4 4l4-4"></path></svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Global Scrollbar Styles */}
+                    <style jsx global>{`
+                        .no-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .no-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                        /* Custom thin scrollbar for other areas */
+                        ::-webkit-scrollbar {
+                            width: 6px;
+                            height: 6px;
+                        }
+                        ::-webkit-scrollbar-track {
+                            background: rgba(255, 255, 255, 0.02);
+                        }
+                        ::-webkit-scrollbar-thumb {
+                            background: rgba(255, 255, 255, 0.1);
+                            border-radius: 10px;
+                        }
+                        ::-webkit-scrollbar-thumb:hover {
+                            background: rgba(255, 255, 255, 0.2);
+                        }
+                    `}</style>
+
+
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {projects.length === 0 ? (
+                        {processedProjects.length === 0 ? (
                             <div className="col-span-full glass-panel p-12 rounded-2xl text-center border-dashed border-2 border-slate-700">
                                 <span className="text-4xl block mb-4">✨</span>
-                                <p className="text-slate-400 mb-2">No projects yet.</p>
-                                <p className="text-slate-500 text-sm">Create your first innovation journey below!</p>
+                                <p className="text-slate-400 mb-2">No projects found.</p>
+                                <p className="text-slate-500 text-sm">{projects.length === 0 ? "Create your first innovation journey below!" : "Try adjusting your filters."}</p>
                             </div>
                         ) : (
-                            projects.map((project) => (
+                            processedProjects.map((project) => (
                                 <div
                                     key={project._id}
                                     className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-white/5 transition-all duration-300"
@@ -223,12 +428,12 @@ export default function ProjectManagementPage() {
                                         </div>
                                         {/* Phase Badge */}
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${{
-                                                'Empathize': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                                                'Define': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-                                                'Ideate': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-                                                'Prototype': 'bg-green-500/20 text-green-300 border-green-500/30',
-                                                'Test': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                                            }[project.phase] || 'bg-white/5 border-white/10 text-slate-300'
+                                            'Empathize': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+                                            'Define': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+                                            'Ideate': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+                                            'Prototype': 'bg-green-500/20 text-green-300 border-green-500/30',
+                                            'Test': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                                        }[project.phase] || 'bg-white/5 border-white/10 text-slate-300'
                                             }`}>
                                             {project.phase}
                                         </span>
@@ -330,7 +535,7 @@ export default function ProjectManagementPage() {
                             </button>
 
                             {showEmojiPicker && (
-                                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 glass-card bg-[#1e293b] rounded-xl border border-white/10 shadow-xl grid grid-cols-5 gap-2 z-50">
+                                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 bg-[#1e293b] rounded-xl border border-slate-600 shadow-2xl grid grid-cols-5 gap-2 z-50">
                                     <div className="absolute inset-0 z-[-1]" onClick={() => setShowEmojiPicker(false)}></div>
                                     {EMOJI_LIST.map(emoji => (
                                         <button

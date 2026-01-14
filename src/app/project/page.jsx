@@ -934,11 +934,11 @@ function ProjectContent() {
 
             <div className="flex flex-1 overflow-hidden relative z-10">
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-48">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-48 no-scrollbar">
                     <div className="max-w-5xl mx-auto">
 
                         {/* Phase Progress Bar - Strict Linear Flow */}
-                        <div className="relative flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5">
+                        <div className="relative flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5 no-scrollbar">
                             {/* Continuous Line Background */}
                             <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-white/10 -z-10"></div>
 
