@@ -119,7 +119,78 @@ const ProjectSchema = new mongoose.Schema({
         size: { type: Number },
         uploadedAt: { type: Date, default: Date.now },
         uploadedBy: { type: String }
-    }]
+    }],
+
+    // DEFINE PHASE - Structured data
+    define: {
+        persona: {
+            name: String,
+            image: String,
+            painPoint: String,
+            demographics: mongoose.Schema.Types.Mixed
+        },
+        pov: {
+            personaName: String,
+            userNeed: String,
+            insight: String,
+            createdAt: Date
+        },
+        hmwQuestions: [String],
+        selectedHmw: String,
+        constraints: {
+            technical: [String],
+            business: [String],
+            kpis: [{
+                metric: String,
+                target: String
+            }]
+        },
+        validationFlags: [{
+            _id: false,
+            flagType: { type: String, enum: ['success', 'warning', 'critical'], default: 'success' },
+            severity: { type: String, default: 'low' },
+            message: { type: String }
+        }]
+    },
+
+    // IDEATE PHASE - Structured data
+    ideation: {
+        // 1. Brainstorming Notes
+        brainstormingNotes: [{
+            id: String,
+            content: String,
+            x: Number,
+            y: Number,
+            color: mongoose.Schema.Types.Mixed, // Allows flexible color objects
+            rotation: Number
+        }],
+
+        // 2. Prioritization Matrix (Semantic Keys)
+        matrix: {
+            quickWins: [{ id: String, content: String, quadrant: String }],
+            majorProjects: [{ id: String, content: String, quadrant: String }],
+            fillIns: [{ id: String, content: String, quadrant: String }],
+            thanklessTasks: [{ id: String, content: String, quadrant: String }]
+        },
+
+        // 3. Selection
+        winningSolution: {
+            id: String,
+            content: String
+        },
+
+        // 4. Specs & Architecture
+        requirements: {
+            functional: [String],
+            nonFunctional: [String]
+        },
+        architecture: {
+            frontend: String,
+            backend: String,
+            database: String,
+            dataFlow: String
+        }
+    }
 });
 
 export default mongoose.models.Project || mongoose.model('Project', ProjectSchema);

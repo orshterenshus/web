@@ -2,6 +2,8 @@ import dbConnect from '@/utils/db';
 import Project from '@/models/Project';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 // GET - Fetch stage data for a project
 export async function GET(request, { params }) {
     try {
@@ -26,7 +28,9 @@ export async function GET(request, { params }) {
 
         return NextResponse.json({
             stageData: project.stageData || {},
-            phase: project.phase || 'Empathize'
+            phase: project.phase || 'Empathize',
+            define: project.define || {},
+            ideate: project.ideate || {}
         });
     } catch (error) {
         console.error('❌ Error fetching stage data:', error);
