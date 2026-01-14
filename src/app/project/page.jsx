@@ -782,21 +782,47 @@ function ProjectContent() {
                 <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth pb-48">
                     <div className="max-w-5xl mx-auto">
 
-                        {/* Phase Progress Bar */}
-                        <div className="mb-10 relative">
-                            <div className="absolute top-5 left-0 w-full h-0.5 bg-white/10 z-0"></div>
-                            <div className="relative z-10 flex justify-between px-2">
-                                {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, idx) => (
-                                    <div key={phase} className="flex flex-col items-center cursor-pointer group" onClick={() => changePhase(phase)}>
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${getStepClass(phase)} group-hover:scale-110`}>
-                                            {idx + 1}
-                                        </div>
-                                        <span className={`text-xs font-semibold mt-3 transition-colors ${phase === currentPhase ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`}>
-                                            {phase}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                        {/* Phase Progress Bar - Strict Linear Flow */}
+                        <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5">
+                            {['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].map((phase, index) => {
+                                const phases = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
+                                const currentPhaseIndex = phases.indexOf(currentPhase);
+
+                                const isNextStep = index === currentPhaseIndex + 1;
+                                const isActive = index === currentPhaseIndex;
+                                const isPast = index < currentPhaseIndex;
+                                const isClickable = isNextStep;
+
+                                return (
+                                    <button
+                                        key={phase}
+                                        disabled={!isClickable}
+                                        onClick={() => changePhase(phase)}
+                                        className={`
+                                            relative flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all whitespace-nowrap
+                                            ${isActive
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
+                                                : isPast
+                                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-not-allowed opacity-70' // Past (Done & Locked)
+                                                    : isClickable
+                                                        ? 'bg-white text-blue-900 hover:bg-blue-50 cursor-pointer shadow-md transform hover:-translate-y-0.5' // Next (Actionable)
+                                                        : 'bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed' // Future (Locked)
+                                            }
+                                        `}
+                                    >
+                                        {/* Status Indicator */}
+                                        {isPast && <span>✓</span>}
+                                        {isActive && <span className="animate-pulse">📍</span>}
+
+                                        <span>{phase}</span>
+
+                                        {/* Connector Line (Visual only) */}
+                                        {index < phases.length - 1 && (
+                                            <div className={`absolute -right-6 top-1/2 w-4 h-0.5 -z-10 hidden md:block ${index < currentPhaseIndex ? 'bg-emerald-500/30' : 'bg-white/5'}`}></div>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
 
                         {/* Stage Content Card */}
