@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-export default function POVBuilder({ projectId, persona, currentUser, initialData, onPOVComplete }) {
+export default function POVBuilder({ projectId, persona, currentUser, initialData, onPOVComplete, ...props }) {
     const [pov, setPov] = useState({
         personaName: initialData?.pov?.personaName || persona?.name || '',
         userNeed: initialData?.pov?.userNeed || '',
@@ -11,10 +11,16 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
     const [hmwQuestions, setHmwQuestions] = useState(initialData?.hmwQuestions || []);
     const [selectedHmw, setSelectedHmw] = useState(initialData?.selectedHmw || null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isAnalyzingPersona, setIsAnalyzingPersona] = useState(false); // New state for AI analysis
     const [isSaved, setIsSaved] = useState(false);
     const [error, setError] = useState(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    // Cache for AI responses: { personaName: { userNeed: '', insight: '' } }
+    const povCache = useRef({});
 
     const isComplete = pov.personaName && pov.userNeed && pov.insight;
+    const currentPersona = props.availablePersonas?.find(p => p.name === pov.personaName);
 
     const generateHMWQuestions = async () => {
         if (!isComplete) {
@@ -81,7 +87,6 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
         try {
             const payload = {
                 user: currentUser?.username || 'anonymous',
-                user: currentUser?.username || 'anonymous',
                 pov: dataToSave?.pov || pov,
                 hmwQuestions: dataToSave?.hmwQuestions || hmwQuestions,
                 selectedHmw: dataToSave?.selectedHmw || selectedHmw
@@ -98,6 +103,59 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
             }
         } catch (err) {
             console.error('Error saving POV:', err);
+        }
+    };
+
+    const handleSelectPersona = async (p) => {
+        setIsDropdownOpen(false);
+        if (isAnalyzingPersona || pov.personaName === p.name) return;
+
+        // Update Local State
+        setPov(prev => ({ ...prev, personaName: p.name }));
+
+        // Update Parent State (Sync Widget)
+        if (props.onPersonaSelect) {
+            props.onPersonaSelect(p);
+        }
+
+        // Check Cache first
+        if (povCache.current[p.name]) {
+            console.log('Cache hit for', p.name);
+            setPov(prev => ({
+                ...prev,
+                userNeed: povCache.current[p.name].userNeed,
+                insight: povCache.current[p.name].insight
+            }));
+            return;
+        }
+
+        // AI Analysis
+        setIsAnalyzingPersona(true);
+        try {
+            const res = await fetch(`/api/projects/${projectId}/generate-pov`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ persona: p })
+            });
+            if (res.ok) {
+                const aiData = await res.json();
+                // Update State
+                setPov(prev => ({
+                    ...prev,
+                    personaName: p.name,
+                    userNeed: aiData.userNeed,
+                    insight: aiData.insight
+                }));
+                // Update Cache
+                povCache.current[p.name] = {
+                    userNeed: aiData.userNeed,
+                    insight: aiData.insight
+                };
+            }
+        } catch (err) {
+            console.error('Auto-fill failed', err);
+        } finally {
+            setIsAnalyzingPersona(false);
         }
     };
 
@@ -144,39 +202,116 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
             <div className="p-6 space-y-6">
                 {/* POV Mad-Libs Form */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border-2 border-blue-200">
-                    <p className="text-lg leading-relaxed text-gray-800">
-                        <span className="inline-block">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200 shadow-sm">
+                    {/* Compact Persona Selector for Large Lists */}
+                    <div className="mb-8 max-w-sm">
+                        <label className="block text-[10px] font-bold text-blue-900 uppercase tracking-wider mb-2">Target User</label>
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="w-full flex items-center justify-between bg-white border border-blue-200 hover:border-blue-400 rounded-lg px-4 py-2.5 shadow-sm transition-all"
+                            >
+                                <span className="flex items-center gap-2 font-semibold text-gray-700">
+                                    {currentPersona ? (
+                                        <>
+                                            <span className="w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full text-xs box-content">
+                                                {currentPersona.image ? <img src={currentPersona.image} className="w-full h-full rounded-full object-cover" /> : currentPersona.name.charAt(0)}
+                                            </span>
+                                            {currentPersona.name}
+                                        </>
+                                    ) : (
+                                        <span className={pov.personaName ? "text-gray-700" : "text-gray-400"}>
+                                            {pov.personaName || 'Select a Persona...'}
+                                        </span>
+                                    )}
+                                </span>
+                                <svg className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {isDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-10 custom-scrollbar">
+                                    <div className="p-1">
+                                        {props.availablePersonas?.map((p, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleSelectPersona(p)}
+                                                className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-3 hover:bg-blue-50 transition-colors ${pov.personaName === p.name ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
+                                            >
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-sm font-bold flex-shrink-0">
+                                                    {p.image ? <img src={p.image} className="w-full h-full rounded-full object-cover" /> : p.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-sm">{p.name}</div>
+                                                    <div className="text-[10px] text-gray-400 truncate">{p.demographics}</div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                        <div className="h-px bg-gray-100 my-1"></div>
+                                        <button
+                                            onClick={() => {
+                                                setPov(prev => ({ ...prev, personaName: '', userNeed: '', insight: '' }));
+                                                setIsDropdownOpen(false);
+                                                if (props.onPersonaSelect) props.onPersonaSelect(null);
+                                            }}
+                                            className="w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors text-sm font-medium"
+                                        >
+                                            <span>+ Custom / Manual Entry</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            {isAnalyzingPersona && (
+                                <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-4 text-lg leading-relaxed text-gray-800 font-medium">
+                        {currentPersona ? (
+                            <div className="flex items-center gap-2 font-bold text-blue-900 border-b-2 border-transparent bg-blue-100/30 rounded px-3 py-1">
+                                {currentPersona.image && (
+                                    <img src={currentPersona.image} alt={currentPersona.name} className="w-6 h-6 rounded-full object-cover border border-blue-200" />
+                                )}
+                                <span>{pov.personaName}</span>
+                            </div>
+                        ) : (
                             <input
                                 type="text"
                                 value={pov.personaName}
-                                onChange={(e) => setPov({ ...pov, personaName: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-blue-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[150px]"
-                                placeholder="Persona Name"
+                                onChange={(e) => setPov(prev => ({ ...prev, personaName: e.target.value }))}
+                                className="bg-transparent border-b-2 border-gray-300 text-gray-900 font-bold focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400 min-w-[120px] text-center py-1"
+                                placeholder="User Name"
                             />
-                        </span>
-                        {' '}needs a way to{' '}
-                        <span className="inline-block">
+                        )}
+                        <span>needs a way to</span>
+                        <div className="relative flex-grow flex-shrink basis-[300px] min-w-[250px] group">
                             <input
                                 type="text"
                                 value={pov.userNeed}
-                                onChange={(e) => setPov({ ...pov, userNeed: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-indigo-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-w-[200px]"
-                                placeholder="accomplish something"
+                                onChange={(e) => setPov(prev => ({ ...prev, userNeed: e.target.value }))}
+                                className={`w-full bg-transparent border-b-2 border-indigo-200 text-indigo-900 font-bold focus:outline-none focus:border-indigo-500 transition-all py-1 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                placeholder="accomplish a specific goal"
+                                disabled={isAnalyzingPersona}
                             />
-                        </span>
-                        {' '}because{' '}
-                        <span className="inline-block">
+                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-indigo-500 font-bold bg-white/80">Thinking...</span>}
+                        </div>
+                        <span>because</span>
+                        <div className="relative flex-grow flex-shrink basis-[300px] min-w-[250px] group">
                             <input
                                 type="text"
                                 value={pov.insight}
-                                onChange={(e) => setPov({ ...pov, insight: e.target.value })}
-                                className="inline-block px-3 py-1.5 bg-white border-2 border-purple-300 rounded-lg font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all min-w-[200px]"
-                                placeholder="root cause / insight"
+                                onChange={(e) => setPov(prev => ({ ...prev, insight: e.target.value }))}
+                                className={`w-full bg-transparent border-b-2 border-purple-200 text-purple-900 font-bold focus:outline-none focus:border-purple-500 transition-all py-1 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                placeholder="of a surprising insight or root cause"
+                                disabled={isAnalyzingPersona}
                             />
-                        </span>
-                        .
-                    </p>
+                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-purple-500 font-bold bg-white/80">Thinking...</span>}
+                        </div>
+                        <span>.</span>
+                    </div>
                 </div>
 
                 {/* Action Button */}

@@ -1042,15 +1042,27 @@ function ProjectContent() {
                                 {currentPhase === 'Define' && projectId && (
                                     <div className="space-y-8 mb-8">
                                         {/* Persona Widget (if available from previous step or define data) */}
-                                        {(defineData?.persona || stageData?.define?.checklist?.createdPersona) && (
-                                            <PersonaContextWidget persona={defineData?.persona || { name: 'Target User' }} />
-                                        )}
+                                        {/* Persona Widget (Hydrate from POV name if explicit object object won't exist on reload) */}
+                                        {(() => {
+                                            const activePersonaName = defineData?.persona?.name || defineData?.pov?.personaName;
+                                            const activePersona = stageData?.empathize?.personas?.find(p => p.name === activePersonaName) || defineData?.persona;
+
+                                            return activePersona ? (
+                                                <PersonaContextWidget persona={activePersona} />
+                                            ) : (
+                                                <PersonaContextWidget persona={{ name: 'Target User' }} />
+                                            );
+                                        })()}
 
                                         <POVBuilder
                                             projectId={projectId}
                                             persona={defineData?.persona}
+                                            availablePersonas={stageData?.empathize?.personas || []}
                                             initialData={defineData}
                                             currentUser={currentUser}
+                                            onPersonaSelect={(persona) => {
+                                                setDefineData(prev => ({ ...prev, persona }));
+                                            }}
                                             onPOVComplete={(data) => {
                                                 setDefineData(prev => ({
                                                     ...prev,
