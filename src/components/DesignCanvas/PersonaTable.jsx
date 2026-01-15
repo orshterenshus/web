@@ -142,30 +142,30 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
     const activePersona = displayList.find(p => p.id === currentActiveId);
 
     return (
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-            <div className="p-6 border-b border-gray-100">
+        <div className="glass-panel rounded-xl shadow-lg overflow-hidden mb-8 border border-white/10">
+            <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isAiTab ? 'bg-purple-100' : 'bg-blue-100'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${isAiTab ? 'bg-purple-900/30 text-purple-300 border-purple-500/30' : 'bg-blue-900/30 text-blue-300 border-blue-500/30'}`}>
                             <span className="text-xl">{isAiTab ? '🤖' : '👤'}</span>
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-800">{isAiTab ? 'AI Personas' : 'User Personas'}</h3>
-                            <p className="text-sm text-gray-500">{isAiTab ? 'Define the AI agent personality' : 'Define who you are designing for'}</p>
+                            <h3 className="text-lg font-bold text-slate-200">{isAiTab ? 'AI Personas' : 'User Personas'}</h3>
+                            <p className="text-sm text-slate-400">{isAiTab ? 'Define the AI agent personality' : 'Define who you are designing for'}</p>
                         </div>
                     </div>
 
                     {/* View Switcher */}
-                    <div className="flex bg-gray-100 rounded-lg p-1">
+                    <div className="flex bg-black/20 rounded-lg p-1 border border-white/5">
                         <button
                             onClick={() => onTabChange('user')}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${!isAiTab ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${!isAiTab ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
                             User Personas
                         </button>
                         <button
                             onClick={() => onTabChange('ai')}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${isAiTab ? 'bg-white shadow text-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${isAiTab ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
                             AI Personas
                         </button>
@@ -184,9 +184,9 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                                     onPersonaSelect(p.id);
                                 }
                             }}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition-all ${(currentActiveId === p.id)
-                                    ? (isAiTab ? 'bg-purple-600 text-white shadow-md' : 'bg-blue-600 text-white shadow-md')
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition-all border ${(currentActiveId === p.id)
+                                ? (isAiTab ? 'bg-purple-600 text-white shadow-md border-purple-500' : 'bg-blue-600 text-white shadow-md border-blue-500')
+                                : 'bg-white/5 text-slate-400 hover:bg-white/10 border-white/5 hover:border-white/10'
                                 }`}
                         >
                             {p.image ? (
@@ -200,7 +200,7 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                     <button
                         onClick={handleAddPersona}
                         disabled={isCreating}
-                        className={`w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-colors disabled:opacity-50 ${isAiTab ? 'hover:bg-purple-100 hover:text-purple-600' : 'hover:bg-blue-100 hover:text-blue-600'}`}
+                        className={`w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 border border-white/5 transition-colors disabled:opacity-50 ${isAiTab ? 'hover:bg-purple-500/20 hover:text-purple-300 hover:border-purple-500/30' : 'hover:bg-blue-500/20 hover:text-blue-300 hover:border-blue-500/30'}`}
                         title="Add Persona"
                     >
                         {isCreating ? '...' : '+'}
@@ -210,12 +210,12 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
 
             {/* Content or Empty State */}
             {displayList.length === 0 ? (
-                <div className="p-12 text-center bg-slate-50">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isAiTab ? 'bg-purple-100' : 'bg-blue-100'}`}>
+                <div className="p-12 text-center bg-white/5 backdrop-blur-sm">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border ${isAiTab ? 'bg-purple-900/30 border-purple-500/30 text-purple-300' : 'bg-blue-900/30 border-blue-500/30 text-blue-300'}`}>
                         <span className="text-3xl">{isAiTab ? '🤖' : '👤'}</span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">{isAiTab ? 'No AI Personas Yet' : 'No User Personas Yet'}</h3>
-                    <p className="text-gray-500 mb-6">{isAiTab ? 'Create an AI persona to simulate interactions.' : 'Create personas to represent your target audience.'}</p>
+                    <h3 className="text-lg font-bold text-white mb-2">{isAiTab ? 'No AI Personas Yet' : 'No User Personas Yet'}</h3>
+                    <p className="text-slate-400 mb-6">{isAiTab ? 'Create an AI persona to simulate interactions.' : 'Create personas to represent your target audience.'}</p>
                     <button
                         onClick={handleAddPersona}
                         disabled={isCreating}
@@ -225,20 +225,20 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                     </button>
                 </div>
             ) : (
-                <div className="p-6 bg-slate-50">
+                <div className="p-6 bg-white/5 backdrop-blur-sm">
                     {activePersona ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Left Column: Basic Info */}
                             <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                                <div className="glass-panel p-4 rounded-xl shadow-sm border border-white/10 bg-black/20">
                                     <div className="flex items-center gap-4 mb-4">
-                                        <div className="relative w-20 h-20 bg-gray-100 rounded-full overflow-hidden flex-shrink-0 border-2 border-gray-200 group">
+                                        <div className="relative w-20 h-20 bg-white/5 rounded-full overflow-hidden flex-shrink-0 border-2 border-white/10 group">
                                             {activePersona.image ? (
                                                 <img src={activePersona.image} alt={activePersona.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-2xl">{isAiTab ? '🤖' : '👤'}</div>
+                                                <div className="w-full h-full flex items-center justify-center text-slate-500 text-2xl">{isAiTab ? '🤖' : '👤'}</div>
                                             )}
-                                            <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                            <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                                 <span className="text-white text-xs font-bold">Upload</span>
                                                 <input
                                                     type="file"
@@ -258,37 +258,37 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                                             </label>
                                         </div>
                                         <div className="flex-1">
-                                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Name</label>
+                                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Name</label>
                                             <input
                                                 type="text"
                                                 value={activePersona.name}
                                                 onChange={(e) => handleUpdatePersona(activePersona.id, 'name', e.target.value)}
                                                 onBlur={handleBlurPersona}
-                                                className="w-full text-lg font-bold text-gray-800 border-none p-0 focus:ring-0 placeholder-gray-300"
+                                                className="w-full text-lg font-bold text-white bg-transparent border-none p-0 focus:ring-0 placeholder-slate-600"
                                                 placeholder={isAiTab ? "AI Assistant Name" : "Jane Doe"}
                                             />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{isAiTab ? 'Role & Capabilities' : 'Demographics'}</label>
+                                <div className="glass-panel p-4 rounded-xl shadow-sm border border-white/10 bg-black/20">
+                                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{isAiTab ? 'Role & Capabilities' : 'Demographics'}</label>
                                     <textarea
                                         value={activePersona.demographics}
                                         onChange={(e) => handleUpdatePersona(activePersona.id, 'demographics', e.target.value)}
                                         onBlur={handleBlurPersona}
-                                        className="w-full text-sm text-gray-600 border-none p-0 focus:ring-0 placeholder-gray-300 resize-none h-20"
+                                        className="w-full text-sm text-slate-300 bg-transparent border-none p-0 focus:ring-0 placeholder-slate-600 resize-none h-20"
                                         placeholder={isAiTab ? "What is the AI's primary function and role?" : "Age, Occupation, Location, Education..."}
                                     />
                                 </div>
 
-                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{isAiTab ? 'Personality / Tone' : 'Bio / Story'}</label>
+                                <div className="glass-panel p-4 rounded-xl shadow-sm border border-white/10 bg-black/20">
+                                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{isAiTab ? 'Personality / Tone' : 'Bio / Story'}</label>
                                     <textarea
                                         value={activePersona.bio}
                                         onChange={(e) => handleUpdatePersona(activePersona.id, 'bio', e.target.value)}
                                         onBlur={handleBlurPersona}
-                                        className="w-full text-sm text-gray-600 border-none p-0 focus:ring-0 placeholder-gray-300 resize-none h-32"
+                                        className="w-full text-sm text-slate-300 bg-transparent border-none p-0 focus:ring-0 placeholder-slate-600 resize-none h-32"
                                         placeholder={isAiTab ? "Friendly, Professional, Sarcastic, etc." : "A short background story about this persona..."}
                                     />
                                 </div>
@@ -296,33 +296,33 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
 
                             {/* Right Column: Needs & Pain Points */}
                             <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative group">
+                                <div className="glass-panel p-4 rounded-xl shadow-sm border border-white/10 bg-black/20 relative group">
                                     <div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl ${isAiTab ? 'bg-purple-500' : 'bg-green-500'}`}></div>
-                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ml-2 ${isAiTab ? 'text-purple-600' : 'text-green-600'}`}>{isAiTab ? 'Goals & Objectives' : 'Needs & Goals'}</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ml-2 ${isAiTab ? 'text-purple-400' : 'text-green-400'}`}>{isAiTab ? 'Goals & Objectives' : 'Needs & Goals'}</label>
                                     <textarea
                                         value={activePersona.needs}
                                         onChange={(e) => handleUpdatePersona(activePersona.id, 'needs', e.target.value)}
                                         onBlur={handleBlurPersona}
-                                        className="w-full text-sm text-gray-600 border-none p-2 focus:ring-0 placeholder-gray-300 resize-none h-32"
+                                        className="w-full text-sm text-slate-300 bg-transparent border-none p-2 focus:ring-0 placeholder-slate-600 resize-none h-32"
                                         placeholder={isAiTab ? "What is the AI trying to solve?" : "What are they trying to achieve?"}
                                     />
                                 </div>
 
-                                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative group">
+                                <div className="glass-panel p-4 rounded-xl shadow-sm border border-white/10 bg-black/20 relative group">
                                     <div className={`absolute top-0 left-0 w-1 h-full rounded-l-xl ${isAiTab ? 'bg-indigo-500' : 'bg-red-500'}`}></div>
-                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ml-2 ${isAiTab ? 'text-indigo-500' : 'text-red-500'}`}>{isAiTab ? 'Constraints & Limitations' : 'Frustrations & Pain Points'}</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ml-2 ${isAiTab ? 'text-indigo-400' : 'text-red-400'}`}>{isAiTab ? 'Constraints & Limitations' : 'Frustrations & Pain Points'}</label>
                                     <textarea
                                         value={activePersona.frustrations}
                                         onChange={(e) => handleUpdatePersona(activePersona.id, 'frustrations', e.target.value)}
                                         onBlur={handleBlurPersona}
-                                        className="w-full text-sm text-gray-600 border-none p-2 focus:ring-0 placeholder-gray-300 resize-none h-32"
+                                        className="w-full text-sm text-slate-300 bg-transparent border-none p-2 focus:ring-0 placeholder-slate-600 resize-none h-32"
                                         placeholder={isAiTab ? "What are the boundaries?" : "What prevents them from achieving their goals?"}
                                     />
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center py-12 text-gray-400">
+                        <div className="text-center py-12 text-slate-500">
                             Select a {isAiTab ? 'AI persona' : 'user persona'} to edit
                         </div>
                     )}
@@ -331,7 +331,7 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                         <div className="mt-6 flex justify-end">
                             <button
                                 onClick={() => handleDeleteClick(activePersona.id)}
-                                className="text-red-400 text-sm hover:text-red-600 font-medium flex items-center gap-1"
+                                className="text-red-400 text-sm hover:text-red-300 font-medium flex items-center gap-1 bg-red-500/10 px-3 py-2 rounded-lg hover:bg-red-500/20 transition-colors"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 Delete {isAiTab ? 'AI Persona' : 'Persona'}

@@ -30,33 +30,33 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             id: 'loved',
             title: '❤️ Loved',
             subtitle: 'What worked well? What should we keep?',
-            color: 'bg-green-50 border-green-200',
-            buttonColor: 'bg-green-600 hover:bg-green-700',
-            textColor: 'text-green-800'
+            color: 'bg-green-500/10 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)]',
+            buttonColor: 'bg-green-600 hover:bg-green-500 shadow-green-500/20',
+            textColor: 'text-green-300'
         },
         {
             id: 'critique',
             title: '⚠️ Challenges / Critique',
             subtitle: 'What was confusing? What are the pain points?',
-            color: 'bg-red-50 border-red-200',
-            buttonColor: 'bg-red-600 hover:bg-red-700',
-            textColor: 'text-red-800'
+            color: 'bg-red-500/10 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]',
+            buttonColor: 'bg-red-600 hover:bg-red-500 shadow-red-500/20',
+            textColor: 'text-red-300'
         },
         {
             id: 'questions',
             title: '❓ Questions',
             subtitle: 'What did users ask? What was unclear?',
-            color: 'bg-blue-50 border-blue-200',
-            buttonColor: 'bg-blue-600 hover:bg-blue-700',
-            textColor: 'text-blue-800'
+            color: 'bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]',
+            buttonColor: 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/20',
+            textColor: 'text-blue-300'
         },
         {
             id: 'ideas',
             title: '💡 Ideas / Suggestions',
             subtitle: 'What new ideas emerged? How to improve?',
-            color: 'bg-yellow-50 border-yellow-200',
-            buttonColor: 'bg-yellow-600 hover:bg-yellow-700',
-            textColor: 'text-yellow-800'
+            color: 'bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]',
+            buttonColor: 'bg-yellow-600 hover:bg-yellow-500 shadow-yellow-500/20',
+            textColor: 'text-yellow-300'
         }
     ];
 
@@ -188,22 +188,22 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
     const summary = getSummary();
 
     return (
-        <div className="w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden text-gray-800">
+        <div className="w-full glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden text-slate-200">
             {/* Header */}
-            <div className="bg-gray-50 p-6 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
+            <div className="bg-white/5 p-6 border-b border-white/10 flex flex-wrap justify-between items-center gap-4 backdrop-blur-md">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900">Feedback Capture Matrix</h2>
-                    <p className="text-sm text-gray-500">Organize user testing feedback into four quadrants. {isSaving && <span className="text-blue-500 text-xs ml-2 animate-pulse">Saving...</span>}</p>
+                    <h2 className="text-xl font-bold text-white">Feedback Capture Matrix</h2>
+                    <p className="text-sm text-slate-400">Organize user testing feedback into four quadrants. {isSaving && <span className="text-blue-400 text-xs ml-2 animate-pulse">Saving...</span>}</p>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={handleExport}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 text-white"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         {onExport ? 'Save to Cloud' : 'Export JSON'}
                     </button>
-                    <label className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2 cursor-pointer">
+                    <label className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 cursor-pointer text-white">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                         Import JSON
                         <input type="file" accept=".json" onChange={handleImport} className="hidden" />
@@ -212,55 +212,55 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             </div>
 
             {/* Matrix Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[600px] divide-y md:divide-y-0 md:divide-x divide-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[600px] divide-y md:divide-y-0 md:divide-x divide-white/10">
                 {categories.map((cat, idx) => {
                     // Add bottom border for top items on desktop to complete the grid
-                    const borderClass = idx < 2 ? 'md:border-b border-gray-200' : '';
+                    const borderClass = idx < 2 ? 'md:border-b border-white/10' : '';
 
                     return (
                         <div
                             key={cat.id}
-                            className={`flex flex-col h-[300px] md:h-auto ${borderClass} bg-white`}
+                            className={`flex flex-col h-[300px] md:h-auto ${borderClass} bg-transparent`}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, cat.id)}
                         >
                             {/* Quadrant Header */}
-                            <div className={`p-4 border-b border-gray-100 flex justify-between items-start ${cat.color.replace('border-', '')} bg-opacity-20`}>
+                            <div className={`p-4 border-b border-white/10 flex justify-between items-start ${cat.color} backdrop-blur-sm`}>
                                 <div>
                                     <h3 className={`font-bold flex items-center gap-2 ${cat.textColor}`}>
                                         {cat.title}
-                                        <span className="bg-white bg-opacity-60 px-2 py-0.5 rounded-full text-xs border border-gray-200 md:hidden">
+                                        <span className="bg-white/10 px-2 py-0.5 rounded-full text-xs border border-white/10 md:hidden text-white">
                                             {summary[cat.id]}
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-gray-500 mt-1">{cat.subtitle}</p>
+                                    <p className="text-xs text-slate-400 mt-1">{cat.subtitle}</p>
                                 </div>
-                                <span className="hidden md:block bg-gray-100 px-2 py-1 rounded-full text-xs font-bold text-gray-500">
+                                <span className="hidden md:block bg-white/10 px-2 py-1 rounded-full text-xs font-bold text-slate-300 border border-white/5">
                                     {summary[cat.id]}
                                 </span>
                             </div>
 
                             {/* Drop Area / List */}
-                            <div className="flex-1 p-4 overflow-y-auto bg-gray-50/30 space-y-3">
+                            <div className="flex-1 p-4 overflow-y-auto bg-black/20 space-y-3">
                                 {items.filter(i => i.category === cat.id).map(item => (
                                     <div
                                         key={item.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, item)}
-                                        className="group bg-white p-3 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all cursor-move relative"
+                                        className="group bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-white/5 hover:bg-white/15 transition-all cursor-move relative"
                                     >
                                         <div
                                             contentEditable
                                             suppressContentEditableWarning
                                             onBlur={(e) => handleUpdate(item.id, e.target.innerText)}
                                             onMouseDown={(e) => e.stopPropagation()} // Prevent drag when clicking text
-                                            className="text-sm text-gray-700 outline-none min-h-[1.2em] cursor-text"
+                                            className="text-sm text-slate-200 outline-none min-h-[1.2em] cursor-text"
                                         >
                                             {item.text}
                                         </div>
                                         <button
                                             onClick={() => handleDelete(item.id)}
-                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all bg-white rounded shadow-sm"
+                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-400 transition-all rounded hover:bg-white/10"
                                             title="Delete"
                                         >
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -268,14 +268,14 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
                                     </div>
                                 ))}
                                 {items.filter(i => i.category === cat.id).length === 0 && (
-                                    <div className="h-full flex items-center justify-center text-gray-400 text-sm italic border-2 border-dashed border-gray-200 rounded-lg bg-gray-50/50">
+                                    <div className="h-full flex items-center justify-center text-slate-500 text-sm italic border-2 border-dashed border-white/10 rounded-lg bg-white/5">
                                         Drop here or add item
                                     </div>
                                 )}
                             </div>
 
                             {/* Add Input */}
-                            <div className="p-3 border-t border-gray-100 bg-white">
+                            <div className="p-3 border-t border-white/10 bg-white/5 backdrop-blur-sm">
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
@@ -283,7 +283,7 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
                                         onChange={(e) => setInputs(prev => ({ ...prev, [cat.id]: e.target.value }))}
                                         onKeyDown={(e) => e.key === 'Enter' && handleAdd(cat.id)}
                                         placeholder="Add a note..."
-                                        className="flex-1 text-sm border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                        className="flex-1 text-sm border border-white/10 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all bg-black/40 text-white placeholder-slate-500"
                                     />
                                     <button
                                         onClick={() => handleAdd(cat.id)}
@@ -299,11 +299,11 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             </div>
 
             {/* Footer Summary */}
-            <div className="bg-gray-50 border-t border-gray-200 p-3 text-xs text-gray-500 flex justify-between items-center">
+            <div className="bg-white/5 border-t border-white/10 p-3 text-xs text-slate-500 flex justify-between items-center">
                 <div className="flex gap-4">
                     <span>Total Notes: <strong>{items.length}</strong></span>
                     {summary.critique > 3 && (
-                        <span className="text-red-600 font-medium">⚠️ {summary.critique} Critiques - Review ASAP</span>
+                        <span className="text-red-400 font-medium">⚠️ {summary.critique} Critiques - Review ASAP</span>
                     )}
                 </div>
                 <div>

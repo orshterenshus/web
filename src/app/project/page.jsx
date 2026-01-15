@@ -1123,17 +1123,17 @@ function ProjectContent() {
                                         {/* STEP 1: BRAINSTORMING (Always Visible) */}
                                         <section className="space-y-8 relative">
                                             {/* Header */}
-                                            <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-100 mb-6">
+                                            <div className="glass-panel rounded-xl p-6 border border-purple-500/30 mb-6 bg-purple-900/10">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="bg-purple-100 p-3 rounded-full">
+                                                    <div className="bg-purple-500/20 p-3 rounded-full border border-purple-500/30">
                                                         <span className="text-2xl">⚡</span>
                                                     </div>
                                                     <div>
-                                                        <h2 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Step 1: Brainstorming</h2>
+                                                        <h2 className="text-sm font-bold text-purple-300 uppercase tracking-wide">Step 1: Brainstorming</h2>
                                                         {defineData?.selectedHmw ? (
-                                                            <p className="text-xl font-bold text-gray-800 mt-1">{defineData.selectedHmw}</p>
+                                                            <p className="text-xl font-bold text-white mt-1">{defineData.selectedHmw}</p>
                                                         ) : (
-                                                            <p className="text-gray-500 italic mt-1">No HMW question selected.</p>
+                                                            <p className="text-slate-400 italic mt-1">No HMW question selected.</p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -1278,23 +1278,23 @@ function ProjectContent() {
 
 
                                         {/* FIXED ACTION BAR (Sticky Store) */}
-                                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex justify-between items-center px-8">
-                                            <div className="text-sm text-gray-500 font-medium flex items-center gap-2">
-                                                <span className={`w-2 h-2 rounded-full ${winningConcept ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
-                                                Status: {winningConcept ? 'Architecture Phase' : showMatrix ? 'Prioritization Phase' : 'Brainstorming'}
+                                        <div className="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 bg-[#0f172a]/90 backdrop-blur-md p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-50 flex justify-between items-center px-8">
+                                            <div className="text-sm text-slate-300 font-medium flex items-center gap-2">
+                                                <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${winningConcept ? 'bg-green-500 text-green-500' : 'bg-yellow-500 text-yellow-500'}`}></span>
+                                                Status: <span className="text-white">{winningConcept ? 'Architecture Phase' : showMatrix ? 'Prioritization Phase' : 'Brainstorming'}</span>
                                             </div>
 
                                             <div className="flex gap-4">
                                                 <button
                                                     onClick={() => saveIdeationState()}
-                                                    className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                                                    className="px-6 py-2 rounded-lg font-semibold transition-colors bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5"
                                                 >
                                                     Save Draft
                                                 </button>
 
                                                 <button
                                                     onClick={() => { saveIdeationState(); alert('Progress Saved!'); }}
-                                                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                                                    className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-lg shadow-green-900/20 hover:shadow-green-500/30 transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
                                                 >
                                                     <span>💾</span> Save All Progress
                                                 </button>

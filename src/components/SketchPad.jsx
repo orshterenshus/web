@@ -15,7 +15,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
  * - Responsive sizing
  */
 const SketchPad = ({
-  initialColor = "#000000",
+  initialColor = "#ffffff",
   initialBrushSize = 3,
   onSave, // Optional callback if parent wants to handle save
 }) => {
@@ -210,14 +210,14 @@ const SketchPad = ({
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="flex flex-col h-full w-full glass-panel rounded-xl shadow-2xl border border-white/10 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-4 p-3 bg-gray-50 border-b border-gray-200">
+      <div className="flex flex-wrap items-center gap-4 p-3 bg-white/5 border-b border-white/10 backdrop-blur-md">
 
         {/* Color Picker */}
         <div className="flex items-center gap-2">
           <label title="Brush Color" className="cursor-pointer flex items-center gap-1">
-            <div className="w-6 h-6 rounded-full border border-gray-300" style={{ backgroundColor: color }}></div>
+            <div className="w-6 h-6 rounded-full border border-white/30 shadow-sm" style={{ backgroundColor: color }}></div>
             <input
               type="color"
               value={color}
@@ -229,24 +229,24 @@ const SketchPad = ({
 
         {/* Brush Size */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Size</span>
+          <span className="text-xs text-slate-400 uppercase font-bold">Size</span>
           <input
             type="range"
             min="1"
             max="20"
             value={brushSize}
             onChange={(e) => setBrushSize(parseInt(e.target.value))}
-            className="w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
           />
         </div>
 
-        <div className="h-6 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+        <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
 
         {/* Tools */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setTool("pen")}
-            className={`p-2 rounded transition-colors ${tool === "pen" ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200 text-gray-700'}`}
+            className={`p-2 rounded-lg transition-all ${tool === "pen" ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-white/10 text-slate-400 hover:text-white'}`}
             title="Pen"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -258,7 +258,7 @@ const SketchPad = ({
           </button>
           <button
             onClick={() => setTool("eraser")}
-            className={`p-2 rounded transition-colors ${tool === "eraser" ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200 text-gray-700'}`}
+            className={`p-2 rounded-lg transition-all ${tool === "eraser" ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-white/10 text-slate-400 hover:text-white'}`}
             title="Eraser"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,14 +268,14 @@ const SketchPad = ({
           </button>
         </div>
 
-        <div className="h-6 w-px bg-gray-300 mx-2 hidden sm:block"></div>
+        <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={undo}
             disabled={history.length === 0}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${history.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-300 ${history.length === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:text-white'}`}
             title="Undo"
           >
             {/* Simple Undo Icon SVG */}
@@ -286,7 +286,7 @@ const SketchPad = ({
 
           <button
             onClick={() => setShowGrid(!showGrid)}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${showGrid ? 'bg-gray-200' : ''}`}
+            className={`p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-300 ${showGrid ? 'bg-white/10 text-white' : ''}`}
             title="Toggle Grid"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -296,7 +296,7 @@ const SketchPad = ({
 
           <button
             onClick={clearCanvas}
-            className="p-2 rounded hover:bg-gray-200 transition-colors text-red-500"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-red-400 hover:text-red-300"
             title="Clear Canvas"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -308,7 +308,7 @@ const SketchPad = ({
         <div className="ml-auto">
           <button
             onClick={handleDownload}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/20"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
@@ -321,9 +321,9 @@ const SketchPad = ({
       {/* Canvas Area */}
       <div
         ref={containerRef}
-        className="flex-1 relative cursor-crosshair touch-none bg-white"
+        className="flex-1 relative cursor-crosshair touch-none bg-[#0B1026]"
         style={{
-          backgroundImage: showGrid ? 'radial-gradient(#ddd 1px, transparent 1px)' : 'none',
+          backgroundImage: showGrid ? 'radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)' : 'none',
           backgroundSize: '20px 20px'
         }}
       >

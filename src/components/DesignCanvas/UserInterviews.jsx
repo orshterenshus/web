@@ -151,21 +151,21 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
     if (!activePersonaId) return null;
 
     return (
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="glass-panel rounded-xl shadow-lg overflow-hidden mb-8 border border-white/10">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activeTab === 'ai' ? 'bg-purple-100' : 'bg-orange-100'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${activeTab === 'ai' ? 'bg-purple-900/30 text-purple-300 border-purple-500/30' : 'bg-orange-900/30 text-orange-300 border-orange-500/30'}`}>
                         <span className="text-xl">{activeTab === 'ai' ? '🤖' : '🎙️'}</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-800">{personaName ? `${personaName} Interview` : (activeTab === 'ai' ? 'AI Interviews' : 'User Interviews')}</h3>
-                        <p className="text-sm text-gray-500">{activeTab === 'ai' ? 'Simulate conversations with this AI persona' : 'Document Q&A sessions for this persona'}</p>
+                        <h3 className="text-lg font-bold text-slate-200">{personaName ? `${personaName} Interview` : (activeTab === 'ai' ? 'AI Interviews' : 'User Interviews')}</h3>
+                        <p className="text-sm text-slate-400">{activeTab === 'ai' ? 'Simulate conversations with this AI persona' : 'Document Q&A sessions for this persona'}</p>
                     </div>
                 </div>
                 <button
                     onClick={handleAddInterview}
                     disabled={isCreating}
-                    className={`px-4 py-2 text-white rounded-lg font-medium transition-colors shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'ai' ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/20'}`}
+                    className={`px-4 py-2 text-white rounded-lg font-medium transition-colors shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${activeTab === 'ai' ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/20'}`}
                 >
                     <span>{isCreating ? '' : '+'}</span> {isCreating ? 'Creating...' : 'New Session'}
                 </button>
@@ -173,9 +173,9 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
 
             <div className="flex flex-col md:flex-row min-h-[400px]">
                 {/* Sidebar List */}
-                <div className="w-full md:w-64 bg-slate-50 border-r border-gray-100 p-2 overflow-y-auto max-h-[600px]">
+                <div className="w-full md:w-64 bg-white/5 border-r border-white/10 p-2 overflow-y-auto max-h-[600px] custom-scrollbar">
                     {filteredInterviews.length === 0 && (
-                        <div className="text-center p-4 text-gray-400 text-sm">
+                        <div className="text-center p-4 text-slate-500 text-sm">
                             No interviews for this persona yet.
                         </div>
                     )}
@@ -184,55 +184,55 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                             key={interview.id}
                             onClick={() => setActiveInterviewId(interview.id)}
                             className={`p-3 rounded-lg cursor-pointer mb-2 transition-all ${activeInterviewId === interview.id
-                                ? `bg-white shadow-md border-l-4 ${activeTab === 'ai' ? 'border-purple-500' : 'border-orange-500'}`
-                                : 'hover:bg-gray-100 text-gray-600'
+                                ? `bg-white/10 shadow-md border-l-4 ${activeTab === 'ai' ? 'border-purple-500' : 'border-orange-500'} text-white`
+                                : 'hover:bg-white/5 text-slate-400 hover:text-slate-200'
                                 }`}
                         >
                             <h4 className="font-bold text-sm truncate">{interview.interviewee || 'Untitled'}</h4>
-                            <p className="text-xs text-gray-400">{interview.date}</p>
+                            <p className="text-xs text-slate-500">{interview.date}</p>
                         </div>
                     ))}
                 </div>
 
                 {/* Main Content Area */}
-                <div className="flex-1 p-6 bg-white overflow-y-auto max-h-[800px]">
+                <div className="flex-1 p-6 bg-transparent overflow-y-auto max-h-[800px] custom-scrollbar">
                     {activeInterview ? (
                         <div className="space-y-6">
-                            <div className="flex flex-col md:flex-row gap-4 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
+                            <div className={`flex flex-col md:flex-row gap-4 p-4 rounded-xl border ${activeTab === 'ai' ? 'bg-purple-500/5 border-purple-500/20' : 'bg-orange-500/5 border-orange-500/20'}`}>
                                 <div className="flex-1">
-                                    <label className="block text-xs font-bold text-orange-400 uppercase tracking-wider mb-1">Interviewee</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${activeTab === 'ai' ? 'text-purple-400' : 'text-orange-400'}`}>Interviewee</label>
                                     <input
                                         type="text"
                                         value={activeInterview.interviewee}
                                         onChange={(e) => handleUpdateInterview(activeInterview.id, 'interviewee', e.target.value)}
                                         onBlur={handleBlur}
-                                        className="w-full text-lg font-bold text-gray-800 bg-transparent border-b border-orange-200 focus:border-orange-500 focus:ring-0 px-0 py-1"
+                                        className={`w-full text-lg font-bold text-slate-200 bg-transparent border-b focus:ring-0 px-0 py-1 ${activeTab === 'ai' ? 'border-purple-500/30 focus:border-purple-500' : 'border-orange-500/30 focus:border-orange-500'}`}
                                         placeholder="Name or Pseudonym"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-orange-400 uppercase tracking-wider mb-1">Date</label>
+                                    <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${activeTab === 'ai' ? 'text-purple-400' : 'text-orange-400'}`}>Date</label>
                                     <input
                                         type="date"
                                         value={activeInterview.date}
                                         onChange={(e) => handleUpdateInterview(activeInterview.id, 'date', e.target.value)}
                                         onBlur={handleBlur}
-                                        className="text-sm text-gray-600 border border-orange-200 rounded-lg px-3 py-1.5 bg-white focus:ring-orange-500 focus:border-orange-500"
+                                        className={`text-sm text-slate-300 border rounded-lg px-3 py-1.5 bg-black/20 focus:ring-1 ${activeTab === 'ai' ? 'border-purple-500/30 focus:border-purple-500 focus:ring-purple-500' : 'border-orange-500/30 focus:border-orange-500 focus:ring-orange-500'}`}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Questions & Answers</h4>
+                                    <h4 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Questions & Answers</h4>
                                 </div>
 
                                 {(!activeInterview.questions || activeInterview.questions.length === 0) && (
-                                    <div className="text-center py-8 border-2 border-dashed border-gray-100 rounded-xl">
-                                        <p className="text-gray-400 text-sm mb-3">No questions recorded yet.</p>
+                                    <div className="text-center py-8 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                                        <p className="text-slate-500 text-sm mb-3">No questions recorded yet.</p>
                                         <button
                                             onClick={() => handleAddQuestion(activeInterview.id)}
-                                            className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                                            className="text-orange-400 hover:text-orange-300 text-sm font-medium"
                                         >
                                             + Add First Question
                                         </button>
@@ -241,7 +241,7 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
 
                                 <div className="space-y-4">
                                     {activeInterview.questions?.map((qa, idx) => (
-                                        <div key={idx} className="group relative bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-orange-200 transition-colors">
+                                        <div key={idx} className="group relative bg-black/20 rounded-xl p-4 border border-white/5 hover:border-white/20 transition-colors">
                                             <div className="mb-3">
                                                 <input
                                                     type="text"
@@ -249,22 +249,22 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
                                                     onChange={(e) => handleUpdateQuestion(activeInterview.id, idx, 'q', e.target.value)}
                                                     onBlur={handleBlur}
                                                     placeholder="Ask a question..."
-                                                    className="w-full bg-transparent font-bold text-gray-800 placeholder-gray-400 border-none p-0 focus:ring-0 text-sm"
+                                                    className="w-full bg-transparent font-bold text-slate-200 placeholder-slate-600 border-none p-0 focus:ring-0 text-sm"
                                                 />
                                             </div>
                                             <div className="flex gap-3">
-                                                <div className="w-0.5 bg-orange-300 self-stretch rounded-full"></div>
+                                                <div className="w-0.5 bg-orange-500/50 self-stretch rounded-full"></div>
                                                 <textarea
                                                     value={qa.a}
                                                     onChange={(e) => handleUpdateQuestion(activeInterview.id, idx, 'a', e.target.value)}
                                                     onBlur={handleBlur}
                                                     placeholder="Record the answer..."
-                                                    className="w-full bg-transparent text-gray-600 placeholder-gray-300 border-none p-0 focus:ring-0 text-sm resize-none h-auto min-h-[60px]"
+                                                    className="w-full bg-transparent text-slate-300 placeholder-slate-600 border-none p-0 focus:ring-0 text-sm resize-none h-auto min-h-[60px]"
                                                 />
                                             </div>
                                             <button
                                                 onClick={() => handleDeleteQuestion(activeInterview.id, idx)}
-                                                className="absolute top-2 right-2 text-gray-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute top-2 right-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 title="Delete Question"
                                             >
                                                 ×
@@ -275,24 +275,24 @@ export default function UserInterviews({ projectId, data, onUpdate, activePerson
 
                                 <button
                                     onClick={() => handleAddQuestion(activeInterview.id)}
-                                    className="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 hover:text-orange-500 hover:border-orange-300 hover:bg-orange-50 transition-all font-medium text-sm"
+                                    className="w-full py-3 border-2 border-dashed border-white/10 rounded-xl text-slate-500 hover:text-orange-400 hover:border-orange-500/30 hover:bg-orange-500/5 transition-all font-medium text-sm"
                                 >
                                     + Add Another Question
                                 </button>
                             </div>
 
-                            <div className="flex justify-end pt-4 border-t border-gray-50">
+                            <div className="flex justify-end pt-4 border-t border-white/10">
                                 <button
                                     onClick={() => handleDeleteClick(activeInterview.id)}
-                                    className="text-red-400 text-xs hover:text-red-600 uppercase font-bold tracking-wider"
+                                    className="text-red-400/80 text-xs hover:text-red-400 uppercase font-bold tracking-wider"
                                 >
                                     Delete Interview
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-gray-300 flex-col gap-2">
-                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-2xl grayscale opacity-50">🎙️</div>
+                        <div className="h-full flex items-center justify-center text-slate-500 flex-col gap-2">
+                            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-2xl grayscale opacity-50">🎙️</div>
                             <p>Select or create an interview session</p>
                         </div>
                     )}

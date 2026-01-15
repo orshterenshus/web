@@ -8,10 +8,10 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
     const [isDeleting, setIsDeleting] = useState(null); // Stores ID of note being deleted
 
     const quadrants = [
-        { key: 'says', label: 'Says', icon: '💬', color: 'bg-purple-100 border-purple-300', textColor: 'text-purple-900 placeholder-purple-400' },
-        { key: 'thinks', label: 'Thinks', icon: '💭', color: 'bg-pink-100 border-pink-300', textColor: 'text-pink-900 placeholder-pink-400' },
-        { key: 'does', label: 'Does', icon: '🎯', color: 'bg-violet-100 border-violet-300', textColor: 'text-violet-900 placeholder-violet-400' },
-        { key: 'feels', label: 'Feels', icon: '❤️', color: 'bg-rose-100 border-rose-300', textColor: 'text-rose-900 placeholder-rose-400' }
+        { key: 'says', label: 'Says', icon: '💬', color: 'bg-purple-500/10 border-purple-500/30', textColor: 'text-purple-300' },
+        { key: 'thinks', label: 'Thinks', icon: '💭', color: 'bg-pink-500/10 border-pink-500/30', textColor: 'text-pink-300' },
+        { key: 'does', label: 'Does', icon: '🎯', color: 'bg-indigo-500/10 border-indigo-500/30', textColor: 'text-indigo-300' },
+        { key: 'feels', label: 'Feels', icon: '❤️', color: 'bg-rose-500/10 border-rose-500/30', textColor: 'text-rose-300' }
     ];
 
     // Helper to get nested field path based on wrapper structure
@@ -102,19 +102,19 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
     if (!activePersonaId && activeTab === 'user') return null;
 
     return (
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6 border border-white/10">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                         <span className="text-xl">🗺️</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-800">Empathy Map</h3>
-                        <p className="text-sm text-gray-500">Map out what the persona Says, Thinks, Does, and Feels</p>
+                        <h3 className="text-lg font-bold text-slate-200">Empathy Map</h3>
+                        <p className="text-sm text-slate-400">Map out what the persona Says, Thinks, Does, and Feels</p>
                     </div>
                 </div>
                 {/* Current Persona Indicator */}
-                <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ${activeTab === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 border ${activeTab === 'ai' ? 'bg-purple-900/30 text-purple-300 border-purple-500/30' : 'bg-blue-900/30 text-blue-300 border-blue-500/30'}`}>
                     <span>{activeTab === 'ai' ? '🤖' : '👤'}</span>
                     <span>{activeTab === 'ai' ? (activeAiPersonaName || 'AI Persona') : (activePersonaName || 'User Persona')}</span>
                 </div>
@@ -122,9 +122,9 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
 
             {/* Warning if no AI persona selected */}
             {activeTab === 'ai' && !activeAiPersonaId && (
-                <div className="text-center p-8 bg-purple-50 rounded-lg border border-purple-100 mb-6">
-                    <p className="text-purple-800 font-medium">No AI Persona Selected</p>
-                    <p className="text-sm text-purple-600 mt-1">Please create or select an AI Persona above to start mapping.</p>
+                <div className="text-center p-8 bg-purple-900/20 rounded-lg border border-purple-500/30 mb-6">
+                    <p className="text-purple-300 font-medium">No AI Persona Selected</p>
+                    <p className="text-sm text-purple-400 mt-1">Please create or select an AI Persona above to start mapping.</p>
                 </div>
             )}
 
@@ -133,7 +133,7 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                     {quadrants.map((q) => (
                         <div
                             key={q.key}
-                            className={`${q.color} border-2 rounded-xl p-4 min-h-[180px] flex flex-col`}
+                            className={`${q.color} border border-white/10 rounded-xl p-4 min-h-[180px] flex flex-col bg-white/5 backdrop-blur-sm`}
                         >
                             {/* Header */}
                             <div className="flex items-center justify-between mb-3">
@@ -143,7 +143,7 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                 </div>
                                 <button
                                     onClick={() => setNewNote({ quadrant: q.key, text: '' })}
-                                    className={`w-7 h-7 rounded-full bg-white/80 hover:bg-white flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
+                                    className={`w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
                                 >
                                     +
                                 </button>
@@ -154,13 +154,13 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                 {getNotes(q.key).map((note) => (
                                     <div
                                         key={note.id}
-                                        className="bg-white/90 rounded-lg p-2 pr-7 text-sm text-gray-900 font-medium shadow-sm group relative min-h-[40px] flex items-center"
+                                        className="bg-white/10 rounded-lg p-2 pr-7 text-sm text-slate-200 font-medium shadow-sm group relative min-h-[40px] flex items-center border border-white/5"
                                     >
                                         <p className="break-words w-full">{typeof note === 'object' ? note.text : note}</p>
                                         <button
                                             onClick={() => handleDeleteNote(q.key, note.id)}
                                             disabled={isDeleting === note.id}
-                                            className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-gray-300' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100'}`}
+                                            className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-slate-500' : 'text-slate-400 hover:text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100'}`}
                                             title="Delete note"
                                         >
                                             {isDeleting === note.id ? '...' : '×'}
@@ -168,7 +168,7 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                     </div>
                                 ))}
                                 {getNotes(q.key).length === 0 && (
-                                    <p className="text-xs text-gray-400/60 italic text-center mt-4">Empty</p>
+                                    <p className="text-xs text-slate-500 italic text-center mt-4">Empty</p>
                                 )}
                             </div>
 
@@ -180,20 +180,20 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                         value={newNote.text}
                                         onChange={(e) => setNewNote({ ...newNote, text: e.target.value })}
                                         onKeyDown={(e) => e.key === 'Enter' && handleAddNote(q.key)}
-                                        className="flex-1 px-3 py-2 rounded-lg text-sm border-0 focus:ring-2 focus:ring-purple-400 text-gray-900 placeholder-gray-500 font-medium"
+                                        className="flex-1 px-3 py-2 rounded-lg text-sm bg-black/40 border border-white/10 focus:ring-2 focus:ring-purple-500/50 text-white placeholder-slate-500 font-medium"
                                         autoFocus
                                         placeholder="Type a note..."
                                     />
                                     <button
                                         onClick={() => handleAddNote(q.key)}
                                         disabled={isAdding}
-                                        className="px-3 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 disabled:opacity-50"
+                                        className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-500 disabled:opacity-50 shadow-lg shadow-purple-500/20"
                                     >
                                         {isAdding ? '...' : 'Add'}
                                     </button>
                                     <button
                                         onClick={() => setNewNote({ quadrant: null, text: '' })}
-                                        className="px-2 py-2 text-gray-500 hover:text-gray-700"
+                                        className="px-2 py-2 text-slate-400 hover:text-white"
                                     >
                                         ✕
                                     </button>

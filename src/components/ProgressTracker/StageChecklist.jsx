@@ -179,31 +179,31 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
     const progress = (completedCount / totalCount) * 100;
 
     return (
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6 border border-white/10">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
                         <span className="text-xl">{checklistConfig.icon}</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-800">{checklistConfig.title}</h3>
-                        <p className="text-sm text-gray-500">{completedCount} of {totalCount} completed</p>
+                        <h3 className="text-lg font-bold text-slate-200">{checklistConfig.title}</h3>
+                        <p className="text-sm text-slate-400">{completedCount} of {totalCount} completed</p>
                     </div>
                 </div>
 
                 {/* Completion Badge */}
                 {completedCount === totalCount && (
-                    <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
+                    <div className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm font-medium flex items-center gap-1 border border-green-500/30">
                         <span>✓</span> Complete!
                     </div>
                 )}
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+            <div className="w-full bg-white/10 rounded-full h-2 mb-4">
                 <div
-                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-purple-500 h-2 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                     style={{ width: `${progress}%` }}
                 ></div>
             </div>
@@ -217,9 +217,9 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                     return (
                         <label
                             key={item.key}
-                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${isChecked
-                                ? 'bg-purple-50 border border-purple-200'
-                                : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isChecked
+                                ? 'bg-purple-500/10 border-purple-500/30'
+                                : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
                                 }`}
                         >
                             <input
@@ -227,18 +227,18 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                                 checked={isChecked}
                                 onChange={() => handleToggle(item.key)}
                                 disabled={isLoading || isSystemVerified(item.key)}
-                                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                className="w-5 h-5 rounded border-slate-500 bg-white/5 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
                             />
-                            <span className={`flex-1 ${isChecked ? 'text-purple-700 line-through' : 'text-gray-700'}`}>
+                            <span className={`flex-1 ${isChecked ? 'text-purple-300 line-through decoration-purple-500/50' : 'text-slate-300'}`}>
                                 {item.label}
                             </span>
                             {isSystemVerified(item.key) && (
-                                <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-medium">
+                                <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-medium border border-purple-500/30">
                                     Auto-verified
                                 </span>
                             )}
                             {isLoading && (
-                                <span className="text-gray-400 text-sm">Saving...</span>
+                                <span className="text-slate-500 text-sm">Saving...</span>
                             )}
                         </label>
                     );
