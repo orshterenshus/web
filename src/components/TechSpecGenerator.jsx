@@ -117,7 +117,7 @@ export default function TechSpecGenerator({
             // Update local state (mapped to match state properties)
             setTechStack({
                 ...newStack,
-                db: arch.database // explicit map
+                db: arch.database || '' // explicit map
             });
 
             // Auto-save and notify parent
@@ -380,7 +380,7 @@ export default function TechSpecGenerator({
                         <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Frontend</label>
                         <input
                             type="text"
-                            value={techStack.frontend}
+                            value={techStack.frontend || ''}
                             onChange={(e) => handleStackChange('frontend', e.target.value)}
                             placeholder="e.g. React, Vue"
                             className="w-full px-4 py-3 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none text-white bg-black/40 focus:bg-black/60 transition-colors placeholder-slate-600"
@@ -390,7 +390,7 @@ export default function TechSpecGenerator({
                         <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Backend</label>
                         <input
                             type="text"
-                            value={techStack.backend}
+                            value={techStack.backend || ''}
                             onChange={(e) => handleStackChange('backend', e.target.value)}
                             placeholder="e.g. Node.js, Python"
                             className="w-full px-4 py-3 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none text-white bg-black/40 focus:bg-black/60 transition-colors placeholder-slate-600"
@@ -400,7 +400,7 @@ export default function TechSpecGenerator({
                         <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Database</label>
                         <input
                             type="text"
-                            value={techStack.db}
+                            value={techStack.db || ''}
                             onChange={(e) => handleStackChange('db', e.target.value)}
                             placeholder="e.g. MongoDB, PostgreSQL"
                             className="w-full px-4 py-3 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none text-white bg-black/40 focus:bg-black/60 transition-colors placeholder-slate-600"
@@ -413,7 +413,7 @@ export default function TechSpecGenerator({
                     <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Data Flow & Description</label>
                     <textarea
                         rows={6}
-                        value={techStack.dataFlow}
+                        value={techStack.dataFlow || ''}
                         onChange={(e) => handleStackChange('dataFlow', e.target.value)}
                         placeholder="Explain how data moves through the system (Safety, API, Storage)..."
                         className="w-full px-4 py-3 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500/50 outline-none text-white font-mono text-sm leading-relaxed bg-black/40 focus:bg-black/60 transition-colors placeholder-slate-600"

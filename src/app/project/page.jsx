@@ -156,6 +156,7 @@ function ProjectContent() {
     // Error/Info modal state
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // Delete Confirmation Modal State
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
@@ -547,19 +548,19 @@ function ProjectContent() {
         // Don't do anything if staying on the same phase
         if (formattedPhase === currentPhase) return;
 
-        // Allow going back immediately
-        if (targetIndex < currentIndex) {
+        // Allow going back immediately - REMOVED to show confirmation modal
+        /* if (targetIndex < currentIndex) {
             setCurrentPhase(formattedPhase);
             return;
-        }
+        } */
 
-        // Only allow moving to the NEXT phase (block skipping ahead)
-        if (targetIndex > currentIndex + 1) {
+        // Only allow moving to the NEXT phase (block skipping ahead) - REMOVED to allow future navigation
+        /* if (targetIndex > currentIndex + 1) {
             // Show styled error modal instead of browser alert
             setErrorMessage(`Please complete the ${phases[currentIndex + 1]} phase first before moving to ${formattedPhase}.`);
             setShowErrorModal(true);
             return;
-        }
+        } */
 
         // Show confirmation modal for the next phase
         setPendingPhase(formattedPhase);
@@ -894,6 +895,25 @@ function ProjectContent() {
                         </div>
                     </div>
                 )}
+
+                {/* Success Modal */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSuccessModal(false)}></div>
+                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                            <div className="flex justify-center mb-6">
+                                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 text-3xl">
+                                    💾
+                                </div>
+                            </div>
+                            <h3 className="text-xl font-bold text-center text-white mb-2">Progress Saved!</h3>
+                            <p className="text-slate-400 text-center mb-8">Your work has been successfully saved to the cloud.</p>
+                            <button onClick={() => setShowSuccessModal(false)} className="w-full px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-500/20">
+                                Awesome
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Header */}
@@ -957,7 +977,7 @@ function ProjectContent() {
                                 const isNextStep = index === currentPhaseIndex + 1;
                                 const isActive = index === currentPhaseIndex;
                                 const isPast = index < currentPhaseIndex;
-                                const isClickable = isNextStep;
+                                const isClickable = true; // Always allow clicking to any phase (future/past/next)
 
                                 return (
                                     <button
@@ -969,13 +989,12 @@ function ProjectContent() {
                                             ${isActive
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
                                                 : isPast
-                                                    ? 'bg-[#0f172a] text-emerald-400 border border-emerald-500/20 cursor-not-allowed opacity-100' // Past (Done & Locked)
-                                                    : isClickable
-                                                        ? 'bg-white text-blue-900 hover:bg-blue-50 cursor-pointer shadow-md transform hover:-translate-y-0.5' // Next (Actionable)
-                                                        : 'bg-[#0f172a] text-slate-600 border border-white/5 cursor-not-allowed' // Future (Locked)
+                                                    ? 'bg-[#0f172a] text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-slate-800 opacity-100 shadow-sm' // Past (Done & Clickable)
+                                                    : 'bg-[#0f172a] text-slate-300 border border-white/5 cursor-pointer hover:bg-slate-800 hover:border-blue-500/30 shadow-sm' // Future (Clickable)
                                             }
                                         `}
                                     >
+
                                         {/* Status Indicator */}
                                         {isPast && <span>✓</span>}
                                         {isActive && <span className="animate-pulse">📍</span>}
@@ -1293,7 +1312,7 @@ function ProjectContent() {
                                                 </button>
 
                                                 <button
-                                                    onClick={() => { saveIdeationState(); alert('Progress Saved!'); }}
+                                                    onClick={() => { saveIdeationState(); setShowSuccessModal(true); }}
                                                     className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-2 rounded-lg font-bold shadow-lg shadow-green-900/20 hover:shadow-green-500/30 transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
                                                 >
                                                     <span>💾</span> Save All Progress
@@ -1445,6 +1464,13 @@ function ProjectContent() {
                     projectName={initialName}
                     currentPhase={currentPhase}
                     stageData={stageData}
+                    defineData={defineData}
+                    ideateData={{
+                        ideas,
+                        matrix: matrixData,
+                        winningConcept,
+                        techSpec: techSpecData
+                    }}
                     messages={messages}
                     createdBy={localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser'))?.username : 'Unknown'}
                     createdAt={new Date()}

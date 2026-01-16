@@ -31,7 +31,7 @@ export async function POST(request, { params }) {
 
     let prompt;
     if (action === 'architecture') {
-      const solutionText = winningConcept.text || winningConcept;
+      const solutionText = typeof winningConcept === 'string' ? winningConcept : (winningConcept.text || winningConcept.content || winningConcept.description || JSON.stringify(winningConcept));
       const constraintsText = constraints ? JSON.stringify(constraints) : 'None';
 
       prompt = `
@@ -57,9 +57,10 @@ Output JSON Structure:
 }
 `;
     } else {
+      const solutionText = typeof winningConcept === 'string' ? winningConcept : (winningConcept.text || winningConcept.content || winningConcept.description || JSON.stringify(winningConcept));
       prompt = `
 Act as a Senior System Analyst.
-Task: Generate technical requirements for: "${winningConcept?.text || winningConcept}".
+Task: Generate technical requirements for: "${solutionText}".
 Quantity: Generate EXACTLY ${funcCount} Functional requirements and ${nonFuncCount} Non-Functional requirements.
 CRITICAL: Ensure all ${parseInt(funcCount) + parseInt(nonFuncCount)} items are DISTINCT and non-repetitive. Do not duplicate ideas.
 Context:

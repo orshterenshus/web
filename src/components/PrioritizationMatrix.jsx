@@ -245,7 +245,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                     >
                                                         👍 Vote
                                                     </button>
-                                                    <span className="text-xs text-gray-600">{votes[idea.id] || 0}</span>
+                                                    <span className="text-xs text-slate-300">{votes[idea.id] || 0}</span>
                                                 </div>
                                             )}
 
@@ -292,7 +292,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-gray-600">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
@@ -330,7 +330,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-gray-600">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
@@ -368,7 +368,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-gray-600">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
