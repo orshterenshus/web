@@ -16,6 +16,8 @@ import PrioritizationMatrix from '@/components/PrioritizationMatrix';
 import TechSpecGenerator from '@/components/TechSpecGenerator';
 import SketchPad from '@/components/SketchPad';
 import FeedbackMatrix from '@/components/Test/FeedbackMatrix';
+import ProjectFileManager from '@/components/Shared/ProjectFileManager';
+
 
 // Phase-specific information for the chatbot
 const PHASE_INFO = {
@@ -1270,54 +1272,7 @@ function ProjectContent() {
                                                 />
 
                                                 {/* File Upload Section (Moved Here) */}
-                                                <div className="mt-12">
-                                                    <div className="glass-panel rounded-xl p-6 border border-dashed border-white/20 hover:border-blue-500/50 transition-colors">
-                                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Research Files</h4>
-                                                        <div
-                                                            onClick={() => !isUploading && document.getElementById('file-upload')?.click()}
-                                                            className={`rounded-xl p-8 text-center cursor-pointer transition-all ${isUploading ? 'bg-white/5' : 'hover:bg-white/5'}`}
-                                                        >
-                                                            {isUploading ? (
-                                                                <div className="flex flex-col items-center">
-                                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
-                                                                    <p className="text-slate-400 text-sm">Uploading...</p>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="space-y-2">
-                                                                    <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto mb-3">
-                                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                                                                    </div>
-                                                                    <p className="text-slate-300 font-medium">Click to upload or drag and drop</p>
-                                                                    <p className="text-slate-500 text-xs">PDF, Images, Text (Max 10MB)</p>
-                                                                </div>
-                                                            )}
-                                                            <input id="file-upload" type="file" className="hidden" multiple onChange={handleFileUpload} disabled={isUploading} />
-                                                        </div>
 
-                                                        {files.length > 0 && (
-                                                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
-                                                                {files.map((f, i) => (
-                                                                    <li key={i} className="glass-button p-3 rounded-xl flex items-center justify-between group">
-                                                                        <div className="flex items-center min-w-0 gap-3">
-                                                                            <div className={`p-2 rounded-lg text-xs font-bold ${f.fileType === 'image' ? 'bg-purple-500/20 text-purple-300' : f.fileType === 'pdf' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                                                                                {f.fileType === 'image' ? 'IMG' : f.fileType === 'pdf' ? 'PDF' : 'DOC'}
-                                                                            </div>
-                                                                            <div className="min-w-0">
-                                                                                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-200 hover:text-white truncate block" title={f.name}>
-                                                                                    {f.name}
-                                                                                </a>
-                                                                                <p className="text-[10px] text-slate-500">{f.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : 'Unknown'}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                        <button onClick={() => handleDeleteFile(f.publicId)} className="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                                        </button>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        )}
-                                                    </div>
-                                                </div>
 
                                                 {/* HUGE SPACER */}
                                                 <div className="w-full h-64 pointer-events-none bg-transparent"></div>
@@ -1364,6 +1319,20 @@ function ProjectContent() {
                                 { /* Old File Upload Removed */}
                             </div>
                         </div>
+
+                        {/* Shared Resources / Project Files - Always Visible */}
+                        {projectId && (
+                            <div className="glass-card rounded-2xl p-0 mb-8 overflow-hidden">
+                                <ProjectFileManager
+                                    projectId={projectId}
+                                    files={files}
+                                    onUpload={handleFileUpload}
+                                    onDelete={handleDeleteFile}
+                                    isUploading={isUploading}
+                                />
+                            </div>
+                        )}
+
                         {/* MASSIVE SCROLL SPACER */}
                         <div className="w-full h-64 bg-transparent pointer-events-none"></div>
                     </div>

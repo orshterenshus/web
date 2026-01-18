@@ -141,6 +141,44 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
     const currentActiveId = isAiTab ? activeAiPersonaId : activePersonaId;
     const activePersona = displayList.find(p => p.id === currentActiveId);
 
+    // Auto-Generate AI Persona
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const handleAutoGeneratePersona = async () => {
+        setIsGenerating(true);
+        try {
+            // Need project name for context - currently projectId is all we have.
+            // Ideally passthrough projectName prop, but for now we can rely on ID or default.
+            // Let's see if we can get the project name from parent or context.
+            // For now, we'll send a default or attempt to fetch if needed, 
+            // but the API handles a fallback title.
+
+            const res = await fetch(`/api/projects/${projectId}/generate-persona`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ projectName: 'Current Project' })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.persona) {
+                    const newPersona = data.persona;
+                    const updatedList = [...aiPersonas, newPersona];
+
+                    await updateData(updatedList, 'aiPersonas');
+                    if (onAiPersonaSelect) onAiPersonaSelect(newPersona.id);
+                }
+            } else {
+                alert('Failed to generate AI persona');
+            }
+        } catch (error) {
+            console.error('Error auto-generating persona:', error);
+            alert('Error generating persona');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className="glass-panel rounded-xl shadow-lg overflow-hidden mb-8 border border-white/10">
             <div className="p-6 border-b border-white/10">
@@ -206,6 +244,23 @@ export default function PersonaTable({ projectId, data, onUpdate, activePersonaI
                         {isCreating ? '...' : '+'}
                     </button>
                 </div>
+
+                {/* AI Auto-Generate Button (Only visible in AI Tab) */}
+                {isAiTab && (
+                    <button
+                        onClick={handleAutoGeneratePersona}
+                        disabled={isGenerating || isCreating}
+                        className="ml-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold shadow-lg hover:shadow-purple-500/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Auto-Generate AI Persona"
+                    >
+                        {isGenerating ? (
+                            <span className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full"></span>
+                        ) : (
+                            <span>✨</span>
+                        )}
+                        Auto-Generate
+                    </button>
+                )}
             </div>
 
             {/* Content or Empty State */}

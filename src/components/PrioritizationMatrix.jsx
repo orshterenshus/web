@@ -8,6 +8,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     const [winningConcept, setWinningConcept] = useState(null);
     const [draggedIdea, setDraggedIdea] = useState(null);
     const [showVoting, setShowVoting] = useState(false);
+    const [saveMessage, setSaveMessage] = useState(null);
 
     // Initialize state from props
     useEffect(() => {
@@ -110,7 +111,8 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
 
     const saveMatrix = async (currentWinner = winningConcept, currentMatrix = prioritizedIdeas) => {
         try {
-            await fetch(`/api/projects/${projectId}/prioritize`, {
+            setSaveMessage('Saving...');
+            const res = await fetch(`/api/projects/${projectId}/prioritize`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -120,8 +122,18 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                     winningConcept: currentWinner
                 })
             });
+
+            if (res.ok) {
+                setSaveMessage('Matrix Saved!');
+                setTimeout(() => setSaveMessage(null), 3000);
+            } else {
+                setSaveMessage('Error Saving');
+                setTimeout(() => setSaveMessage(null), 3000);
+            }
         } catch (err) {
             console.error('Error saving prioritization:', err);
+            setSaveMessage('Error Saving');
+            setTimeout(() => setSaveMessage(null), 3000);
         }
     };
 
@@ -169,7 +181,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             onClick={() => saveMatrix()}
                             className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
                         >
-                            Save Matrix
+                            {saveMessage || 'Save Matrix'}
                         </button>
                     </div>
                 </div>

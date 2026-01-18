@@ -8,6 +8,7 @@ export default function TechSpecGenerator({
     winningConcept,
     constraints,
     onUpdate,
+    onSave, // Added onSave prop
     initialTechSpec
 }) {
     // Alias to match logical names
@@ -27,6 +28,7 @@ export default function TechSpecGenerator({
     const [error, setError] = useState(null);
     const [showDiagram, setShowDiagram] = useState(false);
     const [inputValues, setInputValues] = useState({ functional: '', nonFunctional: '' });
+    const [saveMessage, setSaveMessage] = useState(null); // Feedback state
 
     // Architecture State (Synced locally for inputs, prop-driven initially)
     const [techStack, setTechStack] = useState({
@@ -42,6 +44,23 @@ export default function TechSpecGenerator({
     const notifyParent = (partialUpdate) => {
         if (onUpdate) {
             onUpdate({ ...existingData, ...partialUpdate });
+        }
+    };
+
+    // Manual Save Handler
+    const handleLocalSave = async () => {
+        if (onSave) {
+            setSaveMessage('Saving...');
+            try {
+                // Determine if onSave returns a promise (it likely does from page.jsx)
+                await onSave();
+                setSaveMessage('Saved!');
+                setTimeout(() => setSaveMessage(null), 3000);
+            } catch (err) {
+                console.error("Save error:", err);
+                setSaveMessage('Error!');
+                setTimeout(() => setSaveMessage(null), 3000);
+            }
         }
     };
 
@@ -184,8 +203,14 @@ export default function TechSpecGenerator({
 
             {/* SECTION A: REQUIREMENTS */}
             <div className="glass-panel p-6 rounded-xl shadow-lg border border-white/10">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    🤖 AI Technical Specification
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">🤖 AI Technical Specification</span>
+                    <button
+                        onClick={handleLocalSave}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 text-sm"
+                    >
+                        {saveMessage || '💾 Save Specifications'}
+                    </button>
                 </h3>
 
                 {!winningSolution && (

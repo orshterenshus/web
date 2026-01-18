@@ -111,30 +111,6 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
             </div>
 
             <div className="p-6 space-y-6">
-                {/* Mode Selection */}
-                <div className="flex justify-center mb-4">
-                    <div className="bg-black/40 border border-white/10 p-1 rounded-lg flex gap-1">
-                        <button
-                            onClick={() => setSparkMode('standard')}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${sparkMode === 'standard'
-                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
-                                : 'text-slate-400 hover:text-white hover:bg-white/5'
-                                }`}
-                        >
-                            Standard Spark
-                        </button>
-                        <button
-                            onClick={() => setSparkMode('cross-domain')}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${sparkMode === 'cross-domain'
-                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20'
-                                : 'text-slate-400 hover:text-white hover:bg-white/5'
-                                }`}
-                        >
-                            Cross-Domain Mashup 🧬
-                        </button>
-                    </div>
-                </div>
-
                 {/* Quick Spark Button */}
                 <div className="flex flex-col items-center gap-3">
                     <button
@@ -285,6 +261,6 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

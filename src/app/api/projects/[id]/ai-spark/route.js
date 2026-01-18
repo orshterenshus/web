@@ -13,7 +13,7 @@ const techniques = {
 
 export async function POST(request, { params }) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
         const { user, pov, technique, mode } = body;
 
