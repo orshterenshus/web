@@ -1416,7 +1416,12 @@ function ProjectContent() {
                                                     ? 'bg-white/10 text-slate-200 border border-white/5 rounded-tl-none'
                                                     : 'bg-blue-600 text-white rounded-tr-none shadow-blue-500/10'
                                                     }`}
-                                                dangerouslySetInnerHTML={{ __html: msg.text }}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: msg.text
+                                                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                                        .replace(/\n/g, '<br />')
+                                                }}
                                             ></div>
                                         </div>
                                     ))
