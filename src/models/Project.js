@@ -19,10 +19,6 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    sharedWith: {
-        type: [String],
-        default: [],
-    },
     chatHistory: [{
         sender: {
             type: String,

@@ -135,6 +135,11 @@ function ProjectContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
+    const handleLogout = () => {
+        localStorage.removeItem('currentUser');
+        router.push('/login');
+    };
+
     const initialName = searchParams.get('name') || 'Project';
     const initialPhase = searchParams.get('phase') || 'Empathize';
     const projectId = searchParams.get('id');
@@ -146,6 +151,7 @@ function ProjectContent() {
     const [isLoadingPhase, setIsLoadingPhase] = useState(!!projectId);
     const [messages, setMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
+    const [isTyping, setIsTyping] = useState(false);
     const [files, setFiles] = useState([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
@@ -186,6 +192,7 @@ function ProjectContent() {
     const [sidebarWidth, setSidebarWidth] = useState(400);
     const [isResizing, setIsResizing] = useState(false);
     const sidebarRef = useRef(null);
+    const messagesEndRef = useRef(null);
 
     const startResizing = useCallback((mouseDownEvent) => {
         setIsResizing(true);
@@ -212,6 +219,11 @@ function ProjectContent() {
             window.removeEventListener("mouseup", stopResizing);
         };
     }, [resize, stopResizing]);
+
+    // Auto-scroll to bottom of chat
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages, isTyping, showMobileChat, isChatMinimized]);
 
     // Prevent duplicate welcome messages
     const initialFetchDone = useRef(false);
@@ -608,7 +620,7 @@ function ProjectContent() {
         setPendingPhase(null);
     };
 
-    const [isTyping, setIsTyping] = useState(false);
+
 
     const sendMessage = async (e) => {
         e.preventDefault();
@@ -940,6 +952,14 @@ function ProjectContent() {
                         </nav>
                     </div>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleLogout}
+                            title="Logout"
+                            className="p-2 text-slate-300 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        </button>
+
                         {/* Mobile Chat Toggle */}
                         <button onClick={() => setShowMobileChat(!showMobileChat)} className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
                             {showMobileChat ? (
@@ -1006,7 +1026,7 @@ function ProjectContent() {
                         </div>
 
                         {/* Stage Content Card */}
-                        <div className={`glass-card rounded-2xl p-0 overflow-hidden mb-8 transition-all duration-500`}>
+                        <div className={`glass-card rounded-2xl p-0 mb-8 transition-all duration-500`}>
                             {/* Card Header */}
                             <div className={`p-6 border-b border-white/5 bg-white/5`}>
                                 <div className="flex flex-wrap justify-between items-center gap-4">
@@ -1436,6 +1456,7 @@ function ProjectContent() {
                                         </div>
                                     </div>
                                 )}
+                                <div ref={messagesEndRef} />
                             </div>
 
                             {/* Chat Input */}

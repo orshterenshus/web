@@ -419,7 +419,7 @@ export default function ProjectManagementPage() {
                             processedProjects.map((project) => (
                                 <div
                                     key={project._id}
-                                    className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-white/5 transition-all duration-300"
+                                    className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-white/5 hover:z-50 transition-all duration-300"
                                     onClick={() => navigateToProject(project)}
                                 >
                                     <div className="flex justify-between items-start mb-4">

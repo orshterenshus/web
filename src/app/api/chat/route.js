@@ -3,25 +3,26 @@ import { NextResponse } from 'next/server';
 import { QUESTION_BANK, CROSS_CUTTING_QUESTIONS, PHASE_TOOLS } from '@/data/socraticQuestions';
 
 // System prompt for the Socratic Bot
-const SYSTEM_PROMPT = `Role: You are a Socratic Design Thinking Coach.
-Goal: Be a helpful, intelligent mentor. 
+// System prompt for the Socratic Bot
+const SYSTEM_PROMPT = `Role: You are a Design Thinking Partner & Co-pilot.
+Goal: Be helpful, direct, and intelligent. 
 
 **CORE RULES:**
-1. **Be Responsive:** Answer questions clearly and concisely.
-2. **Be Conversational:** Give creative feedback on ideas.
-3. **Selective Questioning:** Do NOT ask a guiding question in every response. 
-   - Ask a question ONLY if:
-     a) The user explicitly asks for guidance/questions.
-     b) The conversation has stalled.
-     c) It is the very first interaction of a new phase.
-   - Otherwise, just provide the answer or feedback and let the user lead.
-4. **Directness:** Cut the fluff. No "Hello" or generic pleasantries.
+1. **Be Responsive:** If the user asks a question, ANSWER IT directly. Do not answer with a question unless clarification is truly needed.
+2. **Be Conversational:** Speak naturally, like a colleague. 
+3. **Optional Questioning:** You are NOT required to ask a guiding question.
+   - Only provided a question from the bank if:
+     a) The user asks for help/inspiration.
+     b) The user says they are stuck.
+     c) It naturally fits the flow (e.g., kicking off a new phase).
+   - Otherwise, just focus on the current topic.
+4. **Directness:** Cut the fluff.
 5. **No Formatting:** Do NOT use bold (**), italics (*), or markdown headers.
 
 **INTERACTION STYLE:**
-- **User asks a question:** Answer -> Stop. (Optional: Ask "Do you want to explore this further?" only if complex).
-- **User shares idea:** Validate -> Critique. (No question needed unless stuck).
-- **User asks for questions:** Provide a list of questions from the bank.`;
+- **User asks a question:** Answer -> Stop.
+- **User shares idea:** specific constructive feedback.
+- **User asks for guidance:** Provide 2-3 relevant questions from the bank.`;
 
 // Get phase-specific context with detailed guidance and questions
 function getPhaseContext(phase) {
@@ -47,7 +48,7 @@ CURRENT TOOL: ${tool}
 AVAILABLE QUESTIONS (Choose one that fits best):
 ${availableQuestions.map(q => `- ${q}`).join('\n')}
 
-INSTRUCTION: Use one of the questions above or a variation of it to guide the user.`;
+INSTRUCTION: These questions are for reference. Only use them if the user specifically requests guidance or is stuck.`;
 }
 
 export async function POST(request) {
@@ -81,7 +82,7 @@ export async function POST(request) {
         if (conversationHistory && conversationHistory.length > 0) {
             const recentHistory = conversationHistory.slice(-10);
             historyContext = '\n\nRecent conversation:\n' + recentHistory.map(msg =>
-                `${msg.sender}: ${msg.text}`
+                `${msg.sender}: ${msg.text} `
             ).join('\n');
         }
 
@@ -93,7 +94,7 @@ ${historyContext}
 
 User's message: ${message}
 
-Respond as Socratic Bot:`;
+    Respond as Socratic Bot: `;
 
         // Call Gemini API
         const result = await model.generateContent(fullPrompt);
@@ -114,7 +115,7 @@ Respond as Socratic Bot:`;
         }
 
         return NextResponse.json(
-            { error: `Failed to generate response: ${error.message}` },
+            { error: `Failed to generate response: ${error.message} ` },
             { status: 500 }
         );
     }

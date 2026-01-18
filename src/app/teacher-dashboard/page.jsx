@@ -64,6 +64,11 @@ export default function TeacherDashboard() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    const handleLogout = () => {
+        localStorage.removeItem('currentUser');
+        router.push('/login');
+    };
+
     useEffect(() => {
         // Auth check
         const userStr = localStorage.getItem('currentUser');
@@ -157,6 +162,12 @@ export default function TeacherDashboard() {
                         className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
                     >
                         ← Back to Projects
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="ml-3 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-300 border border-red-500/20 hover:bg-red-500/20 transition-all text-sm font-semibold flex items-center gap-2"
+                    >
+                        <span>🚪</span> Logout
                     </button>
                 </div>
 

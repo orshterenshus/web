@@ -21,7 +21,7 @@ export async function POST(request) {
 
         const project = await Project.findByIdAndUpdate(
             projectId,
-            { $addToSet: { sharedWith: username } }, // Use $addToSet to prevent duplicates
+            { $addToSet: { sharedWith: { user: username, permission: 'Basic' } } },
             { new: true }
         );
 
