@@ -212,7 +212,7 @@ const SketchPad = ({
   return (
     <div className="flex flex-col h-full w-full glass-panel rounded-xl shadow-2xl border border-white/10 overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-4 p-3 bg-white/5 border-b border-white/10 backdrop-blur-md">
+      <div className="flex flex-wrap items-center gap-4 p-3 bg-[var(--card-bg)] border-b border-[var(--glass-border)] backdrop-blur-md">
 
         {/* Color Picker */}
         <div className="flex items-center gap-2">
@@ -229,24 +229,24 @@ const SketchPad = ({
 
         {/* Brush Size */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 uppercase font-bold">Size</span>
+          <span className="text-xs text-[var(--text-muted)] uppercase font-bold">Size</span>
           <input
             type="range"
             min="1"
             max="20"
             value={brushSize}
             onChange={(e) => setBrushSize(parseInt(e.target.value))}
-            className="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            className="w-24 h-1 bg-[var(--input-bg)] rounded-lg appearance-none cursor-pointer accent-indigo-500"
           />
         </div>
 
-        <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
+        <div className="h-6 w-px bg-[var(--glass-border)] mx-2 hidden sm:block"></div>
 
         {/* Tools */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setTool("pen")}
-            className={`p-2 rounded-lg transition-all ${tool === "pen" ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-white/10 text-slate-400 hover:text-white'}`}
+            className={`p-2 rounded-lg transition-all ${tool === "pen" ? 'bg-indigo-500/30 text-indigo-400 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-[var(--input-bg)] text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}
             title="Pen"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -258,7 +258,7 @@ const SketchPad = ({
           </button>
           <button
             onClick={() => setTool("eraser")}
-            className={`p-2 rounded-lg transition-all ${tool === "eraser" ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-white/10 text-slate-400 hover:text-white'}`}
+            className={`p-2 rounded-lg transition-all ${tool === "eraser" ? 'bg-indigo-500/30 text-indigo-400 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' : 'hover:bg-[var(--input-bg)] text-[var(--text-muted)] hover:text-[var(--foreground)]'}`}
             title="Eraser"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,14 +268,14 @@ const SketchPad = ({
           </button>
         </div>
 
-        <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
+        <div className="h-6 w-px bg-[var(--glass-border)] mx-2 hidden sm:block"></div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={undo}
             disabled={history.length === 0}
-            className={`p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-300 ${history.length === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:text-white'}`}
+            className={`p-2 rounded-lg hover:bg-[var(--input-bg)] transition-colors text-[var(--text-muted)] ${history.length === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:text-[var(--foreground)]'}`}
             title="Undo"
           >
             {/* Simple Undo Icon SVG */}
@@ -286,7 +286,7 @@ const SketchPad = ({
 
           <button
             onClick={() => setShowGrid(!showGrid)}
-            className={`p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-300 ${showGrid ? 'bg-white/10 text-white' : ''}`}
+            className={`p-2 rounded-lg hover:bg-[var(--input-bg)] transition-colors text-[var(--text-muted)] ${showGrid ? 'bg-[var(--input-bg)] text-[var(--foreground)]' : ''}`}
             title="Toggle Grid"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -321,9 +321,9 @@ const SketchPad = ({
       {/* Canvas Area */}
       <div
         ref={containerRef}
-        className="flex-1 relative cursor-crosshair touch-none bg-[#0B1026]"
+        className="flex-1 relative cursor-crosshair touch-none bg-white dark:bg-[#0B1026]"
         style={{
-          backgroundImage: showGrid ? 'radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)' : 'none',
+          backgroundImage: showGrid ? 'radial-gradient(rgba(100,116,139,0.3) 1px, transparent 1px)' : 'none',
           backgroundSize: '20px 20px'
         }}
       >

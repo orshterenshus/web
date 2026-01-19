@@ -30,19 +30,19 @@ export default function ConfirmationModal({
             ></div>
 
             {/* Modal Content */}
-            <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
+            <div className="relative bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
                 <div className="p-6">
                     <div className="flex justify-center mb-6">
-                        <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl ${isDangerous ? 'bg-red-100 text-red-500' : 'bg-blue-100 text-blue-500'}`}>
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl ${isDangerous ? 'bg-red-100 dark:bg-red-500/20 text-red-500 dark:text-red-400' : 'bg-blue-100 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400'}`}>
                             {isDangerous ? '🗑️' : '⚠️'}
                         </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">
                         {title}
                     </h3>
 
-                    <p className="text-gray-500 text-center mb-8">
+                    <p className="text-[var(--text-muted)] text-center mb-8">
                         {message}
                     </p>
 
@@ -50,7 +50,7 @@ export default function ConfirmationModal({
                         <button
                             onClick={onClose}
                             disabled={isLoading}
-                            className="flex-1 px-4 py-3 rounded-xl font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                            className="flex-1 px-4 py-3 rounded-xl font-medium bg-[var(--input-bg)] text-[var(--text-muted)] hover:bg-[var(--card-border)] transition-colors disabled:opacity-50"
                         >
                             {cancelText}
                         </button>
@@ -58,8 +58,8 @@ export default function ConfirmationModal({
                             onClick={onConfirm}
                             disabled={isLoading}
                             className={`flex-1 px-4 py-3 rounded-xl font-medium text-white transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isDangerous
-                                    ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
-                                    : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30'
+                                ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
+                                : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30'
                                 }`}
                         >
                             {isLoading && (

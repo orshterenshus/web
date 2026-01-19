@@ -802,17 +802,17 @@ function ProjectContent() {
     // Show loading state while phase is being fetched
     if (isLoadingPhase) {
         return (
-            <div className="bg-[#0f172a] text-white font-sans h-screen flex items-center justify-center">
+            <div className="bg-[var(--background)] text-[var(--foreground)] font-sans h-screen flex items-center justify-center transition-colors duration-300">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-slate-400">Loading workspace...</p>
+                    <p className="text-[var(--text-muted)]">Loading workspace...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-[#0f172a] text-slate-200 font-sans h-screen flex flex-col overflow-hidden relative selection:bg-purple-500/30">
+        <div className="bg-[var(--background)] text-[var(--foreground)] font-sans h-screen flex flex-col overflow-hidden relative selection:bg-purple-500/30 transition-colors duration-300">
             {/* Background Drops */}
             <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-900/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
@@ -829,26 +829,26 @@ function ProjectContent() {
                     return (
                         <div className="fixed inset-0 flex items-center justify-center p-4">
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={cancelPhaseChange}></div>
-                            <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
+                            <div className="relative glass-card bg-[var(--card-bg)] rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
                                 <div className="flex justify-center mb-6">
-                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-amber-500/20 text-amber-500' : 'bg-blue-500/20 text-blue-500'}`}>
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400' : 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400'}`}>
                                         <span className="text-3xl">{hasUnchecked ? '⚠️' : '🚀'}</span>
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-center text-white mb-2">Move to {pendingPhase}?</h3>
-                                <p className="text-slate-400 text-center mb-6">
+                                <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Move to {pendingPhase}?</h3>
+                                <p className="text-[var(--text-muted)] text-center mb-6">
                                     {hasUnchecked ? (
-                                        <>You have <strong className="text-amber-500">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>
+                                        <>You have <strong className="text-orange-600 dark:text-orange-400">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>
                                     ) : (
                                         <>Great job! All tasks in {currentPhase} are complete.</>
                                     )}
                                 </p>
                                 {hasUnchecked && (
-                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6 max-h-32 overflow-y-auto custom-scrollbar">
+                                    <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-xl p-4 mb-6 max-h-32 overflow-y-auto custom-scrollbar">
                                         <ul className="space-y-2">
                                             {uncheckedItems.slice(0, 5).map(item => (
-                                                <li key={item.key} className="flex items-center gap-3 text-sm text-amber-200">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                <li key={item.key} className="flex items-center gap-3 text-sm text-black dark:text-orange-200 font-medium">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-600 dark:bg-orange-500"></span>
                                                     {item.label}
                                                 </li>
                                             ))}
@@ -856,7 +856,7 @@ function ProjectContent() {
                                     </div>
                                 )}
                                 <div className="flex gap-4">
-                                    <button onClick={cancelPhaseChange} className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors">
+                                    <button onClick={cancelPhaseChange} className="flex-1 px-4 py-3 rounded-xl font-medium bg-[var(--input-bg)] hover:bg-[var(--glass-border)] text-[var(--foreground)] transition-colors">
                                         Stay Here
                                     </button>
                                     <button onClick={confirmPhaseChange} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/20">
@@ -872,20 +872,20 @@ function ProjectContent() {
                 {showDeleteConfirmModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteConfirmModal(false)}></div>
-                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                        <div className="relative glass-card bg-[var(--card-bg)] rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl animate-in zoom-in duration-200">
                             <div className="flex justify-center mb-6">
                                 <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
                                     🗑️
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-center text-white mb-2">Delete Project?</h3>
-                            <p className="text-slate-400 text-center mb-8">
+                            <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Delete Project?</h3>
+                            <p className="text-[var(--text-muted)] text-center mb-8">
                                 Are you sure you want to delete <strong>{initialName}</strong>? This action <strong>cannot</strong> be undone.
                             </p>
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => setShowDeleteConfirmModal(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                                    className="flex-1 px-4 py-3 rounded-xl font-medium bg-[var(--input-bg)] hover:bg-[var(--glass-border)] text-[var(--foreground)] transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -904,14 +904,14 @@ function ProjectContent() {
                 {showErrorModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4">
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowErrorModal(false)}></div>
-                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl">
+                        <div className="relative glass-card bg-[var(--card-bg)] rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl">
                             <div className="flex justify-center mb-6">
                                 <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
                                     ✋
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-center text-white mb-2">Hold On!</h3>
-                            <p className="text-slate-400 text-center mb-8">{errorMessage}</p>
+                            <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Hold On!</h3>
+                            <p className="text-[var(--text-muted)] text-center mb-8">{errorMessage}</p>
                             <button onClick={() => setShowErrorModal(false)} className="w-full px-4 py-3 bg-red-500/80 text-white rounded-xl font-medium hover:bg-red-500 transition-colors">
                                 Got it
                             </button>
@@ -923,14 +923,14 @@ function ProjectContent() {
                 {showSuccessModal && (
                     <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSuccessModal(false)}></div>
-                        <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                        <div className="relative glass-card bg-[var(--card-bg)] rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl animate-in zoom-in duration-200">
                             <div className="flex justify-center mb-6">
                                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 text-3xl">
                                     💾
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-center text-white mb-2">{successModalConfig.title}</h3>
-                            <p className="text-slate-400 text-center mb-8">{successModalConfig.message}</p>
+                            <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">{successModalConfig.title}</h3>
+                            <p className="text-[var(--text-muted)] text-center mb-8">{successModalConfig.message}</p>
                             <button onClick={() => setShowSuccessModal(false)} className="w-full px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-500 transition-colors shadow-lg shadow-green-500/20">
                                 Awesome
                             </button>
@@ -940,23 +940,23 @@ function ProjectContent() {
             </div>
 
             {/* Header */}
-            <header className="glass-panel border-b border-white/5 z-20 shrink-0 relative">
+            <header className="glass-panel border-b border-[var(--glass-border)] z-20 shrink-0 relative bg-[var(--card-bg)] backdrop-blur-md">
                 <div className="w-full px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => router.push('/project-management')}>
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all text-xl">
                                 {projectEmoji}
                             </div>
-                            <span className="font-bold text-lg text-white tracking-tight">DesignBot</span>
+                            <span className="font-bold text-lg text-[var(--foreground)] tracking-tight">DesignBot</span>
                         </div>
                         <nav className="hidden md:flex items-center gap-2">
                             <button
                                 onClick={() => router.push('/project-management')}
-                                className="px-3 py-1 rounded-full bg-white/5 text-sm text-slate-400 border border-white/5 hover:text-white hover:bg-white/10 hover:border-white/10 transition-all font-medium"
+                                className="px-3 py-1 rounded-full bg-[var(--input-bg)] text-sm text-[var(--text-muted)] border border-[var(--glass-border)] hover:text-[var(--foreground)] hover:bg-[var(--card-border)] hover:border-[var(--glass-border)] transition-all font-medium"
                             >
                                 Workspace
                             </button>
-                            <span className="text-slate-600">/</span>
+                            <span className="text-[var(--text-muted)]">/</span>
                             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-sm text-blue-200 border border-blue-500/20">
                                 {initialName}
                             </span>
@@ -966,13 +966,13 @@ function ProjectContent() {
                         <button
                             onClick={handleLogout}
                             title="Logout"
-                            className="p-2 text-slate-300 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors"
+                            className="p-2 text-[var(--text-muted)] hover:text-red-400 hover:bg-[var(--card-bg)] rounded-lg transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                         </button>
 
                         {/* Mobile Chat Toggle */}
-                        <button onClick={() => setShowMobileChat(!showMobileChat)} className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                        <button onClick={() => setShowMobileChat(!showMobileChat)} className="lg:hidden p-2 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-bg)] rounded-lg transition-colors">
                             {showMobileChat ? (
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             ) : (
@@ -989,9 +989,9 @@ function ProjectContent() {
                     <div className="max-w-5xl mx-auto">
 
                         {/* Phase Progress Bar - Strict Linear Flow */}
-                        <div className="relative flex items-center justify-between bg-white/5 p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-white/5 no-scrollbar">
+                        <div className="relative flex items-center justify-between bg-[var(--input-bg)] p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-[var(--glass-border)] no-scrollbar">
                             {/* Continuous Line Background */}
-                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-white/10 -z-10"></div>
+                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-[var(--glass-border)] -z-10"></div>
 
                             {/* Continuous Progress Line */}
                             <div
@@ -1020,8 +1020,8 @@ function ProjectContent() {
                                             ${isActive
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
                                                 : isPast
-                                                    ? 'bg-[#0f172a] text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-slate-800 opacity-100 shadow-sm' // Past (Done & Clickable)
-                                                    : 'bg-[#0f172a] text-slate-300 border border-white/5 cursor-pointer hover:bg-slate-800 hover:border-blue-500/30 shadow-sm' // Future (Clickable)
+                                                    ? 'bg-[var(--card-bg)] text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-[var(--card-border)] opacity-100 shadow-sm' // Past (Done & Clickable)
+                                                    : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--glass-border)] cursor-pointer hover:bg-[var(--card-border)] hover:border-blue-500/30 shadow-sm' // Future (Clickable)
                                             }
                                         `}
                                     >
@@ -1039,10 +1039,10 @@ function ProjectContent() {
                         {/* Stage Content Card */}
                         <div className={`glass-card rounded-2xl p-0 mb-8 transition-all duration-500`}>
                             {/* Card Header */}
-                            <div className={`p-6 border-b border-white/5 bg-white/5`}>
+                            <div className={`p-6 border-b border-[var(--glass-border)] bg-[var(--card-bg)]`}>
                                 <div className="flex flex-wrap justify-between items-center gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-2xl shadow-inner">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-[var(--glass-border)] flex items-center justify-center text-2xl shadow-inner">
                                             {currentPhase === 'Empathize' && '💜'}
                                             {currentPhase === 'Define' && '🎯'}
                                             {currentPhase === 'Ideate' && '💡'}
@@ -1050,8 +1050,8 @@ function ProjectContent() {
                                             {currentPhase === 'Test' && '🧪'}
                                         </div>
                                         <div>
-                                            <h2 className="text-2xl font-bold text-white tracking-tight">Phase: {currentPhase}</h2>
-                                            <p className="text-slate-400 text-sm">
+                                            <h2 className="text-2xl font-bold text-[var(--foreground)] tracking-tight">Phase: {currentPhase}</h2>
+                                            <p className="text-[var(--text-muted)] text-sm">
                                                 {currentPhase === 'Empathize' && 'Understand your users deeply'}
                                                 {currentPhase === 'Define' && 'Define the core problem'}
                                                 {currentPhase === 'Ideate' && 'Generate creative solutions'}
@@ -1061,7 +1061,7 @@ function ProjectContent() {
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
-                                        <button onClick={handlePrint} className="glass-button px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
+                                        <button onClick={handlePrint} className="glass-button px-4 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] flex items-center gap-2">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                             Export PDF
                                         </button>
@@ -1070,7 +1070,7 @@ function ProjectContent() {
                                             Delete
                                         </button>
                                         <SharePopover projectId={projectId} triggerButton={
-                                            <button className="glass-button px-4 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
+                                            <button className="glass-button px-4 py-2 rounded-lg text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] flex items-center gap-2">
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
                                                 Share
                                             </button>
@@ -1080,7 +1080,7 @@ function ProjectContent() {
                             </div>
 
                             {/* Card Content Body */}
-                            <div className="p-6 md:p-8 bg-[#0f172a]/50">
+                            <div className="p-6 md:p-8 bg-[var(--background)]/50">
                                 {/* Empathize Stage - Show Empathy Map */}
                                 {currentPhase === 'Empathize' && projectId && (
                                     <div className="mb-8">
@@ -1139,8 +1139,8 @@ function ProjectContent() {
                                 {/* Prototype Sketch Pad */}
                                 {currentPhase === 'Prototype' && (
                                     <div className="mb-8">
-                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Prototype Sketch Pad</h4>
-                                        <div className="h-[600px] rounded-xl overflow-hidden border border-white/20 shadow-lg">
+                                        <h4 className="text-sm font-bold text-[var(--foreground)] mb-4 uppercase tracking-wider">Prototype Sketch Pad</h4>
+                                        <div className="h-[600px] rounded-xl overflow-hidden border border-[var(--glass-border)] shadow-lg">
                                             <SketchPad onSave={handleSketchSave} />
                                         </div>
                                     </div>
@@ -1149,7 +1149,7 @@ function ProjectContent() {
                                 {/* Test Feedback Matrix */}
                                 {currentPhase === 'Test' && (
                                     <div className="mb-8">
-                                        <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">User Feedback Matrix</h4>
+                                        <h4 className="text-sm font-bold text-[var(--foreground)] mb-4 uppercase tracking-wider">User Feedback Matrix</h4>
                                         <FeedbackMatrix
                                             projectId={projectId}
                                             data={stageData?.test?.feedbackMatrix || []}
@@ -1181,9 +1181,9 @@ function ProjectContent() {
                                                     <div>
                                                         <h2 className="text-sm font-bold text-purple-300 uppercase tracking-wide">Step 1: Brainstorming</h2>
                                                         {defineData?.selectedHmw ? (
-                                                            <p className="text-xl font-bold text-white mt-1">{defineData.selectedHmw}</p>
+                                                            <p className="text-xl font-bold text-[var(--foreground)] mt-1">{defineData.selectedHmw}</p>
                                                         ) : (
-                                                            <p className="text-slate-400 italic mt-1">No HMW question selected.</p>
+                                                            <p className="text-[var(--text-muted)] italic mt-1">No HMW question selected.</p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -1229,7 +1229,7 @@ function ProjectContent() {
                                                     <div className="bg-blue-100 p-3 rounded-full shadow-lg">
                                                         <span className="text-2xl">📊</span>
                                                     </div>
-                                                    <h2 className="text-3xl font-bold text-white">Step 2: Prioritize Your Ideas</h2>
+                                                    <h2 className="text-3xl font-bold text-[var(--foreground)]">Step 2: Prioritize Your Ideas</h2>
                                                 </div>
 
                                                 <PrioritizationMatrix
@@ -1255,7 +1255,7 @@ function ProjectContent() {
                                                     <div className="bg-indigo-100 p-3 rounded-full shadow-lg">
                                                         <span className="text-2xl">🏗️</span>
                                                     </div>
-                                                    <h2 className="text-3xl font-bold text-white">Step 3: Define & Architect</h2>
+                                                    <h2 className="text-3xl font-bold text-[var(--foreground)]">Step 3: Define & Architect</h2>
                                                 </div>
 
                                                 <TechSpecGenerator
@@ -1281,16 +1281,16 @@ function ProjectContent() {
 
 
                                         {/* FIXED ACTION BAR (Sticky Store) */}
-                                        <div className="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 bg-[#0f172a]/90 backdrop-blur-md p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-50 flex justify-between items-center px-8">
-                                            <div className="text-sm text-slate-300 font-medium flex items-center gap-2">
+                                        <div className="fixed bottom-0 left-0 right-0 glass-panel border-t border-[var(--glass-border)] bg-[var(--background)]/90 backdrop-blur-md p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] z-50 flex justify-between items-center px-8">
+                                            <div className="text-sm text-[var(--text-muted)] font-medium flex items-center gap-2">
                                                 <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${winningConcept ? 'bg-green-500 text-green-500' : 'bg-yellow-500 text-yellow-500'}`}></span>
-                                                Status: <span className="text-white">{winningConcept ? 'Architecture Phase' : showMatrix ? 'Prioritization Phase' : 'Brainstorming'}</span>
+                                                Status: <span className="text-[var(--foreground)]">{winningConcept ? 'Architecture Phase' : showMatrix ? 'Prioritization Phase' : 'Brainstorming'}</span>
                                             </div>
 
                                             <div className="flex gap-4">
                                                 <button
                                                     onClick={() => saveIdeationState()}
-                                                    className="px-6 py-2 rounded-lg font-semibold transition-colors bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5"
+                                                    className="px-6 py-2 rounded-lg font-semibold transition-colors bg-[var(--input-bg)] text-[var(--text-muted)] hover:bg-[var(--card-bg)] hover:text-[var(--foreground)] border border-[var(--glass-border)]"
                                                 >
                                                     Save Draft
                                                 </button>
@@ -1342,17 +1342,17 @@ function ProjectContent() {
                 {
 
                     isChatMinimized ? (
-                        <div className="hidden lg:flex flex-col w-12 bg-[#1e293b] border-l border-white/5 items-center py-6 z-20">
+                        <div className="hidden lg:flex flex-col w-12 bg-[var(--card-bg)] border-l border-[var(--glass-border)] items-center py-6 z-20">
                             <button onClick={() => setIsChatMinimized(false)} className="p-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-colors" title="Expand Chat">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
                             </button>
-                            <div className="mt-8 text-slate-400 text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
+                            <div className="mt-8 text-[var(--text-muted)] text-xs font-bold transform -rotate-90 whitespace-nowrap tracking-widest origin-center">CHAT</div>
                         </div>
                     ) : (
                         <aside
                             ref={sidebarRef}
                             style={{ width: showMobileChat ? '100%' : `${sidebarWidth}px` }}
-                            className={`fixed lg:relative inset-y-0 right-0 bg-[#1e293b]/95 backdrop-blur-xl border-l border-white/5 flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0 w-full' : 'translate-x-full lg:translate-x-0'}`}
+                            className={`fixed lg:relative inset-y-0 right-0 bg-[var(--card-bg)]/95 backdrop-blur-xl border-l border-[var(--glass-border)] flex flex-col shadow-2xl z-30 transform transition-transform duration-300 ease-in-out ${showMobileChat ? 'translate-x-0 w-full' : 'translate-x-full lg:translate-x-0'}`}
                         >
                             {/* Resize Handle */}
                             <div
@@ -1361,24 +1361,24 @@ function ProjectContent() {
                             ></div>
 
                             {/* Chat Header */}
-                            <div className="p-4 border-b border-white/5 bg-white/5 flex justify-between items-center shrink-0">
+                            <div className="p-4 border-b border-[var(--glass-border)] bg-[var(--card-bg)] flex justify-between items-center shrink-0">
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
                                         <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
                                         </div>
-                                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1e293b] rounded-full"></span>
+                                        <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[var(--card-bg)] rounded-full"></span>
                                     </div>
                                     <div>
-                                        <h2 className="font-bold text-white text-sm">Socratic Bot</h2>
+                                        <h2 className="font-bold text-[var(--foreground)] text-sm">Socratic Bot</h2>
                                         <p className="text-xs text-blue-400">Design Mentor</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <button onClick={() => setIsChatMinimized(true)} className="hidden lg:block p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                    <button onClick={() => setIsChatMinimized(true)} className="hidden lg:block p-2 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-[var(--glass-border)] rounded-lg transition-colors">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                                     </button>
-                                    <button onClick={() => setShowMobileChat(false)} className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                                    <button onClick={() => setShowMobileChat(false)} className="lg:hidden p-2 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-[var(--glass-border)] rounded-lg transition-colors">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
@@ -1414,7 +1414,7 @@ function ProjectContent() {
                                             </div>
                                             <div
                                                 className={`p-3.5 rounded-2xl text-sm shadow-md max-w-[85%] leading-relaxed ${msg.sender === 'Bot'
-                                                    ? 'bg-white/10 text-slate-200 border border-white/5 rounded-tl-none'
+                                                    ? 'bg-[var(--input-bg)] text-[var(--foreground)] border border-[var(--glass-border)] rounded-tl-none'
                                                     : 'bg-blue-600 text-white rounded-tr-none shadow-blue-500/10'
                                                     }`}
                                                 dangerouslySetInnerHTML={{
@@ -1430,7 +1430,7 @@ function ProjectContent() {
                                 {isTyping && (
                                     <div className="flex items-start gap-3">
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">AI</div>
-                                        <div className="bg-white/10 p-3 rounded-2xl rounded-tl-none border border-white/5 flex gap-1.5 items-center">
+                                        <div className="bg-[var(--input-bg)] p-3 rounded-2xl rounded-tl-none border border-[var(--glass-border)] flex gap-1.5 items-center">
                                             <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
                                             <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
                                             <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
@@ -1441,18 +1441,18 @@ function ProjectContent() {
                             </div>
 
                             {/* Chat Input */}
-                            <div className="p-4 bg-white/5 border-t border-white/5 shrink-0">
+                            <div className="p-4 bg-[var(--card-bg)] border-t border-[var(--glass-border)] shrink-0">
                                 <form onSubmit={sendMessage} className="relative">
                                     <input
                                         type="text"
                                         value={chatInput}
                                         onChange={(e) => setChatInput(e.target.value)}
                                         placeholder="Type your answer..."
-                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                        className="w-full bg-[var(--input-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3.5 pr-12 text-sm text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
                                     />
                                     <button
                                         type="submit"
-                                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white/5 text-slate-500 cursor-not-allowed'}`}
+                                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed'}`}
                                         disabled={!chatInput.trim()}
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
@@ -1489,7 +1489,7 @@ function ProjectContent() {
 
 export default function ProjectPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[var(--background)] flex items-center justify-center text-[var(--foreground)]">Loading...</div>}>
             <ProjectContent />
         </Suspense>
     );

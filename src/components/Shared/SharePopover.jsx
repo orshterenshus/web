@@ -95,7 +95,7 @@ export default function SharePopover({ projectId, triggerButton, onShareSuccess 
 
             {isOpen && (
                 <div
-                    className="absolute right-0 top-full mt-2 w-64 bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-50 p-2"
+                    className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-lg shadow-xl z-50 p-2"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <input
@@ -103,15 +103,15 @@ export default function SharePopover({ projectId, triggerButton, onShareSuccess 
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search user..."
-                        className="w-full p-2 text-sm bg-slate-800 border border-white/10 rounded text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
+                        className="w-full p-2 text-sm bg-[var(--input-bg)] border border-[var(--glass-border)] rounded text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
                         autoFocus
                     />
 
                     <div className="max-h-48 overflow-y-auto">
-                        {loading && <p className="text-xs text-slate-400 p-2">Loading...</p>}
+                        {loading && <p className="text-xs text-[var(--text-muted)] p-2">Loading...</p>}
 
                         {!loading && query.length >= 2 && results.length === 0 && (
-                            <p className="text-xs text-slate-400 p-2">No users found.</p>
+                            <p className="text-xs text-[var(--text-muted)] p-2">No users found.</p>
                         )}
 
                         {results.map(user => {
@@ -119,12 +119,12 @@ export default function SharePopover({ projectId, triggerButton, onShareSuccess 
                             return (
                                 <div
                                     key={user._id}
-                                    className={`p-2 cursor-pointer rounded flex justify-between items-center group ${isShared ? 'bg-green-500/20' : 'hover:bg-white/5'}`}
+                                    className={`p-2 cursor-pointer rounded flex justify-between items-center group ${isShared ? 'bg-green-500/20' : 'hover:bg-[var(--input-bg)]'}`}
                                     onClick={() => handleShare(user.username)}
                                 >
                                     <div>
-                                        <p className="text-sm font-medium text-white">{user.username}</p>
-                                        <p className="text-xs text-slate-400">{user.email}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{user.username}</p>
+                                        <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
                                     </div>
                                     {isShared ? (
                                         <span className="text-green-400 text-xs font-bold">Added</span>

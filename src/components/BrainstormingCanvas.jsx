@@ -18,12 +18,12 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
     }, [initialIdeas]);
 
     const colors = [
-        { bg: 'bg-yellow-500/20', border: 'border-yellow-500/50', text: 'text-yellow-100' },
-        { bg: 'bg-pink-500/20', border: 'border-pink-500/50', text: 'text-pink-100' },
-        { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-100' },
-        { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-green-100' },
-        { bg: 'bg-purple-500/20', border: 'border-purple-500/50', text: 'text-purple-100' },
-        { bg: 'bg-orange-500/20', border: 'border-orange-500/50', text: 'text-orange-100' }
+        { bg: 'bg-yellow-500/20', border: 'border-yellow-500/50', text: 'text-[var(--foreground)]' },
+        { bg: 'bg-pink-500/20', border: 'border-pink-500/50', text: 'text-[var(--foreground)]' },
+        { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-[var(--foreground)]' },
+        { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-[var(--foreground)]' },
+        { bg: 'bg-purple-500/20', border: 'border-purple-500/50', text: 'text-[var(--foreground)]' },
+        { bg: 'bg-orange-500/20', border: 'border-orange-500/50', text: 'text-[var(--foreground)]' }
     ];
 
     const addIdea = () => {
@@ -79,6 +79,8 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
             setDraggedIdea(null);
             return;
         }
+
+        const combinedText = `${draggedIdea.text} + ${targetIdea.text}`;
 
         const combinedIdea = {
             id: Date.now().toString(),
@@ -146,9 +148,9 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
     };
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden flex flex-col h-[800px]">
+        <div className="glass-panel rounded-xl shadow-lg border border-[var(--glass-border)] overflow-hidden flex flex-col h-[800px]">
             {/* Header */}
-            <div className="bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-indigo-600/50 px-6 py-4 flex items-center justify-between text-white border-b border-white/10 backdrop-blur-md">
+            <div className="bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-indigo-600/50 px-6 py-4 flex items-center justify-between text-white border-b border-[var(--glass-border)] backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <div className="bg-white/10 p-2 rounded-lg border border-white/10">
                         <svg className="w-6 h-6 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,10 +184,11 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
             {/* Canvas Area (Infinite/Scrollable) */}
             <div
                 ref={canvasRef}
-                className="flex-1 bg-[#0f172a] relative overflow-hidden cursor-crosshair"
+                className="flex-1 bg-[var(--background)] relative overflow-hidden cursor-crosshair"
                 style={{
-                    backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)',
-                    backgroundSize: '24px 24px'
+                    backgroundImage: 'radial-gradient(var(--text-muted) 1px, transparent 1px)',
+                    backgroundSize: '24px 24px',
+                    opacity: 0.8
                 }}
                 onDragOver={handleDragOver}
                 onDrop={handleCanvasDrop}
@@ -202,7 +205,7 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
                             onDragStart={(e) => handleDragStart(e, idea)}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, idea)}
-                            className={`absolute p-4 rounded-lg shadow-lg w-48 transition-transform hover:scale-105 cursor-move ${idea.color?.bg || 'bg-yellow-500/20'} ${idea.color?.border || 'border-yellow-500/50'} border-l-4 backdrop-blur-md border border-white/5`}
+                            className={`absolute p-4 rounded-lg shadow-lg w-48 transition-transform hover:scale-105 cursor-move ${idea.color?.bg || 'bg-yellow-500/20'} ${idea.color?.border || 'border-yellow-500/50'} border-l-4 backdrop-blur-md border border-[var(--glass-border)]`}
                             style={{
                                 left: `${idea.position.x}%`,
                                 top: `${idea.position.y}%`,
@@ -211,22 +214,22 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
                             onMouseDown={() => setSelectedIdea(idea)}
                         >
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-xs font-bold opacity-50">IDEA</span>
+                                <span className="text-xs font-bold opacity-50 text-[var(--foreground)]">IDEA</span>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); deleteIdea(idea.id); }}
-                                    className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50"
+                                    className="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-500/10"
                                 >
                                     ×
                                 </button>
                             </div>
-                            <p className={`font-medium text-sm leading-relaxed ${idea.color?.text || 'text-yellow-100'}`}>{idea.text}</p>
+                            <p className={`font-medium text-sm leading-relaxed ${idea.color?.text || 'text-[var(--foreground)]'}`}>{idea.text}</p>
                         </div>
                     );
                 })}
             </div>
 
             {/* Input Area */}
-            <div className="bg-slate-900/80 border-t border-white/10 p-4 backdrop-blur-lg">
+            <div className="bg-[var(--card-bg)] border-t border-[var(--glass-border)] p-4 backdrop-blur-lg">
                 <div className="max-w-3xl mx-auto flex gap-3">
                     <input
                         type="text"
@@ -234,7 +237,7 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && addIdea()}
                         placeholder="Type your idea and press Enter..."
-                        className="flex-1 px-4 py-3 bg-black/40 border border-white/10 rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 outline-none transition-all text-white placeholder-slate-500"
+                        className="flex-1 px-4 py-3 bg-[var(--input-bg)] border border-[var(--glass-border)] rounded-xl focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 outline-none transition-all text-[var(--foreground)] placeholder-[var(--text-muted)]"
                     />
                     <button
                         onClick={addIdea}
@@ -245,7 +248,7 @@ export default function BrainstormingCanvas({ projectId, currentUser, onIdeasUpd
                 </div>
 
                 {/* Helper Text */}
-                <div className="max-w-3xl mx-auto mt-3 flex items-center gap-6 text-xs text-slate-400">
+                <div className="max-w-3xl mx-auto mt-3 flex items-center gap-6 text-xs text-[var(--text-muted)]">
                     <span className="flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-pink-500"></span>
                         Type & Enter to add

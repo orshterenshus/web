@@ -187,8 +187,8 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                         <span className="text-xl">{checklistConfig.icon}</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-slate-200">{checklistConfig.title}</h3>
-                        <p className="text-sm text-slate-400">{completedCount} of {totalCount} completed</p>
+                        <h3 className="text-lg font-bold text-[var(--foreground)]">{checklistConfig.title}</h3>
+                        <p className="text-sm text-[var(--text-muted)]">{completedCount} of {totalCount} completed</p>
                     </div>
                 </div>
 
@@ -229,7 +229,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                                 disabled={isLoading || isSystemVerified(item.key)}
                                 className="w-5 h-5 rounded border-slate-500 bg-white/5 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
                             />
-                            <span className={`flex-1 ${isChecked ? 'text-purple-300 line-through decoration-purple-500/50' : 'text-slate-300'}`}>
+                            <span className={`flex-1 ${isChecked ? 'text-purple-600 dark:text-purple-300 line-through decoration-purple-500/50' : 'text-[var(--foreground)]'}`}>
                                 {item.label}
                             </span>
                             {isSystemVerified(item.key) && (

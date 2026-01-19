@@ -210,16 +210,16 @@ export default function ProjectManagementPage() {
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
+        <div className="min-h-screen flex items-center justify-center bg-[var(--background)] text-[var(--foreground)]">
             <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500"></div>
-                <p className="text-slate-400">Loading your workspace...</p>
+                <p className="text-[var(--text-muted)]">Loading your workspace...</p>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen p-8 relative overflow-x-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
+        <div className="min-h-screen p-8 relative overflow-x-hidden bg-[var(--background)] text-[var(--foreground)] font-sans selection:bg-purple-500/30 transition-colors duration-300">
             {/* Background Decorative Elements */}
             <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
@@ -233,26 +233,26 @@ export default function ProjectManagementPage() {
                         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400">
                             Project Dashboard
                         </h1>
-                        <p className="text-slate-400 text-sm mt-1">Welcome back, <span className="text-white font-medium">{currentUser?.username}</span></p>
+                        <p className="text-[var(--text-muted)] text-sm mt-1">Welcome back, <span className="text-[var(--foreground)] font-medium">{currentUser?.username}</span></p>
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-3">
                         {currentUser?.role === 'teacher' && (
                             <button
                                 onClick={() => router.push('/teacher-dashboard')}
-                                className="px-5 py-2.5 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition-all text-sm font-semibold flex items-center gap-2"
+                                className="px-5 py-2.5 rounded-xl bg-indigo-200 dark:bg-indigo-500/40 text-white dark:text-indigo-300 border border-indigo-400 dark:border-indigo-500/50 hover:bg-indigo-300 dark:hover:bg-indigo-500/50 transition-all text-sm font-bold flex items-center gap-2"
                             >
                                 <span>🍎</span> Teacher Dashboard
                             </button>
                         )}
                         {currentUser?.isAdmin && (
-                            <button className="px-5 py-2.5 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-all text-sm font-semibold">
+                            <button className="px-5 py-2.5 rounded-xl bg-blue-200 dark:bg-blue-500/40 text-white dark:text-blue-300 border border-blue-400 dark:border-blue-500/50 hover:bg-blue-300 dark:hover:bg-blue-500/50 transition-all text-sm font-semibold">
                                 Manage Users
                             </button>
                         )}
                         <button
                             onClick={handleLogout}
-                            className="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-300 border border-red-500/20 hover:bg-red-500/20 transition-all text-sm font-semibold"
+                            className="px-5 py-2.5 rounded-xl bg-red-200 dark:bg-red-500/40 text-white dark:text-red-300 border border-red-400 dark:border-red-500/40 hover:bg-red-300 dark:hover:bg-red-500/50 transition-all text-sm font-bold"
                         >
                             Logout
                         </button>
@@ -262,7 +262,7 @@ export default function ProjectManagementPage() {
                 {/* Projects Grid */}
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                        <h2 className="text-xl font-semibold text-[var(--foreground)] flex items-center gap-2">
                             <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
                             Your Projects
                         </h2>
@@ -273,7 +273,7 @@ export default function ProjectManagementPage() {
                             <div className="relative min-w-[180px]" ref={filterRef}>
                                 <button
                                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                                    className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
+                                    className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm hover:bg-[var(--input-bg)] transition-colors"
                                 >
                                     <span className="truncate">
                                         {filterPhases.length === ALL_PHASES.length
@@ -287,10 +287,10 @@ export default function ProjectManagementPage() {
 
                                 {/* Dropdown Menu */}
                                 {isFilterOpen && (
-                                    <div className="absolute top-full left-0 mt-2 w-64 glass-card bg-[#0f172a] border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                    <div className="absolute top-full left-0 mt-2 w-64 glass-card bg-[var(--card-bg)] border border-[var(--glass-border)] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                                         {/* Select All Control */}
-                                        <div className="p-3 border-b border-slate-700/50 flex items-center justify-between bg-black/20">
-                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filter Phases</span>
+                                        <div className="p-3 border-b border-[var(--glass-border)] flex items-center justify-between bg-[var(--input-bg)]">
+                                            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Filter Phases</span>
                                             <button
                                                 onClick={toggleAllPhases}
                                                 className="text-xs text-blue-400 hover:text-blue-300 font-medium"
@@ -306,7 +306,7 @@ export default function ProjectManagementPage() {
                                                 return (
                                                     <label
                                                         key={phase}
-                                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-blue-500/10' : 'hover:bg-white/5'}`}
+                                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-blue-500/10' : 'hover:bg-[var(--input-bg)]'}`}
                                                     >
                                                         <input
                                                             type="checkbox"
@@ -314,7 +314,7 @@ export default function ProjectManagementPage() {
                                                             onChange={() => togglePhase(phase)}
                                                             className="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/20"
                                                         />
-                                                        <span className={`text-sm ${isSelected ? 'text-white font-medium' : 'text-slate-400'}`}>
+                                                        <span className={`text-sm ${isSelected ? 'text-[var(--foreground)] font-medium' : 'text-[var(--text-muted)]'}`}>
                                                             {phase}
                                                         </span>
                                                     </label>
@@ -330,7 +330,7 @@ export default function ProjectManagementPage() {
                                 <div className="relative min-w-[180px]" ref={sortRef}>
                                     <button
                                         onClick={() => setIsSortOpen(!isSortOpen)}
-                                        className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm bg-slate-800/50 hover:bg-slate-700/50 transition-colors"
+                                        className="glass-input w-full px-4 py-2 rounded-lg flex items-center justify-between text-sm hover:bg-[var(--input-bg)] transition-colors"
                                     >
                                         <span className="truncate">
                                             {sortBy === 'updated' && '🕒 Last Updated'}
@@ -341,7 +341,7 @@ export default function ProjectManagementPage() {
                                     </button>
 
                                     {isSortOpen && (
-                                        <div className="absolute top-full right-0 mt-2 w-full glass-card bg-[#0f172a] border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                        <div className="absolute top-full right-0 mt-2 w-full glass-card bg-[var(--card-bg)] border border-[var(--glass-border)] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                                             <div className="p-1">
                                                 {[
                                                     { value: 'updated', label: '🕒 Last Updated' },
@@ -354,7 +354,7 @@ export default function ProjectManagementPage() {
                                                             setSortBy(option.value);
                                                             setIsSortOpen(false);
                                                         }}
-                                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${sortBy === option.value ? 'bg-blue-500/10 text-white font-medium' : 'text-slate-400 hover:bg-white/5'}`}
+                                                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${sortBy === option.value ? 'bg-blue-500/10 text-[var(--foreground)] font-medium' : 'text-[var(--text-muted)] hover:bg-[var(--input-bg)]'}`}
                                                     >
                                                         {option.label}
                                                     </button>
@@ -367,7 +367,7 @@ export default function ProjectManagementPage() {
                                 {/* Sort Direction Toggle */}
                                 <button
                                     onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                                    className="p-2.5 rounded-lg glass-input bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+                                    className="p-2.5 rounded-lg glass-input hover:bg-[var(--input-bg)] text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
                                     title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
                                 >
                                     {sortDirection === 'asc' ? (
@@ -410,16 +410,16 @@ export default function ProjectManagementPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {processedProjects.length === 0 ? (
-                            <div className="col-span-full glass-panel p-12 rounded-2xl text-center border-dashed border-2 border-slate-700">
+                            <div className="col-span-full glass-panel p-12 rounded-2xl text-center border-dashed border-2 border-[var(--glass-border)]">
                                 <span className="text-4xl block mb-4">✨</span>
-                                <p className="text-slate-400 mb-2">No projects found.</p>
-                                <p className="text-slate-500 text-sm">{projects.length === 0 ? "Create your first innovation journey below!" : "Try adjusting your filters."}</p>
+                                <p className="text-[var(--text-muted)] mb-2">No projects found.</p>
+                                <p className="text-[var(--text-muted)] text-sm opacity-70">{projects.length === 0 ? "Create your first innovation journey below!" : "Try adjusting your filters."}</p>
                             </div>
                         ) : (
                             processedProjects.map((project) => (
                                 <div
                                     key={project._id}
-                                    className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-white/5 hover:z-50 transition-all duration-300"
+                                    className="group glass-panel p-6 rounded-2xl relative cursor-pointer hover:border-blue-500/30 hover:bg-[var(--input-bg)] hover:z-50 transition-all duration-300"
                                     onClick={() => navigateToProject(project)}
                                 >
                                     <div className="flex justify-between items-start mb-4">
@@ -427,22 +427,22 @@ export default function ProjectManagementPage() {
                                             {project.emoji || '🚀'}
                                         </div>
                                         {/* Phase Badge */}
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${{
-                                            'Empathize': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                                            'Define': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-                                            'Ideate': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-                                            'Prototype': 'bg-green-500/20 text-green-300 border-green-500/30',
-                                            'Test': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                                        }[project.phase] || 'bg-white/5 border-white/10 text-slate-300'
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${{
+                                            'Empathize': 'bg-purple-600 dark:bg-purple-500/40 text-white dark:text-purple-300 border-purple-700 dark:border-purple-500/50',
+                                            'Define': 'bg-blue-600 dark:bg-blue-500/40 text-white dark:text-blue-300 border-blue-700 dark:border-blue-500/50',
+                                            'Ideate': 'bg-yellow-600 dark:bg-yellow-500/40 text-white dark:text-yellow-300 border-yellow-700 dark:border-yellow-500/50',
+                                            'Prototype': 'bg-green-600 dark:bg-green-500/40 text-white dark:text-green-300 border-green-700 dark:border-green-500/50',
+                                            'Test': 'bg-indigo-600 dark:bg-indigo-500/40 text-white dark:text-indigo-300 border-indigo-700 dark:border-indigo-500/50'
+                                        }[project.phase] || 'bg-white/5 border-white/10 text-slate-900 dark:text-slate-300'
                                             }`}>
                                             {project.phase}
                                         </span>
                                     </div>
 
-                                    <h3 className="font-bold text-lg text-white mb-2 group-hover:text-blue-400 transition-colors">{project.name}</h3>
-                                    <p className="text-xs text-slate-500 mb-6">Last updated: {new Date(project.updatedAt || Date.now()).toLocaleDateString()}</p>
+                                    <h3 className="font-bold text-lg text-[var(--foreground)] mb-2 group-hover:text-blue-400 transition-colors">{project.name}</h3>
+                                    <p className="text-xs text-[var(--text-muted)] mb-6 opacity-60">Last updated: {new Date(project.updatedAt || Date.now()).toLocaleDateString()}</p>
 
-                                    <div className="flex items-center justify-between text-sm mt-auto border-t border-white/5 pt-4">
+                                    <div className="flex items-center justify-between text-sm mt-auto border-t border-[var(--glass-border)] pt-4">
                                         <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
                                             Open Workspace →
                                         </button>
@@ -450,7 +450,7 @@ export default function ProjectManagementPage() {
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={(e) => handleDeleteProject(e, project)}
-                                                className="text-slate-400 hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded-lg"
+                                                className="text-[var(--text-muted)] hover:text-red-400 transition-colors p-1.5 hover:bg-red-500/10 rounded-lg"
                                                 title="Delete Project"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -460,7 +460,7 @@ export default function ProjectManagementPage() {
                                                     projectId={project._id}
                                                     onShareSuccess={fetchProjects}
                                                     triggerButton={
-                                                        <button className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-white/10 rounded-lg">
+                                                        <button className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors p-1.5 hover:bg-[var(--input-bg)] rounded-lg">
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
                                                         </button>
                                                     }
@@ -486,12 +486,12 @@ export default function ProjectManagementPage() {
 
                 {/* Create Project Section */}
                 <div className="glass-card p-8 rounded-2xl border-t-0 border-l-0 border-r-0 border-b-2 border-indigo-500/50">
-                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <h2 className="text-xl font-semibold text-[var(--foreground)] mb-6 flex items-center gap-2">
                         <span className="text-2xl">✨</span> Start New Journey
                     </h2>
                     <form onSubmit={handleCreateProject} className="flex flex-col md:flex-row gap-6 items-end">
                         <div className="flex-1 w-full space-y-2">
-                            <label htmlFor="projectName" className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Project Name</label>
+                            <label htmlFor="projectName" className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Project Name</label>
                             <input
                                 type="text"
                                 id="projectName"
@@ -503,7 +503,7 @@ export default function ProjectManagementPage() {
                             />
                         </div>
                         <div className="flex-1 w-full space-y-2">
-                            <label htmlFor="projectPhase" className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Starting Phase</label>
+                            <label htmlFor="projectPhase" className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Starting Phase</label>
                             <div className="relative">
                                 <select
                                     id="projectPhase"
@@ -512,30 +512,30 @@ export default function ProjectManagementPage() {
                                     onChange={(e) => setProjectPhase(e.target.value)}
                                     className="glass-input w-full px-4 py-3 rounded-xl appearance-none cursor-pointer"
                                 >
-                                    <option value="Empathize" className="bg-slate-800 text-purple-300">💜 Empathize</option>
-                                    <option value="Define" className="bg-slate-800 text-blue-300">🎯 Define</option>
-                                    <option value="Ideate" className="bg-slate-800 text-yellow-300">💡 Ideate</option>
-                                    <option value="Prototype" className="bg-slate-800 text-green-300">🛠️ Prototype</option>
-                                    <option value="Test" className="bg-slate-800 text-indigo-300">🧪 Test</option>
+                                    <option value="Empathize" className="bg-slate-800 text-purple-900 dark:text-purple-300">💜 Empathize</option>
+                                    <option value="Define" className="bg-slate-800 text-blue-900 dark:text-blue-300">🎯 Define</option>
+                                    <option value="Ideate" className="bg-slate-800 text-yellow-900 dark:text-yellow-300">💡 Ideate</option>
+                                    <option value="Prototype" className="bg-slate-800 text-green-900 dark:text-green-300">🛠️ Prototype</option>
+                                    <option value="Test" className="bg-slate-800 text-indigo-900 dark:text-indigo-300">🧪 Test</option>
                                 </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                         </div>
 
                         <div className="w-full md:w-auto relative">
-                            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Icon</label>
+                            <label className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">Icon</label>
                             <button
                                 type="button"
                                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                className="glass-input w-full md:w-16 h-[50px] rounded-xl flex items-center justify-center text-2xl hover:bg-white/5 transition-colors"
+                                className="glass-input w-full md:w-16 h-[50px] rounded-xl flex items-center justify-center text-2xl hover:bg-[var(--input-bg)] transition-colors"
                             >
                                 {projectEmoji}
                             </button>
 
                             {showEmojiPicker && (
-                                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 bg-[#1e293b] rounded-xl border border-slate-600 shadow-2xl grid grid-cols-5 gap-2 z-50">
+                                <div className="absolute bottom-full left-0 mb-2 w-64 p-4 bg-[var(--card-bg)] backdrop-blur-xl rounded-xl border border-[var(--glass-border)] shadow-2xl grid grid-cols-5 gap-2 z-50">
                                     <div className="absolute inset-0 z-[-1]" onClick={() => setShowEmojiPicker(false)}></div>
                                     {EMOJI_LIST.map(emoji => (
                                         <button
@@ -545,7 +545,7 @@ export default function ProjectManagementPage() {
                                                 setProjectEmoji(emoji);
                                                 setShowEmojiPicker(false);
                                             }}
-                                            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10 text-xl transition-colors"
+                                            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[var(--input-bg)] text-xl transition-colors"
                                         >
                                             {emoji}
                                         </button>
@@ -553,7 +553,7 @@ export default function ProjectManagementPage() {
                                 </div>
                             )}
                         </div>
-                        <button type="submit" className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-0.5 custom-gradient-bg bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-green-500/40">
+                        <button type="submit" className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-white shadow-lg shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-0.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-green-500/40">
                             Create Project +
                         </button>
                     </form>
@@ -564,20 +564,20 @@ export default function ProjectManagementPage() {
                     showDeleteConfirmModal && (
                         <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDeleteConfirmModal(false)}></div>
-                            <div className="relative glass-card bg-[#1e293b] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl animate-in zoom-in duration-200">
+                            <div className="relative glass-card bg-[var(--card-bg)] backdrop-blur-xl rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl animate-in zoom-in duration-200">
                                 <div className="flex justify-center mb-6">
                                     <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-red-500 text-3xl">
                                         🗑️
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-center text-white mb-2">Delete Project?</h3>
-                                <p className="text-slate-400 text-center mb-8">
+                                <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Delete Project?</h3>
+                                <p className="text-[var(--text-muted)] text-center mb-8">
                                     Are you sure you want to delete <strong>{projectToDelete?.name}</strong>? This action <strong>cannot</strong> be undone.
                                 </p>
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setShowDeleteConfirmModal(false)}
-                                        className="flex-1 px-4 py-3 rounded-xl font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                                        className="flex-1 px-4 py-3 rounded-xl font-medium bg-[var(--input-bg)] hover:bg-[var(--card-border)] text-[var(--text-muted)] transition-colors"
                                     >
                                         Cancel
                                     </button>

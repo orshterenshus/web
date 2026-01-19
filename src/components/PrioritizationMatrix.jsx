@@ -154,9 +154,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     };
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden">
+        <div className="glass-panel rounded-xl shadow-lg border border-[var(--glass-border)] overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-pink-900/60 px-6 py-4 border-b border-white/10 backdrop-blur-md">
+            <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-pink-900/60 px-6 py-4 border-b border-[var(--glass-border)] backdrop-blur-md">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowVoting(!showVoting)}
-                            className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg font-medium hover:bg-white/20 transition-colors border border-white/10"
+                            className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg font-medium hover:bg-white/20 transition-colors border border-[var(--glass-border)]"
                         >
                             {showVoting ? '📊 Hide Voting' : '🗳️ Start Voting'}
                         </button>
@@ -190,13 +190,13 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
             <div className="p-6 space-y-6">
                 {/* Unplaced Ideas */}
                 {getUnplacedIdeas().length > 0 && (
-                    <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-lg p-4 backdrop-blur-sm">
-                        <h3 className="font-bold text-slate-300 mb-3 flex items-center gap-2">
+                    <div className="bg-[var(--card-bg)] border-2 border-dashed border-[var(--glass-border)] rounded-lg p-4 backdrop-blur-sm">
+                        <h3 className="font-bold text-[var(--text-muted)] mb-3 flex items-center gap-2">
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                             </svg>
                             Ideas to Prioritize ({getUnplacedIdeas().length})
-                            <span className="text-xs text-slate-500 font-normal ml-2">Drag to matrix below</span>
+                            <span className="text-xs text-[var(--text-muted)] font-normal ml-2">Drag to matrix below</span>
                         </h3>
                         <div className="flex flex-wrap gap-2">
                             {getUnplacedIdeas().map(idea => (
@@ -204,7 +204,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                     key={idea.id}
                                     draggable
                                     onDragStart={(e) => handleDragStart(e, idea)}
-                                    className="px-3 py-2 bg-slate-800 border border-white/10 rounded-lg cursor-move hover:shadow-lg transition-all text-sm font-medium text-slate-200 hover:border-indigo-400 hover:bg-slate-700"
+                                    className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--glass-border)] rounded-lg cursor-move hover:shadow-lg transition-all text-sm font-medium text-[var(--foreground)] hover:border-indigo-400 hover:bg-[var(--card-border)]"
                                 >
                                     {idea.text}
                                 </div>
@@ -216,7 +216,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                 {/* Matrix Grid */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <div className="text-sm font-bold text-slate-400 flex items-center gap-2">
+                        <div className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                             </svg>
@@ -234,7 +234,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[0].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[0].titleColor}`}>{quadrants[0].name}</h3>
-                                <span className="text-xs bg-white/10 text-white px-2 py-1 rounded-full border border-white/10">
+                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[0].id).length}
                                 </span>
                             </div>
@@ -244,9 +244,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         key={idea.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, idea)}
-                                        className="bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-green-500/30 group hover:shadow-green-500/20 hover:bg-white/15 transition-all relative cursor-move"
+                                        className="bg-[var(--card-bg)] backdrop-blur-sm p-3 rounded-lg shadow-lg border border-green-500/30 group hover:shadow-green-500/20 hover:bg-[var(--card-border)] transition-all relative cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-slate-200">{idea.text}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{idea.text}</p>
 
                                         <div className="flex items-center justify-between mt-2">
                                             {showVoting && (
@@ -257,7 +257,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                     >
                                                         👍 Vote
                                                     </button>
-                                                    <span className="text-xs text-slate-300">{votes[idea.id] || 0}</span>
+                                                    <span className="text-xs text-[var(--text-muted)]">{votes[idea.id] || 0}</span>
                                                 </div>
                                             )}
 
@@ -283,7 +283,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[1].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[1].titleColor}`}>{quadrants[1].name}</h3>
-                                <span className="text-xs bg-white/10 text-white px-2 py-1 rounded-full border border-white/10">
+                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[1].id).length}
                                 </span>
                             </div>
@@ -293,9 +293,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         key={idea.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, idea)}
-                                        className="bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-blue-500/30 group hover:shadow-blue-500/20 hover:bg-white/15 transition-all cursor-move"
+                                        className="bg-[var(--card-bg)] backdrop-blur-sm p-3 rounded-lg shadow-lg border border-blue-500/30 group hover:shadow-blue-500/20 hover:bg-[var(--card-border)] transition-all cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-slate-200">{idea.text}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{idea.text}</p>
                                         {showVoting && (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button
@@ -304,7 +304,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-[var(--text-muted)]">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
@@ -321,7 +321,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[2].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[2].titleColor}`}>{quadrants[2].name}</h3>
-                                <span className="text-xs bg-white/10 text-white px-2 py-1 rounded-full border border-white/10">
+                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[2].id).length}
                                 </span>
                             </div>
@@ -331,9 +331,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         key={idea.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, idea)}
-                                        className="bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-yellow-500/30 group hover:shadow-yellow-500/20 hover:bg-white/15 transition-all cursor-move"
+                                        className="bg-[var(--card-bg)] backdrop-blur-sm p-3 rounded-lg shadow-lg border border-yellow-500/30 group hover:shadow-yellow-500/20 hover:bg-[var(--card-border)] transition-all cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-slate-200">{idea.text}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{idea.text}</p>
                                         {showVoting && (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button
@@ -342,7 +342,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-[var(--text-muted)]">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
@@ -359,7 +359,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[3].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[3].titleColor}`}>{quadrants[3].name}</h3>
-                                <span className="text-xs bg-white/10 text-white px-2 py-1 rounded-full border border-white/10">
+                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[3].id).length}
                                 </span>
                             </div>
@@ -369,9 +369,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                         key={idea.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, idea)}
-                                        className="bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-red-500/30 group hover:shadow-red-500/20 hover:bg-white/15 transition-all cursor-move"
+                                        className="bg-[var(--card-bg)] backdrop-blur-sm p-3 rounded-lg shadow-lg border border-red-500/30 group hover:shadow-red-500/20 hover:bg-[var(--card-border)] transition-all cursor-move"
                                     >
-                                        <p className="text-sm font-medium text-slate-200">{idea.text}</p>
+                                        <p className="text-sm font-medium text-[var(--foreground)]">{idea.text}</p>
                                         {showVoting && (
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button
@@ -380,7 +380,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                                                 >
                                                     👍 Vote
                                                 </button>
-                                                <span className="text-xs text-slate-300">{votes[idea.id] || 0} votes</span>
+                                                <span className="text-xs text-[var(--text-muted)]">{votes[idea.id] || 0} votes</span>
                                             </div>
                                         )}
                                     </div>
@@ -390,8 +390,8 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <div className="text-sm font-bold text-slate-400">Low Effort</div>
-                        <div className="text-sm font-bold text-slate-400 flex items-center gap-2">
+                        <div className="text-sm font-bold text-[var(--text-muted)]">Low Effort</div>
+                        <div className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                             High Effort
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -413,14 +413,14 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             {getTopVotedIdeas().map((idea, index) => (
                                 <div
                                     key={idea.id}
-                                    className="bg-white/5 border border-white/10 p-4 rounded-lg shadow-sm flex items-center justify-between group hover:bg-white/10 transition-all"
+                                    className="bg-[var(--card-bg)] border border-[var(--glass-border)] p-4 rounded-lg shadow-sm flex items-center justify-between group hover:bg-[var(--card-border)] transition-all"
                                 >
                                     <div className="flex items-center gap-3 flex-1">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-slate-400' : index === 2 ? 'bg-orange-600' : 'bg-slate-600'
                                             }`}>
                                             {index + 1}
                                         </div>
-                                        <p className="font-medium text-slate-200 flex-1">{idea.text}</p>
+                                        <p className="font-medium text-[var(--foreground)] flex-1">{idea.text}</p>
                                         <span className="text-sm text-indigo-300 font-bold">{idea.voteCount} votes</span>
                                     </div>
                                     {!winningConcept && (
@@ -444,7 +444,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="text-5xl">🏆</div>
                             <div className="flex-1">
                                 <h3 className="text-2xl font-bold text-white mb-2">Winning Concept Selected!</h3>
-                                <p className="text-lg text-slate-200 mb-4">{winningConcept.text}</p>
+                                <p className="text-lg text-[var(--foreground)] mb-4">{winningConcept.text}</p>
                                 <div className="flex items-center gap-3">
                                     <span className="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold shadow-lg shadow-yellow-500/20">
                                         {votes[winningConcept.id] || 0} votes

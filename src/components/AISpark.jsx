@@ -96,9 +96,9 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
     };
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden">
+        <div className="glass-panel rounded-xl shadow-lg border border-[var(--glass-border)] overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-900/60 via-pink-900/60 to-red-900/60 px-6 py-4 border-b border-white/10 backdrop-blur-md">
+            <div className="bg-gradient-to-r from-purple-900/60 via-pink-900/60 to-red-900/60 px-6 py-4 border-b border-[var(--glass-border)] backdrop-blur-md">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -157,7 +157,7 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                                     generateIdea(technique.id);
                                 }}
                                 disabled={isGenerating}
-                                className={`group relative p-4 rounded-xl bg-gradient-to-br ${technique.color} text-white shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden border border-white/10`}
+                                className={`group relative p-4 rounded-xl bg-gradient-to-br ${technique.color} text-white shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden border border-[var(--glass-border)]`}
                             >
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                                 <div className="relative">
@@ -175,7 +175,7 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <div className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent flex-1"></div>
-                            <h3 className="text-lg font-bold text-slate-300 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-[var(--text-muted)] flex items-center gap-2">
                                 <span className="text-2xl">✨</span>
                                 AI-Generated Ideas
                             </h3>
@@ -186,16 +186,16 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                             {generatedIdeas.map((idea, index) => (
                                 <div
                                     key={index}
-                                    className="group bg-white/5 border border-purple-500/20 rounded-lg p-4 hover:bg-white/10 transition-all duration-300 hover:border-purple-500/50 hover:shadow-lg shadow-black/20"
+                                    className="group bg-[var(--card-bg)] border border-purple-500/20 rounded-lg p-4 hover:bg-[var(--card-border)] transition-all duration-300 hover:border-purple-500/50 hover:shadow-lg shadow-black/20"
                                 >
                                     <div className="flex items-start gap-3">
-                                        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg shadow-purple-500/20 border border-white/10">
+                                        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-lg shadow-purple-500/20 border border-[var(--glass-border)]">
                                             {index + 1}
                                         </div>
 
                                         <div className="flex-1">
                                             <div className="flex items-start justify-between gap-2">
-                                                <p className="text-slate-200 font-medium flex-1 leading-relaxed">
+                                                <p className="text-[var(--foreground)] font-medium flex-1 leading-relaxed">
                                                     {idea.text}
                                                 </p>
                                                 <button
@@ -218,7 +218,7 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                                             )}
 
                                             {idea.reasoning && (
-                                                <p className="text-xs text-slate-400 mt-2 italic px-3 py-2 bg-black/20 rounded border-l-2 border-purple-500/50">
+                                                <p className="text-xs text-[var(--text-muted)] mt-2 italic px-3 py-2 bg-[var(--input-bg)] rounded border-l-2 border-purple-500/50">
                                                     💭 {idea.reasoning}
                                                 </p>
                                             )}
@@ -232,12 +232,12 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
 
                 {/* Empty State */}
                 {generatedIdeas.length === 0 && !isGenerating && (
-                    <div className="bg-white/5 border-2 border-dashed border-white/10 rounded-lg p-8 text-center backdrop-blur-sm">
+                    <div className="bg-[var(--card-bg)] border-2 border-dashed border-[var(--glass-border)] rounded-lg p-8 text-center backdrop-blur-sm">
                         <div className="text-6xl mb-4 opacity-80">🧠</div>
-                        <p className="text-slate-300 font-medium mb-2">
+                        <p className="text-[var(--foreground)] font-medium mb-2">
                             No ideas generated yet
                         </p>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-[var(--text-muted)]">
                             Click the "Stuck? Get AI Ideas!" button above to get started
                         </p>
                     </div>

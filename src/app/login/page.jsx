@@ -45,7 +45,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0f172a] text-slate-200 font-sans selection:bg-purple-500/30">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[var(--background)] text-[var(--foreground)] font-sans selection:bg-purple-500/30 transition-colors duration-300">
             {/* Background Decorative Elements (The Cosmos) */}
             <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/30 rounded-full mix-blend-screen filter blur-[100px] animate-blob"></div>
@@ -56,27 +56,27 @@ export default function LoginPage() {
 
             {/* Login Card */}
             <div className="relative z-10 w-full max-w-md">
-                <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] p-8 sm:p-10 transform transition-all hover:border-white/20">
+                <div className="bg-[var(--card-bg)] backdrop-blur-2xl border border-[var(--glass-border)] rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] p-8 sm:p-10 transform transition-all hover:border-white/20">
 
                     {/* Header */}
                     <div className="mb-10 text-center">
-                        <h1 className="text-4xl font-bold mb-3 tracking-tight text-white drop-shadow-sm">
+                        <h1 className="text-4xl font-bold mb-3 tracking-tight text-[var(--foreground)] drop-shadow-sm">
                             Welcome Back
                         </h1>
-                        <p className="text-slate-400 text-sm font-medium tracking-wide">
+                        <p className="text-[var(--text-muted)] text-sm font-medium tracking-wide">
                             Sign in to continue your journey
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="group">
-                            <label htmlFor="username" className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-blue-400 transition-colors">
+                            <label htmlFor="username" className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1 group-focus-within:text-blue-400 transition-colors">
                                 Username
                             </label>
                             <input
                                 id="username"
                                 type="text"
-                                className="w-full px-5 py-3.5 rounded-xl bg-black/20 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                                className="w-full px-5 py-3.5 rounded-xl bg-[var(--input-bg)] border border-[var(--glass-border)] text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                                 placeholder="Enter your username"
                                 required
                                 value={username}
@@ -85,13 +85,13 @@ export default function LoginPage() {
                         </div>
 
                         <div className="group">
-                            <label htmlFor="password" className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 ml-1 group-focus-within:text-blue-400 transition-colors">
+                            <label htmlFor="password" className="block text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 ml-1 group-focus-within:text-blue-400 transition-colors">
                                 Password
                             </label>
                             <input
                                 id="password"
                                 type="password"
-                                className="w-full px-5 py-3.5 rounded-xl bg-black/20 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                                className="w-full px-5 py-3.5 rounded-xl bg-[var(--input-bg)] border border-[var(--glass-border)] text-[var(--foreground)] placeholder-[var(--text-muted)] focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                                 placeholder="••••••••"
                                 required
                                 value={password}
@@ -124,14 +124,14 @@ export default function LoginPage() {
                     <div className="mt-8 flex flex-col gap-4 text-center">
                         <Link
                             href="/register"
-                            className="text-sm text-slate-400 hover:text-white transition-colors duration-200"
+                            className="text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors duration-200"
                         >
                             Don't have an account? <span className="text-blue-400 font-medium hover:underline">Create one</span>
                         </Link>
 
                         <button
                             onClick={() => alert('Forgot password functionality to be implemented.')}
-                            className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                            className="text-xs text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
                         >
                             Forgot Password?
                         </button>
@@ -148,10 +148,6 @@ export default function LoginPage() {
                             {success}
                         </div>
                     )}
-                </div>
-
-                <div className="mt-8 text-center text-slate-600 text-xs">
-                    &copy; {new Date().getFullYear()} AntiGravity Design. All rights reserved.
                 </div>
             </div>
         </div>
