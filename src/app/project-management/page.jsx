@@ -240,19 +240,19 @@ export default function ProjectManagementPage() {
                         {currentUser?.role === 'teacher' && (
                             <button
                                 onClick={() => router.push('/teacher-dashboard')}
-                                className="px-5 py-2.5 rounded-xl bg-indigo-200 dark:bg-indigo-500/40 text-white dark:text-indigo-300 border border-indigo-400 dark:border-indigo-500/50 hover:bg-indigo-300 dark:hover:bg-indigo-500/50 transition-all text-sm font-bold flex items-center gap-2"
+                                className="px-5 py-2.5 rounded-xl bg-indigo-100 dark:bg-indigo-500/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/50 hover:bg-indigo-200 dark:hover:bg-indigo-500/50 transition-all text-sm font-bold flex items-center gap-2"
                             >
                                 <span>🍎</span> Teacher Dashboard
                             </button>
                         )}
                         {currentUser?.isAdmin && (
-                            <button className="px-5 py-2.5 rounded-xl bg-blue-200 dark:bg-blue-500/40 text-white dark:text-blue-300 border border-blue-400 dark:border-blue-500/50 hover:bg-blue-300 dark:hover:bg-blue-500/50 transition-all text-sm font-semibold">
+                            <button className="px-5 py-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/50 hover:bg-blue-200 dark:hover:bg-blue-500/50 transition-all text-sm font-semibold">
                                 Manage Users
                             </button>
                         )}
                         <button
                             onClick={handleLogout}
-                            className="px-5 py-2.5 rounded-xl bg-red-200 dark:bg-red-500/40 text-white dark:text-red-300 border border-red-400 dark:border-red-500/40 hover:bg-red-300 dark:hover:bg-red-500/50 transition-all text-sm font-bold"
+                            className="px-5 py-2.5 rounded-xl bg-white dark:bg-red-500/10 text-red-700 dark:text-red-300 border-2 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/20 hover:border-red-400 transition-all text-sm font-bold shadow-sm hover:shadow-md"
                         >
                             Logout
                         </button>
@@ -427,13 +427,13 @@ export default function ProjectManagementPage() {
                                             {project.emoji || '🚀'}
                                         </div>
                                         {/* Phase Badge */}
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${{
-                                            'Empathize': 'bg-purple-600 dark:bg-purple-500/40 text-white dark:text-purple-300 border-purple-700 dark:border-purple-500/50',
-                                            'Define': 'bg-blue-600 dark:bg-blue-500/40 text-white dark:text-blue-300 border-blue-700 dark:border-blue-500/50',
-                                            'Ideate': 'bg-yellow-600 dark:bg-yellow-500/40 text-white dark:text-yellow-300 border-yellow-700 dark:border-yellow-500/50',
-                                            'Prototype': 'bg-green-600 dark:bg-green-500/40 text-white dark:text-green-300 border-green-700 dark:border-green-500/50',
-                                            'Test': 'bg-indigo-600 dark:bg-indigo-500/40 text-white dark:text-indigo-300 border-indigo-700 dark:border-indigo-500/50'
-                                        }[project.phase] || 'bg-white/5 border-white/10 text-slate-900 dark:text-slate-300'
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${{
+                                            'Empathize': 'bg-white border-purple-200 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/50',
+                                            'Define': 'bg-white border-blue-200 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/50',
+                                            'Ideate': 'bg-white border-yellow-200 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300 dark:border-yellow-500/50',
+                                            'Prototype': 'bg-white border-green-200 text-green-700 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/50',
+                                            'Test': 'bg-white border-indigo-200 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/50'
+                                        }[project.phase] || 'bg-white border-slate-200 text-slate-700 dark:bg-white/5 dark:border-white/10 dark:text-slate-300'
                                             }`}>
                                             {project.phase}
                                         </span>
@@ -442,7 +442,7 @@ export default function ProjectManagementPage() {
                                     <h3 className="font-bold text-lg text-[var(--foreground)] mb-2 group-hover:text-blue-400 transition-colors">{project.name}</h3>
                                     <p className="text-xs text-[var(--text-muted)] mb-6 opacity-60">Last updated: {new Date(project.updatedAt || Date.now()).toLocaleDateString()}</p>
 
-                                    <div className="flex items-center justify-between text-sm mt-auto border-t border-[var(--glass-border)] pt-4">
+                                    <div className="flex items-center justify-between text-sm mt-auto border-t-2 border-slate-200 dark:border-white/10 pt-4">
                                         <button className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
                                             Open Workspace →
                                         </button>

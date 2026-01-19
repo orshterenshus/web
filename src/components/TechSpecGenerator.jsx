@@ -214,7 +214,7 @@ export default function TechSpecGenerator({
                 </h3>
 
                 {!winningSolution && (
-                    <div className="text-red-300 text-sm mb-4 bg-red-900/20 p-2 rounded border border-red-500/20 flex items-center gap-2">
+                    <div className="text-red-700 dark:text-red-300 text-sm mb-4 bg-red-100 dark:bg-red-900/20 p-2 rounded border border-red-500/20 flex items-center gap-2">
                         ⚠️ Please select a "Winning Solution" in the Matrix above to unlock these tools.
                     </div>
                 )}
@@ -261,13 +261,13 @@ export default function TechSpecGenerator({
                     {/* Functional */}
                     <div>
                         <h4 className="font-bold text-[var(--text-muted)] mb-2 flex items-center gap-2">
-                            <span className="text-blue-400">⚡</span> Functional
+                            <span className="text-blue-700 dark:text-blue-400">⚡</span> Functional
                         </h4>
                         <div className="bg-[var(--card-bg)] rounded-lg p-3 min-h-[150px] border border-[var(--glass-border)] backdrop-blur-sm">
                             <ul className="space-y-2 mb-3">
                                 {existingData.functionalRequirements?.map((req, i) => (
                                     <li key={i} className="bg-[var(--card-bg)] p-2 rounded shadow-sm text-sm flex gap-2 group border border-[var(--glass-border)]">
-                                        <span className="text-blue-400 font-bold">{i + 1}.</span>
+                                        <span className="text-blue-700 dark:text-blue-400 font-bold">{i + 1}.</span>
                                         <span className="flex-1 text-[var(--foreground)]">{req}</span>
                                         <button onClick={() => removeRequirement('functional', i)} className="text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
                                     </li>
@@ -288,13 +288,13 @@ export default function TechSpecGenerator({
                     {/* Non-Functional */}
                     <div>
                         <h4 className="font-bold text-[var(--text-muted)] mb-2 flex items-center gap-2">
-                            <span className="text-purple-400">🛡️</span> Non-Functional
+                            <span className="text-purple-700 dark:text-purple-400">🛡️</span> Non-Functional
                         </h4>
                         <div className="bg-[var(--card-bg)] rounded-lg p-3 min-h-[150px] border border-[var(--glass-border)] backdrop-blur-sm">
                             <ul className="space-y-2 mb-3">
                                 {existingData.nonFunctionalRequirements?.map((req, i) => (
                                     <li key={i} className="bg-[var(--card-bg)] p-2 rounded shadow-sm text-sm flex gap-2 group border border-[var(--glass-border)]">
-                                        <span className="text-purple-400 font-bold">{i + 1}.</span>
+                                        <span className="text-purple-700 dark:text-purple-400 font-bold">{i + 1}.</span>
                                         <span className="flex-1 text-[var(--foreground)]">{req}</span>
                                         <button onClick={() => removeRequirement('nonFunctional', i)} className="text-[var(--text-muted)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
                                     </li>
@@ -356,7 +356,7 @@ export default function TechSpecGenerator({
                                 <span className="text-4xl drop-shadow-lg">💻</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Client Layer</p>
-                            <span className="text-sm bg-blue-500/20 text-blue-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-blue-500/30">
+                            <span className="text-sm bg-blue-500/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-blue-500/30">
                                 {techStack.frontend || '...'}
                             </span>
                         </div>
@@ -374,7 +374,7 @@ export default function TechSpecGenerator({
                                 <span className="text-4xl drop-shadow-lg">⚙️</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Logic Layer</p>
-                            <span className="text-sm bg-purple-500/20 text-purple-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-purple-500/30">
+                            <span className="text-sm bg-purple-500/20 text-purple-700 dark:text-purple-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-purple-500/30">
                                 {techStack.backend || '...'}
                             </span>
                         </div>
@@ -392,7 +392,7 @@ export default function TechSpecGenerator({
                                 <span className="text-4xl drop-shadow-lg">🛢️</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Data Layer</p>
-                            <span className="text-sm bg-green-500/20 text-green-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-green-500/30">
+                            <span className="text-sm bg-green-500/20 text-green-700 dark:text-green-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-green-500/30">
                                 {techStack.db || '...'}
                             </span>
                         </div>

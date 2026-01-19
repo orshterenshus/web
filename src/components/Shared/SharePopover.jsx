@@ -127,9 +127,9 @@ export default function SharePopover({ projectId, triggerButton, onShareSuccess 
                                         <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
                                     </div>
                                     {isShared ? (
-                                        <span className="text-green-400 text-xs font-bold">Added</span>
+                                        <span className="text-green-700 dark:text-green-400 text-xs font-bold">Added</span>
                                     ) : (
-                                        <span className="text-blue-400 text-xs font-bold opacity-0 group-hover:opacity-100">Add</span>
+                                        <span className="text-blue-700 dark:text-blue-400 text-xs font-bold opacity-0 group-hover:opacity-100">Add</span>
                                     )}
                                 </div>
                             );

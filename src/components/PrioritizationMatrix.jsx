@@ -33,10 +33,10 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     }, [initialPrioritizedIdeas, initialVotes, initialWinningConcept]);
 
     const quadrants = [
-        { id: 'high-low', name: 'Quick Wins', impact: 'high', effort: 'low', color: 'bg-green-500/10 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)]', titleColor: 'text-green-300', emoji: '🎯' },
-        { id: 'high-high', name: 'Major Projects', impact: 'high', effort: 'high', color: 'bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]', titleColor: 'text-blue-300', emoji: '🚀' },
-        { id: 'low-low', name: 'Fill-Ins', impact: 'low', effort: 'low', color: 'bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]', titleColor: 'text-yellow-300', emoji: '⚡' },
-        { id: 'low-high', name: 'Thankless Tasks', impact: 'low', effort: 'high', color: 'bg-red-500/10 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]', titleColor: 'text-red-300', emoji: '⚠️' }
+        { id: 'high-low', name: 'Quick Wins', impact: 'high', effort: 'low', color: 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 shadow-none dark:shadow-[0_0_15px_rgba(34,197,94,0.1)]', titleColor: 'text-green-800 dark:text-green-300', emoji: '🎯' },
+        { id: 'high-high', name: 'Major Projects', impact: 'high', effort: 'high', color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 shadow-none dark:shadow-[0_0_15px_rgba(59,130,246,0.1)]', titleColor: 'text-blue-800 dark:text-blue-300', emoji: '🚀' },
+        { id: 'low-low', name: 'Fill-Ins', impact: 'low', effort: 'low', color: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/30 shadow-none dark:shadow-[0_0_15px_rgba(234,179,8,0.1)]', titleColor: 'text-yellow-800 dark:text-yellow-300', emoji: '⚡' },
+        { id: 'low-high', name: 'Thankless Tasks', impact: 'low', effort: 'high', color: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 shadow-none dark:shadow-[0_0_15px_rgba(239,68,68,0.1)]', titleColor: 'text-red-800 dark:text-red-300', emoji: '⚠️' }
     ];
 
     const handleDragStart = (e, idea) => {
@@ -156,16 +156,16 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     return (
         <div className="glass-panel rounded-xl shadow-lg border border-[var(--glass-border)] overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-pink-900/60 px-6 py-4 border-b border-[var(--glass-border)] backdrop-blur-md">
+            <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/60 dark:via-purple-900/60 dark:to-pink-900/60 px-6 py-4 border-b border-[var(--glass-border)] backdrop-blur-md">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h2 className="text-2xl font-bold text-[var(--foreground)] dark:text-white flex items-center gap-2">
+                            <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             Impact vs. Effort Matrix
                         </h2>
-                        <p className="text-indigo-200 text-sm mt-1">
+                        <p className="text-[var(--text-muted)] dark:text-indigo-200 text-sm mt-1">
                             {prioritizedIdeas.length} of {ideas.length} ideas prioritized
                         </p>
                     </div>
@@ -173,7 +173,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowVoting(!showVoting)}
-                            className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg font-medium hover:bg-white/20 transition-colors border border-[var(--glass-border)]"
+                            className="px-4 py-2 bg-[var(--card-bg)] text-[var(--foreground)] rounded-lg font-medium hover:bg-[var(--card-border)] transition-colors border border-[var(--glass-border)]"
                         >
                             {showVoting ? '📊 Hide Voting' : '🗳️ Start Voting'}
                         </button>
@@ -234,7 +234,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[0].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[0].titleColor}`}>{quadrants[0].name}</h3>
-                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
+                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[0].id).length}
                                 </span>
                             </div>
@@ -283,7 +283,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[1].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[1].titleColor}`}>{quadrants[1].name}</h3>
-                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
+                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[1].id).length}
                                 </span>
                             </div>
@@ -321,7 +321,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[2].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[2].titleColor}`}>{quadrants[2].name}</h3>
-                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
+                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[2].id).length}
                                 </span>
                             </div>
@@ -359,7 +359,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[3].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[3].titleColor}`}>{quadrants[3].name}</h3>
-                                <span className="text-xs bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--glass-border)]">
+                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
                                     {getIdeasInQuadrant(quadrants[3].id).length}
                                 </span>
                             </div>
@@ -402,9 +402,9 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
 
                 {/* Top Voted */}
                 {showVoting && Object.keys(votes).length > 0 && (
-                    <div className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-2 border-indigo-500/30 rounded-xl p-6 backdrop-blur-sm">
-                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border-2 border-indigo-200 dark:border-indigo-500/30 rounded-xl p-6 backdrop-blur-sm">
+                        <h3 className="font-bold text-indigo-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                             </svg>
                             Top Voted Ideas
@@ -439,17 +439,17 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
 
                 {/* Winning Concept */}
                 {winningConcept && (
-                    <div className="bg-gradient-to-r from-yellow-900/40 via-orange-900/40 to-red-900/40 border-4 border-yellow-500/50 rounded-xl p-6 shadow-2xl backdrop-blur-md">
+                    <div className="bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/40 dark:via-orange-900/40 dark:to-red-900/40 border-4 border-yellow-400 dark:border-yellow-500/50 rounded-xl p-6 shadow-2xl backdrop-blur-md">
                         <div className="flex items-start gap-4">
                             <div className="text-5xl">🏆</div>
                             <div className="flex-1">
-                                <h3 className="text-2xl font-bold text-white mb-2">Winning Concept Selected!</h3>
-                                <p className="text-lg text-[var(--foreground)] mb-4">{winningConcept.text}</p>
+                                <h3 className="text-2xl font-bold text-[var(--foreground)] dark:text-white mb-2">Winning Concept Selected!</h3>
+                                <p className="text-lg text-[var(--foreground)] dark:text-[var(--foreground)] mb-4">{winningConcept.text}</p>
                                 <div className="flex items-center gap-3">
                                     <span className="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-bold shadow-lg shadow-yellow-500/20">
                                         {votes[winningConcept.id] || 0} votes
                                     </span>
-                                    <span className="px-3 py-1 bg-white/10 text-white border border-white/20 rounded-full text-sm font-medium">
+                                    <span className="px-3 py-1 bg-white/50 dark:bg-white/10 text-[var(--foreground)] dark:text-white border border-[var(--glass-border)] rounded-full text-sm font-medium">
                                         {quadrants.find(q => q.id === winningConcept.quadrant)?.name}
                                     </span>
                                 </div>

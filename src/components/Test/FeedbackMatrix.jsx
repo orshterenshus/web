@@ -30,33 +30,33 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             id: 'loved',
             title: '❤️ Loved',
             subtitle: 'What worked well? What should we keep?',
-            color: 'bg-green-500/10 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.1)]',
+            color: 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 shadow-none dark:shadow-[0_0_15px_rgba(34,197,94,0.1)]',
             buttonColor: 'bg-green-600 hover:bg-green-500 shadow-green-500/20',
-            textColor: 'text-green-300'
+            textColor: 'text-green-800 dark:text-green-300'
         },
         {
             id: 'critique',
             title: '⚠️ Challenges / Critique',
             subtitle: 'What was confusing? What are the pain points?',
-            color: 'bg-red-500/10 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]',
+            color: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 shadow-none dark:shadow-[0_0_15px_rgba(239,68,68,0.1)]',
             buttonColor: 'bg-red-600 hover:bg-red-500 shadow-red-500/20',
-            textColor: 'text-red-300'
+            textColor: 'text-red-800 dark:text-red-300'
         },
         {
             id: 'questions',
             title: '❓ Questions',
             subtitle: 'What did users ask? What was unclear?',
-            color: 'bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]',
+            color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 shadow-none dark:shadow-[0_0_15px_rgba(59,130,246,0.1)]',
             buttonColor: 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/20',
-            textColor: 'text-blue-300'
+            textColor: 'text-blue-800 dark:text-blue-300'
         },
         {
             id: 'ideas',
             title: '💡 Ideas / Suggestions',
             subtitle: 'What new ideas emerged? How to improve?',
-            color: 'bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]',
+            color: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/30 shadow-none dark:shadow-[0_0_15px_rgba(234,179,8,0.1)]',
             buttonColor: 'bg-yellow-600 hover:bg-yellow-500 shadow-yellow-500/20',
-            textColor: 'text-yellow-300'
+            textColor: 'text-yellow-800 dark:text-yellow-300'
         }
     ];
 
@@ -188,22 +188,22 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
     const summary = getSummary();
 
     return (
-        <div className="w-full glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden text-slate-200">
+        <div className="w-full glass-panel rounded-xl shadow-lg border border-[var(--border-subtle)] overflow-hidden text-[var(--foreground)]">
             {/* Header */}
-            <div className="bg-white/5 p-6 border-b border-white/10 flex flex-wrap justify-between items-center gap-4 backdrop-blur-md">
+            <div className="bg-[var(--bg-secondary)] p-6 border-b border-[var(--border-subtle)] flex flex-wrap justify-between items-center gap-4 backdrop-blur-md">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Feedback Capture Matrix</h2>
-                    <p className="text-sm text-slate-400">Organize user testing feedback into four quadrants. {isSaving && <span className="text-blue-400 text-xs ml-2 animate-pulse">Saving...</span>}</p>
+                    <h2 className="text-xl font-bold text-[var(--foreground)] dark:text-white">Feedback Capture Matrix</h2>
+                    <p className="text-sm text-[var(--text-muted)] dark:text-slate-400">Organize user testing feedback into four quadrants. {isSaving && <span className="text-blue-700 dark:text-blue-400 text-xs ml-2 animate-pulse">Saving...</span>}</p>
                 </div>
                 <div className="flex gap-2">
                     <button
                         onClick={handleExport}
-                        className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 text-white"
+                        className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-subtle)] rounded-lg text-sm font-medium hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2 text-[var(--foreground)]"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         {onExport ? 'Save to Cloud' : 'Export JSON'}
                     </button>
-                    <label className="px-4 py-2 bg-white/10 border border-white/10 rounded-lg text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 cursor-pointer text-white">
+                    <label className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-subtle)] rounded-lg text-sm font-medium hover:bg-[var(--bg-tertiary)] transition-colors flex items-center gap-2 cursor-pointer text-[var(--foreground)]">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                         Import JSON
                         <input type="file" accept=".json" onChange={handleImport} className="hidden" />
@@ -212,10 +212,10 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             </div>
 
             {/* Matrix Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[600px] divide-y md:divide-y-0 md:divide-x divide-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[600px] divide-y md:divide-y-0 md:divide-x divide-[var(--glass-border)]">
                 {categories.map((cat, idx) => {
                     // Add bottom border for top items on desktop to complete the grid
-                    const borderClass = idx < 2 ? 'md:border-b border-white/10' : '';
+                    const borderClass = idx < 2 ? 'md:border-b border-[var(--glass-border)]' : '';
 
                     return (
                         <div
@@ -241,20 +241,20 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
                             </div>
 
                             {/* Drop Area / List */}
-                            <div className="flex-1 p-4 overflow-y-auto bg-black/20 space-y-3">
+                            <div className={`flex-1 p-4 overflow-y-auto ${cat.color} space-y-3`}>
                                 {items.filter(i => i.category === cat.id).map(item => (
                                     <div
                                         key={item.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, item)}
-                                        className="group bg-white/10 backdrop-blur-sm p-3 rounded-lg shadow-lg border border-white/5 hover:bg-white/15 transition-all cursor-move relative"
+                                        className="group bg-[var(--card-bg)] backdrop-blur-sm p-3 rounded-lg shadow-lg border border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)] transition-all cursor-move relative"
                                     >
                                         <div
                                             contentEditable
                                             suppressContentEditableWarning
                                             onBlur={(e) => handleUpdate(item.id, e.target.innerText)}
                                             onMouseDown={(e) => e.stopPropagation()} // Prevent drag when clicking text
-                                            className="text-sm text-slate-200 outline-none min-h-[1.2em] cursor-text"
+                                            className="text-sm text-[var(--text-main)] outline-none min-h-[1.2em] cursor-text"
                                         >
                                             {item.text}
                                         </div>
@@ -275,7 +275,7 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
                             </div>
 
                             {/* Add Input */}
-                            <div className="p-3 border-t border-white/10 bg-white/5 backdrop-blur-sm">
+                            <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-secondary)] backdrop-blur-sm">
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
@@ -283,7 +283,7 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
                                         onChange={(e) => setInputs(prev => ({ ...prev, [cat.id]: e.target.value }))}
                                         onKeyDown={(e) => e.key === 'Enter' && handleAdd(cat.id)}
                                         placeholder="Add a note..."
-                                        className="flex-1 text-sm border border-white/10 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all bg-black/40 text-white placeholder-slate-500"
+                                        className="flex-1 text-sm border border-[var(--border-subtle)] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all bg-[var(--input-bg)] text-[var(--text-main)] placeholder-[var(--text-muted)]"
                                     />
                                     <button
                                         onClick={() => handleAdd(cat.id)}
@@ -299,7 +299,7 @@ const FeedbackMatrix = ({ projectId, data, onUpdate, onExport }) => {
             </div>
 
             {/* Footer Summary */}
-            <div className="bg-white/5 border-t border-white/10 p-3 text-xs text-slate-500 flex justify-between items-center">
+            <div className="bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] p-3 text-xs text-[var(--text-muted)] flex justify-between items-center">
                 <div className="flex gap-4">
                     <span>Total Notes: <strong>{items.length}</strong></span>
                     {summary.critique > 3 && (

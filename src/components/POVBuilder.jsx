@@ -186,9 +186,9 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
     }, [initialData]);
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg border border-white/10 overflow-hidden">
+        <div className="glass-panel rounded-xl shadow-lg border border-gray-200 dark:border-white/10 overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600/50 to-indigo-600/50 px-6 py-4 border-b border-white/10 backdrop-blur-md">
+            <div className="bg-gradient-to-r from-blue-600/50 to-indigo-600/50 px-6 py-4 border-b border-blue-200 dark:border-white/10 backdrop-blur-md">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -202,19 +202,19 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
             <div className="p-6 space-y-6">
                 {/* POV Mad-Libs Form */}
-                <div className="glass-panel rounded-lg p-6 border border-blue-500/20 shadow-sm relative overflow-hidden group bg-white/5">
+                <div className="glass-panel rounded-lg p-6 border border-blue-500/20 shadow-sm relative overflow-hidden group bg-black/5 dark:bg-white/5">
                     {/* Ambient Background Effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
 
                     {/* Compact Persona Selector for Large Lists */}
                     <div className="mb-8 max-w-sm relative z-10">
-                        <label className="block text-[10px] font-bold text-blue-300 uppercase tracking-wider mb-2">Target User</label>
+                        <label className="block text-[10px] font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">Target User</label>
                         <div className="relative">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="w-full flex items-center justify-between bg-black/40 border border-blue-500/30 hover:border-blue-400 rounded-lg px-4 py-2.5 shadow-sm transition-all"
+                                className="w-full flex items-center justify-between bg-white/40 dark:bg-black/40 border border-blue-500/30 hover:border-blue-400 rounded-lg px-4 py-2.5 shadow-sm transition-all"
                             >
-                                <span className="flex items-center gap-2 font-semibold text-slate-200">
+                                <span className="flex items-center gap-2 font-semibold text-[var(--foreground)] dark:text-slate-200">
                                     {currentPersona ? (
                                         <>
                                             <span className="w-6 h-6 flex items-center justify-center bg-blue-500/20 text-blue-300 rounded-full text-xs box-content border border-blue-500/30">
@@ -233,13 +233,13 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
                             {/* Dropdown Menu */}
                             {isDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar">
                                     <div className="p-1">
                                         {props.availablePersonas?.map((p, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => handleSelectPersona(p)}
-                                                className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 ${pov.personaName === p.name ? 'bg-blue-500/20 text-blue-300' : 'text-slate-300'}`}
+                                                className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-3 hover:bg-black/5 dark:hover:bg-white/10 transition-colors border-b border-black/5 dark:border-white/5 last:border-0 ${pov.personaName === p.name ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300' : 'text-[var(--foreground)] dark:text-slate-300'}`}
                                             >
                                                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-900/50 text-blue-300 text-sm font-bold flex-shrink-0 border border-blue-500/20">
                                                     {p.image ? <img src={p.image} className="w-full h-full rounded-full object-cover" /> : p.name.charAt(0)}
@@ -250,14 +250,14 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                                 </div>
                                             </button>
                                         ))}
-                                        <div className="h-px bg-white/10 my-1"></div>
+                                        <div className="h-px bg-gray-200 dark:bg-white/10 my-1"></div>
                                         <button
                                             onClick={() => {
                                                 setPov(prev => ({ ...prev, personaName: '', userNeed: '', insight: '' }));
                                                 setIsDropdownOpen(false);
                                                 if (props.onPersonaSelect) props.onPersonaSelect(null);
                                             }}
-                                            className="w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium"
+                                            className="w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-sm font-medium"
                                         >
                                             <span>+ Custom / Manual Entry</span>
                                         </button>
@@ -272,9 +272,9 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-4 text-lg leading-relaxed text-slate-300 font-medium relative z-10">
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-4 text-lg leading-relaxed text-[var(--foreground)] dark:text-slate-300 font-medium relative z-10">
                         {currentPersona ? (
-                            <div className="flex items-center gap-2 font-bold text-blue-300 border-b-2 border-transparent bg-blue-500/20 rounded px-3 py-1 border border-blue-500/30">
+                            <div className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-300 border-b-2 border-transparent bg-blue-100 dark:bg-blue-500/20 rounded px-3 py-1 border border-blue-200 dark:border-blue-500/30">
                                 {currentPersona.image && (
                                     <img src={currentPersona.image} alt={currentPersona.name} className="w-6 h-6 rounded-full object-cover border border-blue-400/50" />
                                 )}
@@ -285,7 +285,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.personaName}
                                 onChange={(e) => setPov(prev => ({ ...prev, personaName: e.target.value }))}
-                                className="bg-transparent border-b-2 border-slate-600 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors placeholder-slate-600 min-w-[120px] text-center py-1"
+                                className="bg-transparent border-b-2 border-slate-400 dark:border-slate-600 !text-black dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors placeholder-slate-400 dark:placeholder-slate-600 min-w-[120px] text-center py-1"
                                 placeholder="User Name"
                             />
                         )}
@@ -295,11 +295,11 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.userNeed}
                                 onChange={(e) => setPov(prev => ({ ...prev, userNeed: e.target.value }))}
-                                className={`w-full bg-transparent border-b-2 border-indigo-500/30 text-indigo-300 font-bold focus:outline-none focus:border-indigo-400 transition-all py-1 placeholder-slate-600 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                className={`w-full bg-transparent border-b-2 border-indigo-300 dark:border-indigo-500/30 !text-indigo-700 dark:text-indigo-300 font-bold focus:outline-none focus:border-indigo-400 transition-all py-1 placeholder-slate-500 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
                                 placeholder="accomplish a specific goal"
                                 disabled={isAnalyzingPersona}
                             />
-                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-indigo-300 font-bold bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
+                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-indigo-700 dark:text-indigo-300 font-bold bg-white/40 dark:bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
                         </div>
                         <span>because</span>
                         <div className="relative flex-grow flex-shrink basis-[300px] min-w-[250px] group">
@@ -307,11 +307,11 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                 type="text"
                                 value={pov.insight}
                                 onChange={(e) => setPov(prev => ({ ...prev, insight: e.target.value }))}
-                                className={`w-full bg-transparent border-b-2 border-purple-500/30 text-purple-300 font-bold focus:outline-none focus:border-purple-400 transition-all py-1 placeholder-slate-600 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                className={`w-full bg-transparent border-b-2 border-purple-300 dark:border-purple-500/30 !text-purple-700 dark:text-purple-300 font-bold focus:outline-none focus:border-purple-400 transition-all py-1 placeholder-slate-500 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
                                 placeholder="of a surprising insight or root cause"
                                 disabled={isAnalyzingPersona}
                             />
-                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-purple-300 font-bold bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
+                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-purple-700 dark:text-purple-300 font-bold bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
                         </div>
                         <span>.</span>
                     </div>
@@ -346,7 +346,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                     </button>
 
                     {isSaved && (
-                        <div className="flex items-center gap-2 text-green-400 font-medium bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-500/20">
+                        <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-medium bg-green-100 dark:bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-300 dark:border-green-500/20">
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
@@ -371,7 +371,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                         <div className="flex items-center gap-2">
                             <div className="h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent flex-1"></div>
                             <h3 className="text-lg font-bold text-slate-300 flex items-center gap-2">
-                                <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-5 h-5 text-indigo-700 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                                 </svg>
                                 How Might We Questions

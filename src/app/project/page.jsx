@@ -791,11 +791,14 @@ function ProjectContent() {
         const stepIndex = steps.indexOf(stepPhase);
 
         if (stepIndex === currentIndex) {
-            return "bg-blue-600 text-white shadow-lg shadow-blue-500/50 scale-110 border-2 border-blue-400";
+            // Active: White BG, Bold Blue Border, Dark Blue Text
+            return "bg-white text-blue-700 shadow-xl scale-110 border-2 border-blue-600 font-bold z-10";
         } else if (stepIndex < currentIndex) {
-            return "bg-green-500 text-white border-2 border-green-400";
+            // Completed: White BG, Green Border, Green Text
+            return "bg-white text-green-700 border-2 border-green-500 font-medium opacity-90";
         } else {
-            return "bg-white/10 text-slate-500 border-2 border-slate-700";
+            // Future: White BG, Slate Border, Slate Text
+            return "bg-white text-slate-400 border-2 border-slate-200 font-medium opacity-70";
         }
     };
 
@@ -949,15 +952,17 @@ function ProjectContent() {
                             </div>
                             <span className="font-bold text-lg text-[var(--foreground)] tracking-tight">DesignBot</span>
                         </div>
-                        <nav className="hidden md:flex items-center gap-2">
+                        <nav className="hidden md:flex items-center gap-1">
                             <button
                                 onClick={() => router.push('/project-management')}
-                                className="px-3 py-1 rounded-full bg-[var(--input-bg)] text-sm text-[var(--text-muted)] border border-[var(--glass-border)] hover:text-[var(--foreground)] hover:bg-[var(--card-border)] hover:border-[var(--glass-border)] transition-all font-medium"
+                                className="px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-white/10 transition-all font-medium flex items-center gap-1.5"
                             >
-                                Workspace
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                Dashboard
                             </button>
-                            <span className="text-[var(--text-muted)]">/</span>
-                            <span className="px-3 py-1 rounded-full bg-blue-500/10 text-sm text-blue-200 border border-blue-500/20">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            <span className="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-sm text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-500/20 font-semibold flex items-center gap-1.5">
+                                <span>{projectEmoji}</span>
                                 {initialName}
                             </span>
                         </nav>
@@ -991,11 +996,11 @@ function ProjectContent() {
                         {/* Phase Progress Bar - Strict Linear Flow */}
                         <div className="relative flex items-center justify-between bg-[var(--input-bg)] p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-[var(--glass-border)] no-scrollbar">
                             {/* Continuous Line Background */}
-                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-[var(--glass-border)] -z-10"></div>
+                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-gray-300 dark:bg-white/20 -z-10"></div>
 
                             {/* Continuous Progress Line */}
                             <div
-                                className="absolute left-10 top-1/2 h-0.5 bg-emerald-500/50 -z-10 transition-all duration-500 ease-in-out"
+                                className="absolute left-10 top-1/2 h-0.5 bg-emerald-500 dark:bg-emerald-500/50 -z-10 transition-all duration-500 ease-in-out"
                                 style={{
                                     width: `calc(${['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].indexOf(currentPhase) / 4 * 100}% - 5rem)`
                                 }}
@@ -1020,7 +1025,7 @@ function ProjectContent() {
                                             ${isActive
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
                                                 : isPast
-                                                    ? 'bg-[var(--card-bg)] text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-[var(--card-border)] opacity-100 shadow-sm' // Past (Done & Clickable)
+                                                    ? 'bg-[var(--card-bg)] text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-[var(--card-border)] opacity-100 shadow-sm' // Past (Done & Clickable)
                                                     : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--glass-border)] cursor-pointer hover:bg-[var(--card-border)] hover:border-blue-500/30 shadow-sm' // Future (Clickable)
                                             }
                                         `}

@@ -179,7 +179,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
     const progress = (completedCount / totalCount) * 100;
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6 border border-white/10">
+        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -194,14 +194,14 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
 
                 {/* Completion Badge */}
                 {completedCount === totalCount && (
-                    <div className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm font-medium flex items-center gap-1 border border-green-500/30">
+                    <div className="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center gap-1 border border-green-500/30">
                         <span>✓</span> Complete!
                     </div>
                 )}
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-white/10 rounded-full h-2 mb-4">
+            <div className="w-full bg-black/10 dark:bg-white/10 rounded-full h-2 mb-4">
                 <div
                     className="bg-purple-500 h-2 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
                     style={{ width: `${progress}%` }}
@@ -218,8 +218,8 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                         <label
                             key={item.key}
                             className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isChecked
-                                ? 'bg-purple-500/10 border-purple-500/30'
-                                : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
+                                ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30'
+                                : 'bg-slate-50 border-slate-200 dark:bg-white/5 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10'
                                 }`}
                         >
                             <input
@@ -227,13 +227,13 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                                 checked={isChecked}
                                 onChange={() => handleToggle(item.key)}
                                 disabled={isLoading || isSystemVerified(item.key)}
-                                className="w-5 h-5 rounded border-slate-500 bg-white/5 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
+                                className="w-5 h-5 rounded border-slate-500 bg-white dark:bg-white/5 text-purple-600 focus:ring-purple-500 focus:ring-offset-0"
                             />
                             <span className={`flex-1 ${isChecked ? 'text-purple-600 dark:text-purple-300 line-through decoration-purple-500/50' : 'text-[var(--foreground)]'}`}>
                                 {item.label}
                             </span>
                             {isSystemVerified(item.key) && (
-                                <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-medium border border-purple-500/30">
+                                <span className="text-xs bg-purple-500/20 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium border border-purple-500/30">
                                     Auto-verified
                                 </span>
                             )}

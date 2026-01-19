@@ -8,10 +8,10 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
     const [isDeleting, setIsDeleting] = useState(null); // Stores ID of note being deleted
 
     const quadrants = [
-        { key: 'says', label: 'Says', icon: '💬', color: 'bg-purple-500/10 border-purple-500/30', textColor: 'text-purple-300' },
-        { key: 'thinks', label: 'Thinks', icon: '💭', color: 'bg-pink-500/10 border-pink-500/30', textColor: 'text-pink-300' },
-        { key: 'does', label: 'Does', icon: '🎯', color: 'bg-indigo-500/10 border-indigo-500/30', textColor: 'text-indigo-300' },
-        { key: 'feels', label: 'Feels', icon: '❤️', color: 'bg-rose-500/10 border-rose-500/30', textColor: 'text-rose-300' }
+        { key: 'says', label: 'Says', icon: '💬', color: 'bg-purple-100 dark:bg-purple-500/10 border-purple-300 dark:border-purple-500/30', textColor: 'text-purple-700 dark:text-purple-300' },
+        { key: 'thinks', label: 'Thinks', icon: '💭', color: 'bg-pink-100 dark:bg-pink-500/10 border-pink-300 dark:border-pink-500/30', textColor: 'text-pink-700 dark:text-pink-300' },
+        { key: 'does', label: 'Does', icon: '🎯', color: 'bg-indigo-100 dark:bg-indigo-500/10 border-indigo-300 dark:border-indigo-500/30', textColor: 'text-indigo-700 dark:text-indigo-300' },
+        { key: 'feels', label: 'Feels', icon: '❤️', color: 'bg-rose-100 dark:bg-rose-500/10 border-rose-300 dark:border-rose-500/30', textColor: 'text-rose-700 dark:text-rose-300' }
     ];
 
     // Helper to get nested field path based on wrapper structure
@@ -102,19 +102,19 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
     if (!activePersonaId && activeTab === 'user') return null;
 
     return (
-        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6 border border-white/10">
+        <div className="glass-panel rounded-xl shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/30">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-300 dark:border-purple-500/30">
                         <span className="text-xl">🗺️</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-slate-200">Empathy Map</h3>
-                        <p className="text-sm text-slate-400">Map out what the persona Says, Thinks, Does, and Feels</p>
+                        <h3 className="text-lg font-bold text-[var(--foreground)]">Empathy Map</h3>
+                        <p className="text-sm text-[var(--text-muted)]">Map out what the persona Says, Thinks, Does, and Feels</p>
                     </div>
                 </div>
                 {/* Current Persona Indicator */}
-                <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 border ${activeTab === 'ai' ? 'bg-purple-900/30 text-purple-300 border-purple-500/30' : 'bg-blue-900/30 text-blue-300 border-blue-500/30'}`}>
+                <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 border ${activeTab === 'ai' ? 'bg-purple-600 dark:bg-purple-900/40 text-white dark:text-purple-200 border-purple-500 dark:border-purple-500/30' : 'bg-blue-600 dark:bg-blue-900/40 text-white dark:text-blue-200 border-blue-500 dark:border-blue-500/30'}`}>
                     <span>{activeTab === 'ai' ? '🤖' : '👤'}</span>
                     <span>{activeTab === 'ai' ? (activeAiPersonaName || 'AI Persona') : (activePersonaName || 'User Persona')}</span>
                 </div>
@@ -133,17 +133,15 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                     {quadrants.map((q) => (
                         <div
                             key={q.key}
-                            className={`${q.color} border border-white/10 rounded-xl p-4 min-h-[180px] flex flex-col bg-white/5 backdrop-blur-sm`}
+                            className={`${q.color} border rounded-xl p-4 min-h-[180px] flex flex-col backdrop-blur-sm`}
                         >
-                            {/* Header */}
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xl">{q.icon}</span>
                                     <span className={`font-bold ${q.textColor}`}>{q.label}</span>
                                 </div>
                                 <button
-                                    onClick={() => setNewNote({ quadrant: q.key, text: '' })}
-                                    className={`w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
+                                    className={`w-7 h-7 rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] flex items-center justify-center ${q.textColor} font-bold text-lg shadow-sm transition-all hover:scale-110`}
                                 >
                                     +
                                 </button>
@@ -154,13 +152,13 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                 {getNotes(q.key).map((note) => (
                                     <div
                                         key={note.id}
-                                        className="bg-white/10 rounded-lg p-2 pr-7 text-sm text-slate-200 font-medium shadow-sm group relative min-h-[40px] flex items-center border border-white/5"
+                                        className="bg-[var(--card-bg)] rounded-lg p-2 pr-7 text-sm text-[var(--text-main)] font-medium shadow-sm group relative min-h-[40px] flex items-center border border-[var(--border-subtle)]"
                                     >
                                         <p className="break-words w-full">{typeof note === 'object' ? note.text : note}</p>
                                         <button
                                             onClick={() => handleDeleteNote(q.key, note.id)}
                                             disabled={isDeleting === note.id}
-                                            className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-slate-500' : 'text-slate-400 hover:text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100'}`}
+                                            className={`absolute top-1 right-1 w-5 h-5 rounded-full text-lg flex items-center justify-center transition-all ${isDeleting === note.id ? 'text-slate-500' : 'text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100'}`}
                                             title="Delete note"
                                         >
                                             {isDeleting === note.id ? '...' : '×'}
@@ -180,7 +178,7 @@ export default function EmpathyMap({ projectId, data, onUpdate, activePersonaId,
                                         value={newNote.text}
                                         onChange={(e) => setNewNote({ ...newNote, text: e.target.value })}
                                         onKeyDown={(e) => e.key === 'Enter' && handleAddNote(q.key)}
-                                        className="flex-1 px-3 py-2 rounded-lg text-sm bg-black/40 border border-white/10 focus:ring-2 focus:ring-purple-500/50 text-white placeholder-slate-500 font-medium"
+                                        className="flex-1 glass-input px-3 py-2 rounded-lg text-sm font-medium text-[var(--text-main)]"
                                         autoFocus
                                         placeholder="Type a note..."
                                     />

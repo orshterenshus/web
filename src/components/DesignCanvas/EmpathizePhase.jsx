@@ -54,15 +54,15 @@ export default function EmpathizePhase({ projectId, data, onUpdate }) {
             {(activeTab === 'user' ? activePersonaId : activeAiPersonaId) ? (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
                     <div className="flex items-center gap-4 py-4">
-                        <div className="h-px flex-1 bg-white/10"></div>
+                        <div className="h-px flex-1 bg-black/10 dark:bg-white/10"></div>
                         <span className="text-slate-500 font-mono text-xs uppercase tracking-widest">
-                            Working on: <span className={`${activeTab === 'ai' ? 'text-purple-400' : 'text-blue-400'} font-bold`}>
+                            Working on: <span className={`${activeTab === 'ai' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'} font-bold`}>
                                 {activeTab === 'user'
                                     ? (personas.find(p => p.id === activePersonaId)?.name || 'User Persona')
                                     : (aiPersonas.find(p => p.id === activeAiPersonaId)?.name || 'AI Persona')}
                             </span>
                         </span>
-                        <div className="h-px flex-1 bg-white/10"></div>
+                        <div className="h-px flex-1 bg-black/10 dark:bg-white/10"></div>
                     </div>
 
                     <UserInterviews
@@ -88,8 +88,8 @@ export default function EmpathizePhase({ projectId, data, onUpdate }) {
                     />
                 </div>
             ) : (
-                <div className="text-center p-8 border border-dashed border-white/10 rounded-xl bg-white/5">
-                    <p className="text-slate-400">Create or select a persona above to start mapping insights.</p>
+                <div className="text-center p-8 border border-dashed border-black/10 dark:border-white/10 rounded-xl bg-black/5 dark:bg-white/5">
+                    <p className="text-[var(--text-muted)]">Create or select a persona above to start mapping insights.</p>
                 </div>
             )}
         </div>

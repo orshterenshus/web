@@ -37,7 +37,7 @@ export default function PersonaContextWidget({ persona }) {
                                     <h3 className="text-lg font-bold truncate">
                                         {persona.name}
                                     </h3>
-                                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                    <span className="text-xs bg-gray-200 dark:bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
                                         Target Persona
                                     </span>
                                 </div>
@@ -50,13 +50,13 @@ export default function PersonaContextWidget({ persona }) {
                             {persona.demographics && (
                                 <div className="hidden md:flex items-center gap-4 text-xs">
                                     {persona.demographics.age && (
-                                        <div className="bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                                        <div className="bg-gray-100 dark:bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
                                             <span className="text-purple-200">Age:</span>{' '}
                                             <span className="font-bold">{persona.demographics.age}</span>
                                         </div>
                                     )}
                                     {persona.demographics.occupation && (
-                                        <div className="bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                                        <div className="bg-gray-100 dark:bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
                                             <span className="text-purple-200">Role:</span>{' '}
                                             <span className="font-bold">{persona.demographics.occupation}</span>
                                         </div>
@@ -69,7 +69,7 @@ export default function PersonaContextWidget({ persona }) {
                     {/* Collapse/Expand Button */}
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="ml-4 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        className="ml-4 p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
                         aria-label={isCollapsed ? 'Expand persona' : 'Collapse persona'}
                     >
                         {isCollapsed ? (
