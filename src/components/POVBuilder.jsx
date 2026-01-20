@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
-export default function POVBuilder({ projectId, persona, currentUser, initialData, onPOVComplete, ...props }) {
+export default function POVBuilder({ onPOVComplete, initialData, currentProject }) {
+    const { theme } = useTheme();
+    const [step, setStep] = useState(1);
     const [pov, setPov] = useState({
         personaName: initialData?.pov?.personaName || persona?.name || '',
         userNeed: initialData?.pov?.userNeed || '',
@@ -15,6 +18,20 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
     const [isSaved, setIsSaved] = useState(false);
     const [error, setError] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownRef]);
 
     // Cache for AI responses: { personaName: { userNeed: '', insight: '' } }
     const povCache = useRef({});
@@ -202,28 +219,26 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
             <div className="p-6 space-y-6">
                 {/* POV Mad-Libs Form */}
-                <div className="glass-panel rounded-lg p-6 border border-blue-500/20 shadow-sm relative overflow-hidden group bg-black/5 dark:bg-white/5">
-                    {/* Ambient Background Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                <div className="glass-panel rounded-xl p-8 border border-[var(--border-subtle)] shadow-sm relative overflow-hidden bg-[var(--card-bg)]">
 
                     {/* Compact Persona Selector for Large Lists */}
-                    <div className="mb-8 max-w-sm relative z-10">
-                        <label className="block text-[10px] font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">Target User</label>
+                    <div className="mb-10 max-w-md relative z-10" ref={dropdownRef}>
+                        <label className="block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Target User (Who are we solving for?)</label>
                         <div className="relative">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className="w-full flex items-center justify-between bg-white/40 dark:bg-black/40 border border-blue-500/30 hover:border-blue-400 rounded-lg px-4 py-2.5 shadow-sm transition-all"
+                                className="w-full flex items-center justify-between bg-[var(--input-bg)] border border-[var(--border-strong)] hover:border-blue-400 rounded-lg px-4 py-3 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                             >
-                                <span className="flex items-center gap-2 font-semibold text-[var(--foreground)] dark:text-slate-200">
+                                <span className="flex items-center gap-3 font-semibold text-[var(--foreground)]">
                                     {currentPersona ? (
                                         <>
-                                            <span className="w-6 h-6 flex items-center justify-center bg-blue-500/20 text-blue-300 rounded-full text-xs box-content border border-blue-500/30">
+                                            <span className="w-8 h-8 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full text-xs font-bold border border-blue-200 dark:border-blue-500/30">
                                                 {currentPersona.image ? <img src={currentPersona.image} className="w-full h-full rounded-full object-cover" /> : currentPersona.name.charAt(0)}
                                             </span>
                                             {currentPersona.name}
                                         </>
                                     ) : (
-                                        <span className={pov.personaName ? "text-slate-200" : "text-slate-500"}>
+                                        <span className={pov.personaName ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}>
                                             {pov.personaName || 'Select a Persona...'}
                                         </span>
                                     )}
@@ -233,87 +248,93 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
                             {/* Dropdown Menu */}
                             {isDropdownOpen && (
-                                <div className="absolute top-full left-0 right-0 mt-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--popover-bg)] border border-[var(--border-strong)] rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto custom-scrollbar ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-200">
                                     <div className="p-1">
                                         {props.availablePersonas?.map((p, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => handleSelectPersona(p)}
-                                                className={`w-full text-left px-3 py-2 rounded-md flex items-center gap-3 hover:bg-black/5 dark:hover:bg-white/10 transition-colors border-b border-black/5 dark:border-white/5 last:border-0 ${pov.personaName === p.name ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300' : 'text-[var(--foreground)] dark:text-slate-300'}`}
+                                                className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 hover:bg-[var(--bg-tertiary)] transition-colors ${pov.personaName === p.name ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200' : 'text-[var(--foreground)]'}`}
                                             >
-                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-900/50 text-blue-300 text-sm font-bold flex-shrink-0 border border-blue-500/20">
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 flex-shrink-0">
                                                     {p.image ? <img src={p.image} className="w-full h-full rounded-full object-cover" /> : p.name.charAt(0)}
                                                 </div>
                                                 <div>
                                                     <div className="font-semibold text-sm">{p.name}</div>
-                                                    <div className="text-[10px] text-slate-500 truncate">{p.demographics}</div>
+                                                    <div className="text-[11px] text-[var(--text-muted)] truncate">{p.demographics}</div>
                                                 </div>
                                             </button>
                                         ))}
-                                        <div className="h-px bg-gray-200 dark:bg-white/10 my-1"></div>
+                                        {(!props.availablePersonas || props.availablePersonas.length === 0) && (
+                                            <div className="px-4 py-8 text-center text-sm text-[var(--text-muted)]">
+                                                No personas found. Create one in the Empathize phase.
+                                            </div>
+                                        )}
+                                        <div className="h-px bg-[var(--border-subtle)] my-1"></div>
                                         <button
                                             onClick={() => {
                                                 setPov(prev => ({ ...prev, personaName: '', userNeed: '', insight: '' }));
                                                 setIsDropdownOpen(false);
                                                 if (props.onPersonaSelect) props.onPersonaSelect(null);
                                             }}
-                                            className="w-full text-left px-3 py-2 rounded-md flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-sm font-medium"
+                                            className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-[var(--bg-tertiary)] transition-colors"
                                         >
-                                            <span>+ Custom / Manual Entry</span>
+                                            + Manual Entry
                                         </button>
                                     </div>
                                 </div>
                             )}
                             {isAnalyzingPersona && (
-                                <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                                <div className="absolute right-12 top-1/2 -translate-y-1/2">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-4 text-lg leading-relaxed text-[var(--foreground)] dark:text-slate-300 font-medium relative z-10">
-                        {currentPersona ? (
-                            <div className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-300 border-b-2 border-transparent bg-blue-100 dark:bg-blue-500/20 rounded px-3 py-1 border border-blue-200 dark:border-blue-500/30">
-                                {currentPersona.image && (
-                                    <img src={currentPersona.image} alt={currentPersona.name} className="w-6 h-6 rounded-full object-cover border border-blue-400/50" />
+                    {/* Clean Stacked Layout for Readability */}
+                    <div className="flex flex-col gap-6 relative z-10">
+                        {/* User & Need */}
+                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                            <div className="flex-shrink-0 text-xl text-[var(--text-main)] font-medium pt-2 md:pt-0">
+                                {currentPersona ? (
+                                    <span className="font-bold text-blue-600 dark:text-blue-400">{currentPersona.name}</span>
+                                ) : (
+                                    <span className="text-[var(--text-muted)]">User</span>
                                 )}
-                                <span>{pov.personaName}</span>
+                                <span className="mx-2">needs a way to</span>
                             </div>
-                        ) : (
-                            <input
-                                type="text"
-                                value={pov.personaName}
-                                onChange={(e) => setPov(prev => ({ ...prev, personaName: e.target.value }))}
-                                className="bg-transparent border-b-2 border-slate-400 dark:border-slate-600 !text-black dark:text-white font-bold focus:outline-none focus:border-blue-500 transition-colors placeholder-slate-400 dark:placeholder-slate-600 min-w-[120px] text-center py-1"
-                                placeholder="User Name"
-                            />
-                        )}
-                        <span>needs a way to</span>
-                        <div className="relative flex-grow flex-shrink basis-[300px] min-w-[250px] group">
-                            <input
-                                type="text"
-                                value={pov.userNeed}
-                                onChange={(e) => setPov(prev => ({ ...prev, userNeed: e.target.value }))}
-                                className={`w-full bg-transparent border-b-2 border-indigo-300 dark:border-indigo-500/30 !text-indigo-700 dark:text-indigo-300 font-bold focus:outline-none focus:border-indigo-400 transition-all py-1 placeholder-slate-500 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
-                                placeholder="accomplish a specific goal"
-                                disabled={isAnalyzingPersona}
-                            />
-                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-indigo-700 dark:text-indigo-300 font-bold bg-white/40 dark:bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
+                            <div className="flex-grow w-full md:w-auto relative group">
+                                <input
+                                    type="text"
+                                    value={pov.userNeed}
+                                    onChange={(e) => setPov(prev => ({ ...prev, userNeed: e.target.value }))}
+                                    className={`w-full bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-lg px-4 py-3 text-lg font-medium text-[var(--foreground)] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder-[var(--text-muted)] shadow-sm ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                    placeholder="accomplish a specific goal..."
+                                    disabled={isAnalyzingPersona}
+                                />
+                                {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-indigo-600 bg-white/60 dark:bg-black/60 backdrop-blur-[1px] rounded-lg">Generating Need...</span>}
+                            </div>
                         </div>
-                        <span>because</span>
-                        <div className="relative flex-grow flex-shrink basis-[300px] min-w-[250px] group">
-                            <input
-                                type="text"
-                                value={pov.insight}
-                                onChange={(e) => setPov(prev => ({ ...prev, insight: e.target.value }))}
-                                className={`w-full bg-transparent border-b-2 border-purple-300 dark:border-purple-500/30 !text-purple-700 dark:text-purple-300 font-bold focus:outline-none focus:border-purple-400 transition-all py-1 placeholder-slate-500 ${isAnalyzingPersona ? 'opacity-50' : ''}`}
-                                placeholder="of a surprising insight or root cause"
-                                disabled={isAnalyzingPersona}
-                            />
-                            {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-[10px] text-purple-700 dark:text-purple-300 font-bold bg-black/40 backdrop-blur-sm rounded">Thinking...</span>}
+
+                        {/* Insight */}
+                        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                            <div className="flex-shrink-0 text-xl text-[var(--text-main)] font-medium pt-2 md:pt-0">
+                                <span className="mr-2">because</span>
+                            </div>
+                            <div className="flex-grow w-full md:w-auto relative group">
+                                <textarea
+                                    rows={1}
+                                    value={pov.insight}
+                                    onChange={(e) => setPov(prev => ({ ...prev, insight: e.target.value }))}
+                                    className={`w-full bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-lg px-4 py-3 text-lg font-medium text-[var(--foreground)] focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all placeholder-[var(--text-muted)] shadow-sm resize-none ${isAnalyzingPersona ? 'opacity-50' : ''}`}
+                                    placeholder="of a surprising insight or root cause..."
+                                    disabled={isAnalyzingPersona}
+                                    style={{ minHeight: '54px' }}
+                                />
+                                {isAnalyzingPersona && <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-purple-600 bg-white/60 dark:bg-black/60 backdrop-blur-[1px] rounded-lg">Generating Insight...</span>}
+                            </div>
                         </div>
-                        <span>.</span>
                     </div>
                 </div>
 
@@ -346,7 +367,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                     </button>
 
                     {isSaved && (
-                        <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-medium bg-green-100 dark:bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-300 dark:border-green-500/20">
+                        <div className="flex items-center gap-2 text-[var(--text-success-strong)] font-medium bg-[var(--bg-success-subtle)] px-3 py-1.5 rounded-lg border border-[var(--border-success-subtle)]">
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
@@ -370,7 +391,7 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                     <div className="mt-6 space-y-4">
                         <div className="flex items-center gap-2">
                             <div className="h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent flex-1"></div>
-                            <h3 className="text-lg font-bold text-slate-300 flex items-center gap-2">
+                            <h3 className={`text-lg font-bold flex items-center gap-2 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                                 <svg className="w-5 h-5 text-indigo-700 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                                 </svg>
@@ -390,25 +411,32 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
                                     }}
                                     className={`relative border-l-4 rounded-r-lg p-5 cursor-pointer transition-all duration-200 group
                                         ${selectedHmw === question
-                                            ? 'bg-indigo-900/40 border-indigo-500 shadow-md ring-1 ring-indigo-500/30'
-                                            : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-indigo-400/50'
+                                            ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-600 dark:border-indigo-500 shadow-md ring-1 ring-transparent dark:ring-indigo-500/30'
+                                            : theme === 'dark'
+                                                ? 'bg-white/5 border border-white/10 text-slate-200 hover:bg-white/10'
+                                                : 'bg-white border border-slate-300 text-black hover:bg-slate-50'
                                         }`}
                                 >
                                     <div className="flex items-start gap-4">
                                         <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors
                                             ${selectedHmw === question
                                                 ? 'bg-indigo-600 text-white'
-                                                : 'bg-white/10 text-slate-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-300'
+                                                : theme === 'dark'
+                                                    ? 'bg-white/10 text-slate-300 border-transparent'
+                                                    : 'bg-slate-100 text-black border-slate-300 border'
                                             }`}
                                         >
                                             {selectedHmw === question ? '✓' : index + 1}
                                         </div>
                                         <div className="flex-1">
-                                            <p className={`font-medium text-lg leading-relaxed ${selectedHmw === question ? 'text-indigo-100' : 'text-slate-300'}`}>
+                                            <p className={`text-lg leading-relaxed ${selectedHmw === question
+                                                ? 'font-bold text-indigo-900 dark:text-indigo-100'
+                                                : theme === 'dark' ? 'font-medium text-slate-200' : 'font-medium text-black'
+                                                }`}>
                                                 {question}
                                             </p>
                                             {selectedHmw === question && (
-                                                <span className="inline-block mt-2 text-xs font-bold text-indigo-300 uppercase tracking-wide bg-indigo-500/20 px-2 py-1 rounded border border-indigo-500/30">
+                                                <span className="inline-block mt-2 text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wide bg-indigo-100 dark:bg-indigo-500/20 px-2 py-1 rounded border border-indigo-200 dark:border-indigo-500/30">
                                                     Selected Goal
                                                 </span>
                                             )}
@@ -428,16 +456,16 @@ export default function POVBuilder({ projectId, persona, currentUser, initialDat
 
                 {/* Helper Text */}
                 {!isComplete && (
-                    <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                            <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                             </svg>
                             <div className="flex-1">
-                                <p className="text-blue-200 font-medium text-sm">
+                                <p className="text-blue-700 dark:text-blue-200 font-medium text-sm">
                                     Complete the POV statement to unlock AI-generated "How Might We" questions
                                 </p>
-                                <p className="text-blue-400 text-xs mt-1">
+                                <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
                                     These questions will help frame your ideation session
                                 </p>
                             </div>

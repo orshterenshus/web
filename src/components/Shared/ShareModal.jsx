@@ -52,12 +52,12 @@ export default function ShareModal({ isOpen, onClose, onShare, projectId }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-                <h2 className="text-xl font-bold mb-4">Share Project</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-[var(--popover-bg)] rounded-2xl p-6 w-full max-w-md shadow-2xl border border-[var(--glass-border)] transition-colors">
+                <h2 className="text-xl font-bold mb-4 text-[var(--foreground)]">Share Project</h2>
 
                 <div className="mb-4 relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Search User</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-1">Search User</label>
                     <input
                         type="text"
                         value={selectedUser ? selectedUser.username : query}
@@ -66,23 +66,23 @@ export default function ShareModal({ isOpen, onClose, onShare, projectId }) {
                             setSelectedUser(null); // Clear selection on edit
                         }}
                         placeholder="Type username..."
-                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 bg-[var(--input-bg)] border border-[var(--border-strong)] rounded text-[var(--foreground)] focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
                     />
 
                     {/* Dropdown Results */}
                     {results.length > 0 && !selectedUser && (
-                        <div className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded shadow-lg max-h-40 overflow-y-auto">
+                        <div className="absolute z-10 w-full bg-[var(--popover-bg)] border border-[var(--border-subtle)] mt-1 rounded shadow-lg max-h-40 overflow-y-auto">
                             {results.map(user => (
                                 <div
                                     key={user._id}
-                                    className="p-2 hover:bg-blue-50 cursor-pointer"
+                                    className="p-2 hover:bg-[var(--bg-tertiary)] cursor-pointer transition-colors"
                                     onClick={() => {
                                         setSelectedUser(user);
                                         setResults([]);
                                     }}
                                 >
-                                    <p className="font-medium text-gray-900">{user.username}</p>
-                                    <p className="text-xs text-gray-500">{user.email}</p>
+                                    <p className="font-medium text-[var(--text-main)]">{user.username}</p>
+                                    <p className="text-xs text-[var(--text-muted)]">{user.email}</p>
                                 </div>
                             ))}
                         </div>
@@ -92,14 +92,14 @@ export default function ShareModal({ isOpen, onClose, onShare, projectId }) {
                 <div className="flex justify-end gap-2">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                        className="px-4 py-2 text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleShare}
                         disabled={!selectedUser}
-                        className={`px-4 py-2 rounded text-white ${selectedUser ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'
+                        className={`px-4 py-2 rounded text-white shadow-lg transition-all ${selectedUser ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20' : 'bg-gray-400 cursor-not-allowed'
                             }`}
                     >
                         Share

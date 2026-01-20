@@ -56,7 +56,7 @@ export default function EmpathizePhase({ projectId, data, onUpdate }) {
                     <div className="flex items-center gap-4 py-4">
                         <div className="h-px flex-1 bg-black/10 dark:bg-white/10"></div>
                         <span className="text-slate-500 font-mono text-xs uppercase tracking-widest">
-                            Working on: <span className={`${activeTab === 'ai' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'} font-bold`}>
+                            Working on: <span className={`${activeTab === 'ai' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-950 dark:text-blue-200'} font-bold`}>
                                 {activeTab === 'user'
                                     ? (personas.find(p => p.id === activePersonaId)?.name || 'User Persona')
                                     : (aiPersonas.find(p => p.id === activeAiPersonaId)?.name || 'AI Persona')}

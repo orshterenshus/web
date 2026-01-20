@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 
 // Checklist items for each stage
+// Note: This component is themed for integration into the main UI.
 const STAGE_CHECKLISTS = {
     empathize: {
         title: 'Empathize Checklist',
@@ -194,7 +195,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
 
                 {/* Completion Badge */}
                 {completedCount === totalCount && (
-                    <div className="px-3 py-1 bg-green-500/20 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center gap-1 border border-green-500/30">
+                    <div className="px-3 py-1 bg-green-600 dark:bg-green-500/40 text-white rounded-full text-sm font-medium flex items-center gap-1 border border-green-600 dark:border-green-400/30 shadow-sm">
                         <span>✓</span> Complete!
                     </div>
                 )}
@@ -219,7 +220,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                             key={item.key}
                             className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all border ${isChecked
                                 ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30'
-                                : 'bg-slate-50 border-slate-200 dark:bg-white/5 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/10'
+                                : 'bg-[var(--card-bg)] border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)]'
                                 }`}
                         >
                             <input
@@ -233,7 +234,7 @@ export default function StageChecklist({ projectId, stage, data, onUpdate }) {
                                 {item.label}
                             </span>
                             {isSystemVerified(item.key) && (
-                                <span className="text-xs bg-purple-500/20 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium border border-purple-500/30">
+                                <span className="text-xs bg-purple-600 dark:bg-purple-500/40 text-white px-2 py-0.5 rounded-full font-medium border border-purple-600 dark:border-purple-400/30 shadow-sm">
                                     Auto-verified
                                 </span>
                             )}

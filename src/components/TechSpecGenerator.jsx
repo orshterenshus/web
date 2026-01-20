@@ -352,7 +352,7 @@ export default function TechSpecGenerator({
                     <div className="mb-8 p-6 bg-[var(--card-bg)] rounded-xl border border-[var(--glass-border)] flex flex-col md:flex-row items-center justify-center gap-8 animate-in zoom-in duration-300">
                         {/* Client Node */}
                         <div className="text-center group">
-                            <div className="w-20 h-20 mx-auto bg-slate-800 rounded-2xl shadow-lg border border-blue-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <div className="w-20 h-20 mx-auto bg-[var(--card-bg)] rounded-2xl shadow-lg border border-blue-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <span className="text-4xl drop-shadow-lg">💻</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Client Layer</p>
@@ -370,7 +370,7 @@ export default function TechSpecGenerator({
 
                         {/* Logic Node */}
                         <div className="text-center group">
-                            <div className="w-20 h-20 mx-auto bg-slate-800 rounded-2xl shadow-lg border border-purple-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <div className="w-20 h-20 mx-auto bg-[var(--card-bg)] rounded-2xl shadow-lg border border-purple-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <span className="text-4xl drop-shadow-lg">⚙️</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Logic Layer</p>
@@ -388,11 +388,11 @@ export default function TechSpecGenerator({
 
                         {/* Data Node */}
                         <div className="text-center group">
-                            <div className="w-20 h-20 mx-auto bg-slate-800 rounded-2xl shadow-lg border border-green-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <div className="w-20 h-20 mx-auto bg-[var(--card-bg)] rounded-2xl shadow-lg border border-green-500/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <span className="text-4xl drop-shadow-lg">🛢️</span>
                             </div>
                             <p className="font-bold text-[var(--foreground)]">Data Layer</p>
-                            <span className="text-sm bg-green-500/20 text-green-700 dark:text-green-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-green-500/30">
+                            <span className="text-sm bg-green-500/20 text-green-900 dark:text-green-300 px-2 py-1 rounded mt-1 inline-block font-mono border border-green-500/30">
                                 {techStack.db || '...'}
                             </span>
                         </div>

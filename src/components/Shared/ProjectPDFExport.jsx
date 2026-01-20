@@ -7,7 +7,7 @@ const PHASE_CONFIG = {
     'Empathize': { emoji: '💜', color: 'purple', borderColor: 'border-purple-200', bg: 'bg-purple-50', titleColor: 'text-purple-700' },
     'Define': { emoji: '🎯', color: 'blue', borderColor: 'border-blue-200', bg: 'bg-blue-50', titleColor: 'text-blue-700' },
     'Ideate': { emoji: '💡', color: 'yellow', borderColor: 'border-yellow-200', bg: 'bg-yellow-50', titleColor: 'text-yellow-700' },
-    'Prototype': { emoji: '🛠️', color: 'green', borderColor: 'border-green-200', bg: 'bg-green-50', titleColor: 'text-green-700' },
+    'Prototype': { emoji: '🛠️', color: 'green', borderColor: 'border-green-200', bg: 'bg-green-50', titleColor: 'text-green-900' },
     'Test': { emoji: '🧪', color: 'indigo', borderColor: 'border-indigo-200', bg: 'bg-indigo-50', titleColor: 'text-indigo-700' }
 };
 
@@ -134,7 +134,7 @@ const ProjectPDFExport = forwardRef(({ projectName, currentPhase, stageData, def
     };
 
     return (
-        <div ref={ref} className="bg-white p-8 font-sans text-slate-800 max-w-[210mm] mx-auto min-h-[297mm]">
+        <div ref={ref} className="bg-white dark:bg-white p-8 font-sans text-slate-800 max-w-[210mm] mx-auto min-h-[297mm]">
 
             {/* --- HEADER --- */}
             <header className="border-b-4 border-blue-600 pb-6 mb-8">

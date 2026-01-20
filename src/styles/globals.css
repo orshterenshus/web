@@ -22,8 +22,8 @@
   /* Dropdowns/Modals */
 
   /* Typography */
-  --text-main: #000000;
-  /* Primary text (Pure Black) - Maximum Readability */
+  --text-main: #020617;
+  /* Primary text (Slate-950) - Maximum Readability */
   --text-secondary: #334155;
   /* Secondary text (Slate-700) */
   --text-muted: #64748b;
@@ -59,6 +59,51 @@
   --card-border: var(--border-strong);
   --input-border: var(--border-strong);
   --glass-border: var(--border-strong);
+
+  /* --- SEMANTIC BADGES & STATUS (LIGHT MODE) --- */
+
+  /* Phase: Empathize (Purple) */
+  --badge-empathize-bg: #ffffff;
+  --badge-empathize-border: #e9d5ff;
+  /* Purple-200 */
+  --badge-empathize-text: #7e22ce;
+  /* Purple-700 */
+
+  /* Phase: Define (Blue) */
+  --badge-define-bg: #ffffff;
+  --badge-define-border: #bfdbfe;
+  /* Blue-200 */
+  --badge-define-text: #1d4ed8;
+  /* Blue-700 */
+
+  /* Phase: Ideate (Yellow) */
+  --badge-ideate-bg: #ffffff;
+  --badge-ideate-border: #fef08a;
+  /* Yellow-200 */
+  --badge-ideate-text: #a16207;
+  /* Yellow-700 */
+
+  /* Phase: Prototype (Green) */
+  --badge-prototype-bg: #ffffff;
+  --badge-prototype-border: #bbf7d0;
+  /* Green-200 */
+  --badge-prototype-text: #064e3b;
+  /* Emerald-900 (User Request) */
+
+  /* Phase: Test (Indigo) */
+  --badge-test-bg: #ffffff;
+  --badge-test-border: #c7d2fe;
+  /* Indigo-200 */
+  --badge-test-text: #4338ca;
+  /* Indigo-700 */
+
+  /* Strong Status Colors */
+  --text-success-strong: #14532d;
+  /* Green-900 */
+  --bg-success-subtle: #dcfce7;
+  /* Green-100 */
+  --border-success-subtle: #86efac;
+  /* Green-300 */
 }
 
 [data-theme='dark'] {
@@ -109,6 +154,44 @@
 
   /* Legacy / Utility Mappings */
   --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* --- SEMANTIC BADGES & STATUS (DARK MODE) --- */
+
+  /* Phase: Empathize (Purple) */
+  --badge-empathize-bg: rgba(168, 85, 247, 0.2);
+  --badge-empathize-border: rgba(168, 85, 247, 0.5);
+  --badge-empathize-text: #d8b4fe;
+  /* Purple-300 */
+
+  /* Phase: Define (Blue) */
+  --badge-define-bg: rgba(59, 130, 246, 0.2);
+  --badge-define-border: rgba(59, 130, 246, 0.5);
+  --badge-define-text: #93c5fd;
+  /* Blue-300 */
+
+  /* Phase: Ideate (Yellow) */
+  --badge-ideate-bg: rgba(234, 179, 8, 0.2);
+  --badge-ideate-border: rgba(234, 179, 8, 0.5);
+  --badge-ideate-text: #fde047;
+  /* Yellow-300 */
+
+  /* Phase: Prototype (Green) */
+  --badge-prototype-bg: rgba(34, 197, 94, 0.2);
+  --badge-prototype-border: rgba(34, 197, 94, 0.5);
+  --badge-prototype-text: #86efac;
+  /* Green-300 */
+
+  /* Phase: Test (Indigo) */
+  --badge-test-bg: rgba(99, 102, 241, 0.2);
+  --badge-test-border: rgba(99, 102, 241, 0.5);
+  --badge-test-text: #a5b4fc;
+  /* Indigo-300 */
+
+  /* Strong Status Colors */
+  --text-success-strong: #4ade80;
+  /* Green-400 */
+  --bg-success-subtle: rgba(34, 197, 94, 0.1);
+  --border-success-subtle: rgba(34, 197, 94, 0.2);
 }
 
 @theme inline {
@@ -234,4 +317,11 @@ body {
   color: var(--text-main);
   font-family: Arial, Helvetica, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* View Transition Animation Fixes */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

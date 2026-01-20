@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useReactToPrint } from 'react-to-print';
+import { useTheme } from '@/context/ThemeContext';
 import SharePopover from '@/components/Shared/SharePopover';
 import EmpathizePhase from '@/components/DesignCanvas/EmpathizePhase';
 import StageChecklist from '@/components/ProgressTracker/StageChecklist';
@@ -141,6 +142,8 @@ function ProjectContent() {
         localStorage.removeItem('currentUser');
         router.push('/login');
     };
+
+    const { theme } = useTheme();
 
     const initialName = searchParams.get('name') || 'Project';
     const initialPhase = searchParams.get('phase') || 'Empathize';
@@ -792,13 +795,13 @@ function ProjectContent() {
 
         if (stepIndex === currentIndex) {
             // Active: White BG, Bold Blue Border, Dark Blue Text
-            return "bg-white text-blue-700 shadow-xl scale-110 border-2 border-blue-600 font-bold z-10";
+            return "bg-[var(--card-bg)] text-blue-700 dark:text-blue-300 shadow-xl scale-110 border-2 border-blue-600 font-bold z-10";
         } else if (stepIndex < currentIndex) {
             // Completed: White BG, Green Border, Green Text
-            return "bg-white text-green-700 border-2 border-green-500 font-medium opacity-90";
+            return "bg-[var(--card-bg)] text-green-900 dark:text-green-300 border-2 border-green-500 font-medium opacity-100";
         } else {
             // Future: White BG, Slate Border, Slate Text
-            return "bg-white text-slate-400 border-2 border-slate-200 font-medium opacity-70";
+            return "bg-[var(--card-bg)] text-slate-400 dark:text-slate-500 border-2 border-slate-200 dark:border-slate-700 font-medium opacity-70";
         }
     };
 
@@ -834,23 +837,23 @@ function ProjectContent() {
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={cancelPhaseChange}></div>
                             <div className="relative glass-card bg-[var(--card-bg)] rounded-2xl p-8 max-w-md w-full border border-[var(--glass-border)] shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
                                 <div className="flex justify-center mb-6">
-                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400' : 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400'}`}>
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${hasUnchecked ? '!bg-orange-100 !text-orange-600' : 'bg-blue-100 dark:bg-blue-500/20 text-slate-950 dark:text-blue-400'}`}>
                                         <span className="text-3xl">{hasUnchecked ? '⚠️' : '🚀'}</span>
                                     </div>
                                 </div>
                                 <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Move to {pendingPhase}?</h3>
                                 <p className="text-[var(--text-muted)] text-center mb-6">
                                     {hasUnchecked ? (
-                                        <>You have <strong className="text-orange-600 dark:text-orange-400">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>
+                                        <>You have <strong className="!text-orange-900">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>
                                     ) : (
                                         <>Great job! All tasks in {currentPhase} are complete.</>
                                     )}
                                 </p>
                                 {hasUnchecked && (
-                                    <div className="bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 rounded-xl p-4 mb-6 max-h-32 overflow-y-auto custom-scrollbar">
+                                    <div className="!bg-orange-100 border !border-orange-300 rounded-xl p-4 mb-6 max-h-32 overflow-y-auto custom-scrollbar">
                                         <ul className="space-y-2">
                                             {uncheckedItems.slice(0, 5).map(item => (
-                                                <li key={item.key} className="flex items-center gap-3 text-sm text-black dark:text-orange-200 font-medium">
+                                                <li key={item.key} className="flex items-center gap-3 text-sm !text-orange-950 font-medium">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-orange-600 dark:bg-orange-500"></span>
                                                     {item.label}
                                                 </li>
@@ -957,7 +960,7 @@ function ProjectContent() {
                                 onClick={() => router.push('/project-management')}
                                 className="px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-white/10 transition-all font-medium flex items-center gap-1.5"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 01-1 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                                 Dashboard
                             </button>
                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -995,12 +998,12 @@ function ProjectContent() {
 
                         {/* Phase Progress Bar - Strict Linear Flow */}
                         <div className="relative flex items-center justify-between bg-[var(--input-bg)] p-4 rounded-2xl mb-10 overflow-x-auto gap-4 border border-[var(--glass-border)] no-scrollbar">
-                            {/* Continuous Line Background */}
-                            <div className="absolute left-10 right-10 top-1/2 h-0.5 bg-gray-300 dark:bg-white/20 -z-10"></div>
+                            {/* Background Track Line - Visible in both modes */}
+                            <div className="absolute left-10 top-1/2 h-0.5 w-[calc(100%-5rem)] bg-gray-200 dark:bg-zinc-700 z-0 transform -translate-y-1/2 rounded-full"></div>
 
                             {/* Continuous Progress Line */}
                             <div
-                                className="absolute left-10 top-1/2 h-0.5 bg-emerald-500 dark:bg-emerald-500/50 -z-10 transition-all duration-500 ease-in-out"
+                                className="absolute left-10 top-1/2 h-0.5 bg-emerald-500 dark:bg-emerald-500/50 z-0 transition-all duration-500 ease-in-out transform -translate-y-1/2"
                                 style={{
                                     width: `calc(${['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'].indexOf(currentPhase) / 4 * 100}% - 5rem)`
                                 }}
@@ -1025,8 +1028,8 @@ function ProjectContent() {
                                             ${isActive
                                                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105 ring-1 ring-blue-400' // Current
                                                 : isPast
-                                                    ? 'bg-[var(--card-bg)] text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-pointer hover:bg-[var(--card-border)] opacity-100 shadow-sm' // Past (Done & Clickable)
-                                                    : 'bg-[var(--card-bg)] text-[var(--text-muted)] border border-[var(--glass-border)] cursor-pointer hover:bg-[var(--card-border)] hover:border-blue-500/30 shadow-sm' // Future (Clickable)
+                                                    ? `${theme === 'dark' ? 'bg-slate-800 text-emerald-400' : 'bg-white text-emerald-600'} border border-emerald-500/20 cursor-pointer hover:bg-[var(--card-border)] opacity-100 shadow-sm` // Past
+                                                    : `${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-white text-slate-500'} border border-[var(--glass-border)] cursor-pointer hover:bg-[var(--card-border)] hover:border-blue-500/30 shadow-sm` // Future
                                             }
                                         `}
                                     >
@@ -1460,7 +1463,7 @@ function ProjectContent() {
                                         className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors ${chatInput.trim() ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed'}`}
                                         disabled={!chatInput.trim()}
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                        <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                     </button>
                                 </form>
                             </div>

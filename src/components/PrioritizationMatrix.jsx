@@ -33,10 +33,10 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
     }, [initialPrioritizedIdeas, initialVotes, initialWinningConcept]);
 
     const quadrants = [
-        { id: 'high-low', name: 'Quick Wins', impact: 'high', effort: 'low', color: 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 shadow-none dark:shadow-[0_0_15px_rgba(34,197,94,0.1)]', titleColor: 'text-green-800 dark:text-green-300', emoji: '🎯' },
-        { id: 'high-high', name: 'Major Projects', impact: 'high', effort: 'high', color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 shadow-none dark:shadow-[0_0_15px_rgba(59,130,246,0.1)]', titleColor: 'text-blue-800 dark:text-blue-300', emoji: '🚀' },
-        { id: 'low-low', name: 'Fill-Ins', impact: 'low', effort: 'low', color: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/30 shadow-none dark:shadow-[0_0_15px_rgba(234,179,8,0.1)]', titleColor: 'text-yellow-800 dark:text-yellow-300', emoji: '⚡' },
-        { id: 'low-high', name: 'Thankless Tasks', impact: 'low', effort: 'high', color: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 shadow-none dark:shadow-[0_0_15px_rgba(239,68,68,0.1)]', titleColor: 'text-red-800 dark:text-red-300', emoji: '⚠️' }
+        { id: 'high-low', name: 'Quick Wins', impact: 'high', effort: 'low', color: 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 shadow-none dark:shadow-[0_0_15px_rgba(34,197,94,0.1)]', titleColor: 'text-green-900 dark:text-green-300', emoji: '🎯' },
+        { id: 'high-high', name: 'Major Projects', impact: 'high', effort: 'high', color: 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 shadow-none dark:shadow-[0_0_15px_rgba(59,130,246,0.1)]', titleColor: 'text-blue-900 dark:text-blue-300', emoji: '🚀' },
+        { id: 'low-low', name: 'Fill-Ins', impact: 'low', effort: 'low', color: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-200 dark:border-yellow-500/30 shadow-none dark:shadow-[0_0_15px_rgba(234,179,8,0.1)]', titleColor: 'text-yellow-900 dark:text-yellow-300', emoji: '⚡' },
+        { id: 'low-high', name: 'Thankless Tasks', impact: 'low', effort: 'high', color: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 shadow-none dark:shadow-[0_0_15px_rgba(239,68,68,0.1)]', titleColor: 'text-red-900 dark:text-red-300', emoji: '⚠️' }
     ];
 
     const handleDragStart = (e, idea) => {
@@ -234,7 +234,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[0].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[0].titleColor}`}>{quadrants[0].name}</h3>
-                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
+                                <span className="text-xs bg-[var(--bg-secondary)] text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--border-subtle)]">
                                     {getIdeasInQuadrant(quadrants[0].id).length}
                                 </span>
                             </div>
@@ -283,7 +283,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[1].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[1].titleColor}`}>{quadrants[1].name}</h3>
-                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
+                                <span className="text-xs bg-[var(--bg-secondary)] text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--border-subtle)]">
                                     {getIdeasInQuadrant(quadrants[1].id).length}
                                 </span>
                             </div>
@@ -321,7 +321,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[2].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[2].titleColor}`}>{quadrants[2].name}</h3>
-                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
+                                <span className="text-xs bg-[var(--bg-secondary)] text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--border-subtle)]">
                                     {getIdeasInQuadrant(quadrants[2].id).length}
                                 </span>
                             </div>
@@ -359,7 +359,7 @@ export default function PrioritizationMatrix({ projectId, ideas, currentUser, on
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">{quadrants[3].emoji}</span>
                                 <h3 className={`font-bold ${quadrants[3].titleColor}`}>{quadrants[3].name}</h3>
-                                <span className="text-xs bg-gray-100 dark:bg-white/10 text-[var(--foreground)] px-2 py-1 rounded-full border border-gray-200 dark:border-[var(--glass-border)]">
+                                <span className="text-xs bg-[var(--bg-secondary)] text-[var(--foreground)] px-2 py-1 rounded-full border border-[var(--border-subtle)]">
                                     {getIdeasInQuadrant(quadrants[3].id).length}
                                 </span>
                             </div>

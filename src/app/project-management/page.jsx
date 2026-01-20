@@ -252,7 +252,7 @@ export default function ProjectManagementPage() {
                         )}
                         <button
                             onClick={handleLogout}
-                            className="px-5 py-2.5 rounded-xl bg-white dark:bg-red-500/10 text-red-700 dark:text-red-300 border-2 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/20 hover:border-red-400 transition-all text-sm font-bold shadow-sm hover:shadow-md"
+                            className="px-5 py-2.5 rounded-xl bg-white dark:bg-red-500/10 text-red-900 dark:text-red-300 border-2 border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/20 hover:border-red-400 transition-all text-sm font-bold shadow-sm hover:shadow-md"
                         >
                             Logout
                         </button>
@@ -428,12 +428,12 @@ export default function ProjectManagementPage() {
                                         </div>
                                         {/* Phase Badge */}
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 ${{
-                                            'Empathize': 'bg-white border-purple-200 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/50',
-                                            'Define': 'bg-white border-blue-200 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/50',
-                                            'Ideate': 'bg-white border-yellow-200 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300 dark:border-yellow-500/50',
-                                            'Prototype': 'bg-white border-green-200 text-green-700 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/50',
-                                            'Test': 'bg-white border-indigo-200 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/50'
-                                        }[project.phase] || 'bg-white border-slate-200 text-slate-700 dark:bg-white/5 dark:border-white/10 dark:text-slate-300'
+                                            'Empathize': 'bg-[var(--badge-empathize-bg)] border-[var(--badge-empathize-border)] text-[var(--badge-empathize-text)]',
+                                            'Define': 'bg-[var(--badge-define-bg)] border-[var(--badge-define-border)] text-[var(--badge-define-text)]',
+                                            'Ideate': 'bg-[var(--badge-ideate-bg)] border-[var(--badge-ideate-border)] text-[var(--badge-ideate-text)]',
+                                            'Prototype': 'bg-[var(--badge-prototype-bg)] border-[var(--badge-prototype-border)] text-[var(--badge-prototype-text)]',
+                                            'Test': 'bg-[var(--badge-test-bg)] border-[var(--badge-test-border)] text-[var(--badge-test-text)]'
+                                        }[project.phase] || 'bg-[var(--card-bg)] border-[var(--border-strong)] text-[var(--text-muted)]'
                                             }`}>
                                             {project.phase}
                                         </span>
@@ -512,11 +512,11 @@ export default function ProjectManagementPage() {
                                     onChange={(e) => setProjectPhase(e.target.value)}
                                     className="glass-input w-full px-4 py-3 rounded-xl appearance-none cursor-pointer"
                                 >
-                                    <option value="Empathize" className="bg-slate-800 text-purple-900 dark:text-purple-300">💜 Empathize</option>
-                                    <option value="Define" className="bg-slate-800 text-blue-900 dark:text-blue-300">🎯 Define</option>
-                                    <option value="Ideate" className="bg-slate-800 text-yellow-900 dark:text-yellow-300">💡 Ideate</option>
-                                    <option value="Prototype" className="bg-slate-800 text-green-900 dark:text-green-300">🛠️ Prototype</option>
-                                    <option value="Test" className="bg-slate-800 text-indigo-900 dark:text-indigo-300">🧪 Test</option>
+                                    <option value="Empathize" className="bg-[var(--bg-primary)] text-[var(--badge-empathize-text)] font-medium">💜 Empathize</option>
+                                    <option value="Define" className="bg-[var(--bg-primary)] text-[var(--badge-define-text)] font-medium">🎯 Define</option>
+                                    <option value="Ideate" className="bg-[var(--bg-primary)] text-[var(--badge-ideate-text)] font-medium">💡 Ideate</option>
+                                    <option value="Prototype" className="bg-[var(--bg-primary)] text-[var(--badge-prototype-text)] font-medium">🛠️ Prototype</option>
+                                    <option value="Test" className="bg-[var(--bg-primary)] text-[var(--badge-test-text)] font-medium">🧪 Test</option>
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>

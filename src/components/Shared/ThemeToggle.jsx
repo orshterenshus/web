@@ -5,45 +5,103 @@ import { useTheme } from '../../context/ThemeContext';
 export default function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
 
+    const handleToggle = (e) => {
+        if (!document.startViewTransition) {
+            toggleTheme();
+            return;
+        }
+
+        const x = e.clientX;
+        const y = e.clientY;
+
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        const transition = document.startViewTransition(() => {
+            toggleTheme();
+        });
+
+        transition.ready.then(() => {
+            const clipPath = [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${endRadius}px at ${x}px ${y}px)`,
+            ];
+
+            document.documentElement.animate(
+                {
+                    clipPath: theme === 'dark' ? [...clipPath] : clipPath,
+                },
+                {
+                    duration: 500,
+                    easing: 'ease-in-out',
+                    pseudoElement: '::view-transition-new(root)',
+                }
+            );
+        });
+    };
+
     return (
         <button
-            onClick={toggleTheme}
+            onClick={handleToggle}
             className="fixed bottom-6 left-6 p-3 rounded-full shadow-lg glass-button z-50 text-foreground transition-transform hover:scale-110 active:scale-95"
             aria-label="Toggle Theme"
         >
-            {theme === 'light' ? (
-                // Moon Icon for Dark Mode (shows when currently light)
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
+            {/* Animated Sun/Moon Icon */}
+            <svg
+                className="w-6 h-6 text-foreground"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                {/* Sun Center / Moon Body */}
+                <circle
+                    cx="12"
+                    cy="12"
+                    r={theme === 'light' ? 5 : 9}
+                    fill="currentColor"
+                    mask="url(#theme-toggle-mask)"
+                    className="transition-all duration-500 ease-[cubic-bezier(0,0,0.2,1)]"
+                />
+
+                {/* Sun Rays */}
+                <g
+                    className={`origin-center transition-all duration-500 ease-[cubic-bezier(0,0,0.2,1)] ${theme === 'light' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 rotate-90'
+                        }`}
                     stroke="currentColor"
-                    className="w-6 h-6"
+                    strokeWidth="2"
+                    strokeLinecap="round"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+                    <path d="M12 2V4" />
+                    <path d="M12 20V22" />
+                    <path d="M4.22 4.22L5.64 5.64" />
+                    <path d="M18.36 18.36L19.78 19.78" />
+                    <path d="M1 12H3" />
+                    <path d="M21 12H23" />
+                    <path d="M4.22 19.78L5.64 18.36" />
+                    <path d="M18.36 5.64L19.78 4.22" />
+                </g>
+
+                {/* Mask for Eclipse Effect - Tuned for Half Moon */}
+                <mask id="theme-toggle-mask">
+                    <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                    <circle
+                        cx="24"
+                        cy="10"
+                        r="9"
+                        fill="black"
+                        className="transition-all duration-500 ease-[cubic-bezier(0,0,0.2,1)]"
+                        style={{
+                            transform: theme === 'light'
+                                ? 'translate(8px, -8px) scale(0)'
+                                : 'translate(-7px, 2px) scale(1)', // Moves cx:24 -> 17, cy:10 -> 12. Perfect crescent overlap.
+                            transformBox: 'fill-box',
+                            transformOrigin: 'center'
+                        }}
                     />
-                </svg>
-            ) : (
-                // Sun Icon for Light Mode (shows when currently dark)
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-                    />
-                </svg>
-            )}
+                </mask>
+            </svg>
         </button>
     );
 }

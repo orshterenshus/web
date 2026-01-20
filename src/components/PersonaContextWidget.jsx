@@ -1,97 +1,106 @@
 'use client';
 
 import { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 export default function PersonaContextWidget({ persona }) {
+    const { theme } = useTheme();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     if (!persona) return null;
 
     return (
-        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white shadow-lg border-b-4 border-purple-400 transition-all duration-300">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between py-3">
-                    {!isCollapsed && (
-                        <div className="flex items-center gap-4 flex-1">
-                            {/* Persona Image */}
-                            <div className="relative">
-                                <div className="w-14 h-14 rounded-full border-3 border-white shadow-lg overflow-hidden bg-white">
-                                    {persona.image ? (
-                                        <img
-                                            src={persona.image}
-                                            alt={persona.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xl font-bold">
-                                            {persona.name?.charAt(0) || 'P'}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
-                            </div>
+        <div
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`cursor-pointer shadow-lg border-b-4 transition-all duration-300 group select-none relative z-40
+                ${theme === 'dark'
+                    ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white border-purple-400/30 hover:border-purple-400/50'
+                    : 'bg-white text-slate-800 border-purple-200 hover:border-purple-300 ring-1 ring-slate-200/50'
+                }`}
+        >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div className="flex items-center justify-between">
 
-                            {/* Persona Info */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline gap-2">
-                                    <h3 className="text-lg font-bold truncate">
-                                        {persona.name}
-                                    </h3>
-                                    <span className="text-xs bg-gray-200 dark:bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                    {/* Left Side: Content */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                            <div className={`rounded-full border-2 shadow-sm overflow-hidden transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-12 h-12'}
+                                ${theme === 'dark' ? 'border-white/20 bg-white/10' : 'border-slate-100 bg-slate-50'}
+                            `}>
+                                {persona.image ? (
+                                    <img src={persona.image} alt={persona.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className={`w-full h-full flex items-center justify-center font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>
+                                        {persona.name?.charAt(0) || 'P'}
+                                    </div>
+                                )}
+                            </div>
+                            {!isCollapsed && (
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-indigo-600"></div>
+                            )}
+                        </div>
+
+                        {/* Text Content */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3">
+                                <h3 className={`font-bold transition-all duration-300 ${isCollapsed ? 'text-base' : 'text-lg'} ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                    {persona.name}
+                                </h3>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full
+                                        ${theme === 'dark' ? 'bg-white/20 text-white/90' : 'bg-purple-100 text-purple-700'}
+                                    `}>
                                         Target Persona
                                     </span>
                                 </div>
-                                <p className="text-sm text-purple-100 truncate mt-0.5">
-                                    <span className="font-semibold">Pain Point:</span> {persona.painPoint || 'Not specified'}
-                                </p>
                             </div>
 
-                            {/* Quick Stats */}
-                            {persona.demographics && (
-                                <div className="hidden md:flex items-center gap-4 text-xs">
-                                    {persona.demographics.age && (
-                                        <div className="bg-gray-100 dark:bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                                            <span className="text-purple-200">Age:</span>{' '}
-                                            <span className="font-bold">{persona.demographics.age}</span>
-                                        </div>
-                                    )}
-                                    {persona.demographics.occupation && (
-                                        <div className="bg-gray-100 dark:bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                                            <span className="text-purple-200">Role:</span>{' '}
-                                            <span className="font-bold">{persona.demographics.occupation}</span>
+                            {/* Expanded Details */}
+                            {!isCollapsed ? (
+                                <div className={`flex flex-wrap items-center gap-x-6 gap-y-1 mt-1 text-sm animate-in fade-in slide-in-from-left-2 duration-300
+                                    ${theme === 'dark' ? 'text-blue-100' : 'text-slate-500'}
+                                `}>
+                                    <p className="flex items-center gap-1.5 min-w-0">
+                                        <span className="opacity-60 text-xs uppercase font-bold tracking-wide">Pain Point:</span>
+                                        <span className={`font-medium truncate max-w-[300px] ${theme === 'dark' ? 'text-white' : 'text-slate-700'}`}>{persona.painPoint || 'Not specified'}</span>
+                                    </p>
+
+                                    {persona.demographics && (
+                                        <div className="hidden md:flex items-center gap-4 text-xs opacity-80">
+                                            {persona.demographics.age && (
+                                                <span className="flex items-center gap-1">
+                                                    <span className="opacity-60">Age:</span> {persona.demographics.age}
+                                                </span>
+                                            )}
+                                            {persona.demographics.occupation && (
+                                                <span className="flex items-center gap-1">
+                                                    <span className="opacity-60">Role:</span> {persona.demographics.occupation}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
                                 </div>
+                            ) : (
+                                /* Collapsed Details */
+                                <p className={`text-sm animate-in fade-in slide-in-from-left-2 duration-300 ${theme === 'dark' ? 'text-blue-200/80' : 'text-slate-400'}`}>
+                                    Click to view details
+                                </p>
                             )}
                         </div>
-                    )}
-
-                    {/* Collapse/Expand Button */}
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="ml-4 p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
-                        aria-label={isCollapsed ? 'Expand persona' : 'Collapse persona'}
-                    >
-                        {isCollapsed ? (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                            </svg>
-                        )}
-                    </button>
-                </div>
-
-                {/* Collapsed State */}
-                {isCollapsed && (
-                    <div className="flex items-center justify-center pb-2">
-                        <span className="text-xs text-purple-200">
-                            Designing for: <span className="font-bold text-white">{persona.name}</span>
-                        </span>
                     </div>
-                )}
+
+                    {/* Right Side: Toggle Arrow */}
+                    <div className="ml-4 flex-shrink-0">
+                        <div className={`p-2 rounded-full transition-all duration-300 ${isCollapsed ? 'rotate-180' : 'rotate-0'}
+                            ${theme === 'dark' ? 'bg-white/10 group-hover:bg-white/20' : 'bg-slate-100 group-hover:bg-slate-200'}
+                        `}>
+                            <svg className={`w-5 h-5 ${theme === 'dark' ? 'text-white' : 'text-slate-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

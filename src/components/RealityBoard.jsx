@@ -142,8 +142,8 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
 
     const getSeverityColor = (severity) => {
         switch (severity) {
-            case 'high': return 'border-red-500 bg-red-900/20 text-red-200';
-            case 'medium': return 'border-yellow-500 bg-yellow-900/20 text-yellow-200';
+            case 'high': return 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200';
+            case 'medium': return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200';
             case 'low': return 'border-green-500 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200'; // PASS is now Green
             default: return 'border-slate-500 bg-slate-100 dark:bg-slate-800/50 text-slate-800 dark:text-slate-300';
         }
@@ -222,7 +222,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                                 <span className="text-sm font-medium">{constraint}</span>
                                 <button
                                     onClick={() => removeConstraint('technical', index)}
-                                    className="text-blue-600 dark:text-blue-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                    className="text-slate-950 dark:text-blue-200 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                                 >
                                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -237,7 +237,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                 <div className="space-y-3">
                     <label className="block">
                         <div className="flex items-center gap-2 mb-2">
-                            <svg className="w-5 h-5 text-green-700 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-5 h-5 text-[var(--text-success-strong)]" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                             </svg>
                             <span className="font-bold text-[var(--foreground)]">Business Constraints</span>
@@ -264,7 +264,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                         {constraints.business.map((constraint, index) => (
                             <div
                                 key={index}
-                                className="bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20 px-3 py-1.5 rounded-full flex items-center gap-2 group hover:bg-green-500/20 transition-colors"
+                                className="bg-[var(--bg-success-subtle)] text-[var(--text-success-strong)] border border-[var(--border-success-subtle)] px-3 py-1.5 rounded-full flex items-center gap-2 group hover:opacity-80 transition-colors"
                             >
                                 <span className="text-sm font-medium">{constraint}</span>
                                 <button
@@ -372,7 +372,7 @@ export default function RealityBoard({ projectId, pov, currentUser, initialConst
                         </button>
 
                         {isSaved && (
-                            <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-medium bg-green-100 dark:bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-300 dark:border-green-500/20">
+                            <div className="flex items-center gap-2 text-[var(--text-success-strong)] font-medium bg-[var(--bg-success-subtle)] px-3 py-1.5 rounded-lg border border-[var(--border-success-subtle)]">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>

@@ -248,7 +248,7 @@ function ProjectContent() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
-                            <div className="flex-shrink-0 flex items-center font-bold text-blue-600 text-xl cursor-pointer" onClick={() => router.push('/project-management')}>
+                            <div className="flex-shrink-0 flex items-center font-bold text-slate-950 text-xl cursor-pointer" onClick={() => router.push('/project-management')}>
                                 DesignBot
                             </div>
                             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

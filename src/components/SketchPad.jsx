@@ -62,6 +62,78 @@ const SketchPad = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []); // Run once on mount, but we also need to update context when color/size change
 
+  // Handle Theme Change & Color Inversion
+  useEffect(() => {
+    const handleThemeInversion = (isDark) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // 1. Get current pixels
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+
+      // 2. Invert Black <-> White
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        // Skip transparent pixels
+        if (a === 0) continue;
+
+        // Check for Black (or very dark) -> Change to White
+        if (r < 50 && g < 50 && b < 50) {
+          data[i] = 255;     // R
+          data[i + 1] = 255; // G
+          data[i + 2] = 255; // B
+        }
+        // Check for White (or very bright) -> Change to Black
+        else if (r > 200 && g > 200 && b > 200) {
+          data[i] = 0;       // R
+          data[i + 1] = 0;   // G
+          data[i + 2] = 0;   // B
+        }
+        // Other colors remain unchanged
+      }
+
+      // 3. Put back inverted pixels
+      ctx.putImageData(imageData, 0, 0);
+
+      // 4. Update Brush Color preference
+      // If we switched to Dark, we probably want White pen.
+      // If we switched to Light, we probably want Black pen.
+      setColor(prevColor => {
+        if (isDark && (prevColor === '#000000' || prevColor === '#020617')) return '#ffffff';
+        if (!isDark && (prevColor === '#ffffff')) return '#000000';
+        return prevColor; // Keep other colors (red, blue, etc.)
+      });
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
+          const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+          handleThemeInversion(isDark);
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    // Run once on mount to align with initial state if needed? 
+    // Actually no, we only want to invert ON CHANGE. Initial state should be handled by default props or user.
+
+    return () => observer.disconnect();
+  }, [tool]); // Re-run if tool changes? No. The logic is independent of tool. Empty dependency or minimal.
+
   // Update context context when state changes
   useEffect(() => {
     const canvas = canvasRef.current;

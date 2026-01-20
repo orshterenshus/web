@@ -244,16 +244,16 @@ export default function AISpark({ projectId, pov, currentUser, onIdeaGenerated }
                 )}
 
                 {/* Info Box */}
-                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 backdrop-blur-sm">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-lg p-4 backdrop-blur-sm">
                     <div className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                         </svg>
                         <div className="flex-1">
-                            <p className="text-blue-200 font-medium text-sm">
+                            <p className="text-blue-700 dark:text-blue-200 font-medium text-sm">
                                 How AI Spark Works
                             </p>
-                            <p className="text-blue-400 text-xs mt-1 leading-relaxed">
+                            <p className="text-blue-600 dark:text-blue-400 text-xs mt-1 leading-relaxed">
                                 AI analyzes your POV statement and uses lateral thinking techniques to generate creative ideas.
                                 Each technique approaches the problem from a different angle to help you discover unexpected solutions.
                             </p>

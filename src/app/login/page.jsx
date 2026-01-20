@@ -144,7 +144,7 @@ export default function LoginPage() {
                         </div>
                     )}
                     {success && (
-                        <div className="mt-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-200 text-sm text-center animate-fadeIn">
+                        <div className="mt-6 p-4 rounded-xl bg-[var(--bg-success-subtle)] border border-[var(--border-success-subtle)] text-[var(--text-success-strong)] text-sm text-center animate-fadeIn">
                             {success}
                         </div>
                     )}
