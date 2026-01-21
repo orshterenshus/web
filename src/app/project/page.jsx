@@ -161,8 +161,7 @@ function ProjectContent() {
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
     // Confirmation modal state
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [pendingPhase, setPendingPhase] = useState(null);
+    const [confirmationModal, setConfirmationModal] = useState({ isOpen: false, targetPhase: null });
 
     // Error/Info modal state
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -589,15 +588,15 @@ function ProjectContent() {
         } */
 
         // Show confirmation modal for the next phase
-        setPendingPhase(formattedPhase);
-        setShowConfirmModal(true);
+        setConfirmationModal({ isOpen: true, targetPhase: formattedPhase });
     };
 
     const confirmPhaseChange = async () => {
-        if (!pendingPhase) return;
+        const targetPhase = confirmationModal.targetPhase;
+        if (!targetPhase) return;
 
-        setCurrentPhase(pendingPhase);
-        setShowConfirmModal(false);
+        setCurrentPhase(targetPhase);
+        setConfirmationModal({ isOpen: false, targetPhase: null });
 
         // Save phase to database
         if (projectId) {
@@ -610,7 +609,7 @@ function ProjectContent() {
                     await fetch(`/api/projects/${projectId}?user=${encodeURIComponent(username)}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phase: pendingPhase })
+                        body: JSON.stringify({ phase: targetPhase })
                     });
                 }
             } catch (error) {
@@ -620,18 +619,16 @@ function ProjectContent() {
 
         const phaseMessage = {
             sender: 'Bot',
-            text: getPhaseChangeMessage(pendingPhase),
-            phase: pendingPhase,
+            text: getPhaseChangeMessage(targetPhase),
+            phase: targetPhase,
             timestamp: new Date(),
         };
         setMessages(prev => [...prev, phaseMessage]);
         await saveMessageToDb(phaseMessage);
-        setPendingPhase(null);
     };
 
     const cancelPhaseChange = () => {
-        setShowConfirmModal(false);
-        setPendingPhase(null);
+        setConfirmationModal({ isOpen: false, targetPhase: null });
     };
 
 
@@ -828,7 +825,7 @@ function ProjectContent() {
             {/* Modal Layer */}
             <div className="relative z-50">
                 {/* Phase Change Confirmation Modal */}
-                {showConfirmModal && (() => {
+                {confirmationModal.isOpen && (() => {
                     const uncheckedItems = getUncheckedItems(currentPhase, stageData);
                     const hasUnchecked = uncheckedItems.length > 0;
 
@@ -841,7 +838,7 @@ function ProjectContent() {
                                         <span className="text-3xl">{hasUnchecked ? '⚠️' : '🚀'}</span>
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Move to {pendingPhase}?</h3>
+                                <h3 className="text-xl font-bold text-center text-[var(--foreground)] mb-2">Move to {confirmationModal.targetPhase}?</h3>
                                 <p className="text-[var(--text-muted)] text-center mb-6">
                                     {hasUnchecked ? (
                                         <>You have <strong className="!text-orange-900">{uncheckedItems.length} unchecked tasks</strong> in {currentPhase}.</>

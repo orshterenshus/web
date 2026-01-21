@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
-export default function POVBuilder({ onPOVComplete, initialData, currentProject }) {
+export default function POVBuilder({ onPOVComplete, initialData, projectId, currentUser, availablePersonas, onPersonaSelect, persona }) {
     const { theme } = useTheme();
     const [step, setStep] = useState(1);
     const [pov, setPov] = useState({
@@ -37,7 +37,7 @@ export default function POVBuilder({ onPOVComplete, initialData, currentProject 
     const povCache = useRef({});
 
     const isComplete = pov.personaName && pov.userNeed && pov.insight;
-    const currentPersona = props.availablePersonas?.find(p => p.name === pov.personaName);
+    const currentPersona = availablePersonas?.find(p => p.name === pov.personaName);
 
     const generateHMWQuestions = async () => {
         if (!isComplete) {
@@ -131,8 +131,8 @@ export default function POVBuilder({ onPOVComplete, initialData, currentProject 
         setPov(prev => ({ ...prev, personaName: p.name }));
 
         // Update Parent State (Sync Widget)
-        if (props.onPersonaSelect) {
-            props.onPersonaSelect(p);
+        if (onPersonaSelect) {
+            onPersonaSelect(p);
         }
 
         // Check Cache first
@@ -250,7 +250,7 @@ export default function POVBuilder({ onPOVComplete, initialData, currentProject 
                             {isDropdownOpen && (
                                 <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--popover-bg)] border border-[var(--border-strong)] rounded-xl shadow-xl z-50 max-h-72 overflow-y-auto custom-scrollbar ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-200">
                                     <div className="p-1">
-                                        {props.availablePersonas?.map((p, i) => (
+                                        {availablePersonas?.map((p, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => handleSelectPersona(p)}
@@ -265,7 +265,7 @@ export default function POVBuilder({ onPOVComplete, initialData, currentProject 
                                                 </div>
                                             </button>
                                         ))}
-                                        {(!props.availablePersonas || props.availablePersonas.length === 0) && (
+                                        {(!availablePersonas || availablePersonas.length === 0) && (
                                             <div className="px-4 py-8 text-center text-sm text-[var(--text-muted)]">
                                                 No personas found. Create one in the Empathize phase.
                                             </div>
@@ -275,7 +275,7 @@ export default function POVBuilder({ onPOVComplete, initialData, currentProject 
                                             onClick={() => {
                                                 setPov(prev => ({ ...prev, personaName: '', userNeed: '', insight: '' }));
                                                 setIsDropdownOpen(false);
-                                                if (props.onPersonaSelect) props.onPersonaSelect(null);
+                                                if (onPersonaSelect) onPersonaSelect(null);
                                             }}
                                             className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-[var(--bg-tertiary)] transition-colors"
                                         >
